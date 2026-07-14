@@ -1,5 +1,13 @@
 # QA Lab
 
+## Phase 9 Model Arena + Synthetic Student Cohorts
+
+Model Arena và cohorts được triển khai provider-free trong `src/model-arena.ts` và `src/synthetic-cohorts.ts`. Arena dùng config/version/hash vendor-neutral, cùng scenario/cohort/seed/rubric/build/evidence version, ít nhất hai scripted brain configurations với evaluator độc lập, hard-blocker exclusion, deterministic ranking/tie, reliability, consistency variance, và latency/cost provenance `observed`/`estimated`/`unknown`. Đây là internal fixture evidence, không phải marketing benchmark.
+
+Golden cohort gồm ba persona cố định; exploratory cohort sinh sáu persona từ seed, bounded, PII-free, có đủ ability/misconception/behavior/communication/environment/learning psychology. `toStudentPersona` và `selectCohortPersonas` tích hợp contract Student QA mà không gọi provider. Chạy `npm.cmd run qa:arena:fixture`; evidence gồm `arena.json`, `report.md`, và `cohort-manifest.json` dưới ignored `runs/phase9-arena-cohort-fixture-evidence/`.
+
+Phase 10 Safety Lab/optimizer, provider thật, staging/production và dashboard không nằm trong phạm vi này.
+
 ## Phase 7 Education/UX Evaluation
 
 Deterministic-first Education Eval is implemented in `src/education-eval.ts` with versioned input/result contracts, evidence/confidence/limitations, hard-blocker precedence, response/turn/whiteboard metrics, and `PASS` / `PASS_WITH_RISKS` / `FAIL` / `BLOCKED` / `NEEDS_REVIEW` policy. The first rubric is `rubrics/fractions-compare-unlike-denominators.yaml`. `UxEvaluator` is vendor-neutral, but only a scripted mock exists: no provider, key, or external model call. Scores are **NON_AUTHORITATIVE**, human calibration remains marked, and unknown product/model/prompt versions remain null rather than invented. Run `npm.cmd run qa:evaluation:fixture` for integrated Student artifact evidence.
@@ -46,6 +54,7 @@ npm.cmd run qa:web:fixture
 npm.cmd run qa:student:fixture
 npm.cmd run qa:recording:fixture
 npm.cmd run qa:voice:fixture
+npm.cmd run qa:arena:fixture
 npm.cmd run lint
 npm.cmd test
 npm.cmd run build

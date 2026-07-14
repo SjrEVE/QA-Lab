@@ -8,6 +8,8 @@ export { CONFIG_VERSION, loadConfig, qaConfigSchema } from './config.js';
 export type { LoadConfigOptions, QaConfig } from './config.js';
 export { runDoctor } from './doctor.js';
 export type { CheckStatus, DoctorCheck, DoctorReport } from './doctor.js';
+export { ARENA_CONFIG_VERSION, ARENA_REPORT_VERSION, arenaConfigSchema, arenaObservationSchema, configurationHash, evaluateArena, loadArenaConfig, measuredValueSchema, writeArenaReport } from './model-arena.js';
+export type { ArenaConfig, ArenaObservation, Measurement } from './model-arena.js';
 export { createLogger } from './logger.js';
 export type { LogLevel, LogSink, StructuredLogger } from './logger.js';
 export { REDACTED, redactSecrets } from './redaction.js';
@@ -20,6 +22,8 @@ export { ScriptedStudentBrain, assertBoundedBrainContext, studentActionSchema } 
 export type { BrainTurn, StudentAction, StudentBrain, StudentBrainContext, StudentBrainDecision } from './student-brain.js';
 export { PERSONA_SCHEMA_VERSION, STUDENT_SCENARIO_VERSION, findStudentPersona, findStudentScenario, listStudentPersonas, listStudentScenarios, loadStudentPersona, loadStudentScenario, studentPersonaSchema, studentScenarioSchema } from './student-contracts.js';
 export type { StudentPersona, StudentScenario } from './student-contracts.js';
+export { COHORT_SCHEMA_VERSION, assertBaselineEligible, cohortConfigSchema, cohortManifest, cohortPersonaSchema, generateCohort, loadCohortConfig, selectCohortPersonas, toStudentPersona } from './synthetic-cohorts.js';
+export type { CohortConfig, CohortPersona } from './synthetic-cohorts.js';
 export { ManualResetAdapter, StubResetAdapter, runStudentQa } from './student-qa.js';
 export type { ResetAdapter, StudentQaOptions, StudentQaResult } from './student-qa.js';
 export { VoiceBridge } from './voice-bridge.js';

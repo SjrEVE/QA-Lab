@@ -1,0 +1,5 @@
+schemaVersion: 1
+id: fractions-exploratory
+kind: exploratory
+seed: 98765
+maxPersonas: 6

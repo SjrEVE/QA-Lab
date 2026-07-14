@@ -1,0 +1,33 @@
+schemaVersion: 1
+id: fractions-fixture-arena
+seed: 424242
+repeats: 3
+scenarioId: weak-fractions-lesson
+personaCohortId: fractions-golden
+personaCohortVersion: 1
+rubricId: fractions.compare.unlike-denominators
+rubricVersion: 1
+buildId: local-fixture-v1
+configurations:
+  - id: scripted-baseline
+    brain:
+      name: scripted-baseline
+      version: 1.0.0
+      configuration:
+        policy: fixed
+    evaluator:
+      name: scripted-independent-evaluator
+      version: 1.0.0
+      configuration:
+        rubricMode: strict
+  - id: scripted-adaptive
+    brain:
+      name: scripted-adaptive
+      version: 1.0.0
+      configuration:
+        policy: misconception-adaptive
+    evaluator:
+      name: scripted-independent-evaluator
+      version: 1.0.0
+      configuration:
+        rubricMode: strict

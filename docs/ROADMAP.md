@@ -40,15 +40,15 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Versioned unified event timeline with redaction and monotonic validation; provider-free same-session/transcript-action replay; artifact-root baseline selection; issue fingerprint/lifecycle comparison; observed/estimated metric deltas; anonymized incident packaging; JSON/Markdown reports and local baseline/candidate/replay evidence.
    - Web QA emits the unified timeline. Existing Student tutor/student/whiteboard JSONL remains supported as source evidence without changing its protected browser/voice behavior. Missing/corrupt/version-mismatched replay inputs fail closed.
 
-9. **Model Arena — Phase 9A — Planned**
-   - Controlled comparison of model/prompt/policy configurations on identical scenarios, personas, seeds, rubrics, build, and observability contracts.
+9. **Model Arena — Phase 9A — Implemented; deterministic fixture validated**
+   - Versioned vendor-neutral configuration and reports compare at least two deterministic brain configurations with independent evaluator identity, fixed seed, hashes, quality/reliability/variance, provenance-aware latency/cost, blocker exclusion, comparability gate, deterministic tie policy, JSON/Markdown artifacts, and CLI fixture.
 
-10. **Cohorts — Phase 9B — Planned**
-    - Fixed golden cohort for regression and seeded exploratory cohort for discovery, with controlled dimensions and coverage accounting.
+10. **Cohorts — Phase 9B — Implemented; deterministic fixture validated**
+    - Versioned fixed golden and seeded exploratory cohorts cover six controlled dimensions, remain bounded and PII-free, reproduce from identical seed/config, vary across exploratory seeds, and adapt to Student QA contracts with zero provider calls.
 
 11. **Safety / Optimizer — Phase 10 — Planned**
     - Child safety, PII, prompt injection, boundary/escalation and tool-safety suites; then cost–quality–latency measurement and constrained routing optimization.
 
 ## Current execution gate
 
-Phase 8 Replay/Regression is implemented with deterministic local fixture evidence and zero provider calls. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Model Arena, cohorts, real evaluator/provider, dashboard, staging/production execution, auto-fix, and later phases remain out of scope.
+Phase 9 Model Arena/cohorts is implemented with deterministic local fixture evidence and zero provider calls. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Real evaluator/provider, Safety Lab, optimizer, dashboard, staging/production execution, and auto-fix remain out of scope.

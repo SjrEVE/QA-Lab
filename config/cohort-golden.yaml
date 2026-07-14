@@ -1,0 +1,24 @@
+schemaVersion: 1
+id: fractions-golden
+kind: golden
+seed: 424242
+maxPersonas: 3
+personas:
+  - schemaVersion: 1
+    id: golden-foundation-hesitant
+    grade: 4
+    locale: vi-VN
+    synthetic: true
+    dimensions: { ability: foundation-lost, misconception: numerator-denominator, behavior: discouraged, communication: hesitant, environment: quiet, learningPsychology: low-confidence }
+  - schemaVersion: 1
+    id: golden-average-distracted
+    grade: 4
+    locale: vi-VN
+    synthetic: true
+    dimensions: { ability: average, misconception: pattern-guessing, behavior: off-topic, communication: age-appropriate, environment: background-noise, learningPsychology: distracted }
+  - schemaVersion: 1
+    id: golden-fast-careless
+    grade: 4
+    locale: vi-VN
+    synthetic: true
+    dimensions: { ability: fast-careless, misconception: rule-without-understanding, behavior: answers-too-fast, communication: fragmented, environment: unstable-network, learningPsychology: praise-responsive }

@@ -2,10 +2,10 @@
 
 ## Current state
 
-- Current phase: **Phase 8 — Replay & Regression Engine**.
+- Current phase: **Phase 9 — Model Arena + Synthetic Student Cohorts**.
 - Phase 0–3 foundation/browser/Web QA: **implemented and locally validated**.
 - Phase 4 deterministic Student text QA: **implemented and locally fixture-validated**.
-- Readiness label: `REPLAY_REGRESSION_FIXTURE_READY`.
+- Readiness label: `MODEL_ARENA_COHORT_FIXTURE_READY`.
 - Phase 5 recording: **implemented with fixture-validated screenshot fallback**; dedicated video fixture is `BLOCKED` on this Windows host because FFmpeg is unavailable, so no `session.mp4` is claimed.
 - Real staging acceptance: **BLOCKED** pending approved exact host, dedicated test account, and working reset integration.
 
@@ -71,4 +71,16 @@
 - Incident packaging requires `anonymized: true`, recursively redacts secrets, rejects raw child identity/audio/image/transcript fields, and never stores raw child data.
 - Web QA now writes the unified timeline. Existing Student tutor/student/whiteboard timelines remain unchanged and usable as normalization sources; protected browser, voice, recording, and education-eval behavior is preserved.
 - Fixture evidence is generated under ignored `runs/phase8-regression-fixture-evidence/` with baseline, candidate, comparison, and replay digest evidence.
-- No code auto-fix, provider call, staging/production access, dashboard, Model Arena, or synthetic cohort behavior is implemented.
+- No code auto-fix, provider call, staging/production access, or dashboard behavior is implemented.
+
+## Phase 9 Model Arena and cohort evidence
+
+- Strict versioned arena config/observation/report contracts capture vendor-neutral brain/evaluator identities and stable configuration hashes.
+- Fixture compares scripted baseline and scripted adaptive configurations on identical scenario, fixed Golden cohort, seed, rubric, build, and evidence version. The evaluator identity is independent from each brain; no model is its sole self-judge.
+- Ranking is deterministic by quality, reliability, consistency variance, then stable ID. Entries with hard blockers are excluded; incompatible seed/evidence version prevents all ranking; exact ties share rank.
+- Latency and cost carry `observed`/`estimated`/`unknown` provenance. Unknown cost remains null and is never interpreted as zero. Reports explicitly reject marketing benchmark claims.
+- Versioned Golden cohort has three fixed personas. Seeded Exploratory cohort has six bounded PII-free personas spanning ability, misconception, behavior, communication, environment, and learning psychology.
+- Same exploratory seed/config reproduces exactly; changed seed changes combinations. Cohort manifests record seed and configuration hash before baseline use.
+- `selectCohortPersonas` and `toStudentPersona` integrate cohort selection with existing Student QA contracts without provider calls or protected browser/voice changes.
+- `qa:arena` writes `arena.json` and `report.md`; `qa:arena:fixture` additionally writes `cohort-manifest.json` under ignored `runs/phase9-arena-cohort-fixture-evidence/`.
+- Phase 10 Safety Lab/optimizer, real providers, staging/production, dashboard, and large persona datasets are explicitly not implemented.

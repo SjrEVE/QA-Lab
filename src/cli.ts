@@ -1,7 +1,9 @@
 #!/usr/bin/env node
+import path from 'node:path';
 import { loadConfig } from './config.js';
 import { runDoctor } from './doctor.js';
 import { compareRuns } from './regression.js';
+import { arenaObservationSchema, evaluateArena, loadArenaConfig, writeArenaReport } from './model-arena.js';
 import { replayModeSchema, replayRun } from './replay-engine.js';
 import { createRunId } from './run-store.js';
 import { ScriptedStudentBrain } from './student-brain.js';
@@ -21,13 +23,13 @@ async function main(args: readonly string[]): Promise<number> {
     const config = await loadConfig();
     print({
       service: 'qa-lab',
-      phase: 8,
-      readiness: 'REPLAY_REGRESSION_FIXTURE_READY',
+      phase: 9,
+      readiness: 'MODEL_ARENA_COHORT_FIXTURE_READY',
       environment: config.environment,
       configVersion: config.version,
       allowedStagingHosts: config.staging.allowedHosts,
       artifactRoot: config.artifacts.root,
-      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: false, cohorts: false, dashboard: false, deploy: false },
+      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: true, cohorts: true, providerArenaCalls: false, safetyLab: false, optimizer: false, dashboard: false, deploy: false },
     });
     return 0;
   }
@@ -54,6 +56,12 @@ async function main(args: readonly string[]): Promise<number> {
     print(result);
     return result.status === 'PASSED' ? 0 : 1;
   }
+  if (command === 'arena') {
+    const configIndex=args.indexOf('--config'); const observationsIndex=args.indexOf('--observations'); const outputIndex=args.indexOf('--output');
+    const configPath=configIndex>=0?args[configIndex+1]:undefined; const observationsPath=observationsIndex>=0?args[observationsIndex+1]:undefined; const output=outputIndex>=0?args[outputIndex+1]:undefined;
+    if(!configPath||!observationsPath||!output) throw new Error('qa:arena requires --config <yaml> --observations <json> --output <directory>.');
+    const { readFile }=await import('node:fs/promises'); const observations=arenaObservationSchema.array().parse(JSON.parse(await readFile(observationsPath,'utf8')) as unknown); const report=evaluateArena(await loadArenaConfig(configPath),observations); await writeArenaReport(path.resolve(output),report); print(report); return 0;
+  }
   if (command === 'compare') {
     const baselineIndex = args.indexOf('--baseline'); const candidateIndex = args.indexOf('--candidate');
     const baseline = baselineIndex >= 0 ? args[baselineIndex + 1] : undefined; const candidate = candidateIndex >= 0 ? args[candidateIndex + 1] : undefined;
@@ -66,7 +74,7 @@ async function main(args: readonly string[]): Promise<number> {
     const mode = replayModeSchema.parse(modeIndex >= 0 ? args[modeIndex + 1] : 'same-session-fixture');
     const config = await loadConfig(); print(await replayRun(config.artifacts.root, run, mode)); return 0;
   }
-  process.stderr.write('Usage: qa-lab <status|doctor|list|run --scenario <id>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
+  process.stderr.write('Usage: qa-lab <status|doctor|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
   return 2;
 }
 

@@ -24,6 +24,8 @@
     "qa:evaluation:fixture": "tsx scripts/student-fixture-e2e.ts --fixture-mode",
     "qa:regression:fixture": "tsx scripts/regression-fixture-e2e.ts --fixture-mode",
     "qa:replay:fixture": "tsx scripts/regression-fixture-e2e.ts --fixture-mode",
+    "qa:arena:fixture": "tsx scripts/arena-fixture-e2e.ts --fixture-mode",
+    "qa:arena": "tsx src/cli.ts arena",
     "qa:compare": "tsx src/cli.ts compare",
     "qa:replay": "tsx src/cli.ts replay",
     "qa:list": "tsx src/cli.ts list",
