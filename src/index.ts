@@ -28,6 +28,8 @@ export type { SafetyAction, SafetyScenario } from './safety-lab.js';
 export { assertAllowedStagingUrl, TargetDeniedError } from './security.js';
 export { assertPrivatePath, loadStagingProfile, PRIVATE_ROOT, resolvePrivatePath, STAGING_PROFILE_VERSION, stagingProfileSchema } from './staging-profile.js';
 export type { LoadStagingProfileOptions, StagingProfile } from './staging-profile.js';
+export { loadStagingResetConfig, runConfiguredStagingReset, stagingResetConfigSchema, StrictStagingResetAdapter } from './staging-reset.js';
+export type { ConfiguredStagingResetOptions, ResetHttpClient, StagingResetAdapterOptions, StagingResetConfig, StagingResetRequest, StagingResetResult } from './staging-reset.js';
 export { ScriptedStudentBrain, assertBoundedBrainContext, studentActionSchema } from './student-brain.js';
 export type { BrainTurn, StudentAction, StudentBrain, StudentBrainContext, StudentBrainDecision } from './student-brain.js';
 export { PERSONA_SCHEMA_VERSION, STUDENT_SCENARIO_VERSION, findStudentPersona, findStudentScenario, listStudentPersonas, listStudentScenarios, loadStudentPersona, loadStudentScenario, studentPersonaSchema, studentScenarioSchema } from './student-contracts.js';

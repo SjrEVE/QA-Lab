@@ -22,7 +22,7 @@ For authenticated staging expansion, status is reported with four independent bo
 | Verified Firebase auth bootstrap | true | true | false | false | Headed manual login uses a dedicated persistent Chromium profile, hashes account identity, and must prove the session in a fresh browser process; no staging account has been supplied or validated. |
 | Local Control Center | true | true | false | false | Loopback-only UI uses a random token, exact Host/Origin checks, fixed action allowlist, bounded bodies, and non-active HTML artifact delivery; no authenticated staging action has passed. |
 | Authenticated dashboard/catalog | false | false | false | false | Not implemented or run. |
-| Strict reset contract | false | false | false | false | Not implemented or run. |
+| Strict reset contract | true | true | false | false | Manual confirmation is literal-only; HTTP reset is exact-host HTTPS, token-from-env, idempotent, bounded, and strict about account hash/scope/version/timestamp. No private reset contract or staging reset evidence has been supplied. |
 | Scripted authenticated lesson journey | false | false | false | false | Not implemented or run. |
 
 ## Foundation Phase 0–1 audit

@@ -8,6 +8,7 @@ import { compareRuns } from './regression.js';
 import { arenaObservationSchema, evaluateArena, loadArenaConfig, writeArenaReport } from './model-arena.js';
 import { replayModeSchema, replayRun } from './replay-engine.js';
 import { createRunId } from './run-store.js';
+import { runConfiguredStagingReset } from './staging-reset.js';
 import { ScriptedStudentBrain } from './student-brain.js';
 import { findStudentPersona, listStudentScenarios } from './student-contracts.js';
 import { runStudentQa, StubResetAdapter } from './student-qa.js';
@@ -38,7 +39,7 @@ async function main(args: readonly string[]): Promise<number> {
         verifiedAuthBootstrap: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         localControlCenter: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         authenticatedDashboardCatalog: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
-        strictReset: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
+        strictReset: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         scriptedLessonJourney: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
       },
       capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: true, cohorts: true, providerArenaCalls: false, safetyLab: true, scriptedSafetyOnly: true, optimizer: true, optimizerProposalOnly: true, providerConfigMutation: false, dashboard: false, deploy: false },
@@ -61,6 +62,14 @@ async function main(args: readonly string[]): Promise<number> {
     print({ service: 'TutorProof Control Center', url: server.url, note: 'Open this loopback URL. Ctrl+C stops the server.' });
     await new Promise<void>(() => undefined);
     return 0;
+  }
+  if (command === 'reset') {
+    const scopeIndex = args.indexOf('--scope');
+    const scope = scopeIndex >= 0 ? args[scopeIndex + 1] : undefined;
+    if (!scope) throw new Error('qa:reset requires --scope <scenario-id>.');
+    const result = await runConfiguredStagingReset(scope);
+    print(result);
+    return result.status === 'READY' ? 0 : 1;
   }
   if (command === 'list') {
     const [web, student] = await Promise.all([listWebScenarios(), listStudentScenarios()]);
@@ -98,7 +107,7 @@ async function main(args: readonly string[]): Promise<number> {
     const mode = replayModeSchema.parse(modeIndex >= 0 ? args[modeIndex + 1] : 'same-session-fixture');
     const config = await loadConfig(); print(await replayRun(config.artifacts.root, run, mode)); return 0;
   }
-  process.stderr.write('Usage: qa-lab <status|doctor|auth|serve|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
+  process.stderr.write('Usage: qa-lab <status|doctor|auth|serve|reset --scope <scenario-id>|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
   return 2;
 }
 
