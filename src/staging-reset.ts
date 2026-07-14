@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
+import { loadAuthVerification } from './auth-bootstrap.js';
 import { loadConfig, type QaConfig } from './config.js';
 import { assertAllowedStagingUrl } from './security.js';
 import { assertPrivatePath, loadStagingProfile, type StagingProfile } from './staging-profile.js';
@@ -32,14 +33,6 @@ const httpResetConfigSchema = z.object({
 
 export const stagingResetConfigSchema = z.discriminatedUnion('mode', [manualResetConfigSchema, httpResetConfigSchema]);
 export type StagingResetConfig = z.infer<typeof stagingResetConfigSchema>;
-
-const authVerificationSchema = z.object({
-  schemaVersion: z.literal(1),
-  profileId: z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/),
-  identityHash: identityHashSchema,
-  verifiedAt: z.string().datetime({ offset: true }),
-  verifiedInFreshBrowser: z.literal(true),
-}).strict();
 
 const resetResponseSchema = z.object({
   ok: z.literal(true),
@@ -220,8 +213,7 @@ export async function runConfiguredStagingReset(
     });
     const profile = await loadStagingProfile({ config, cwd, env });
     const resetConfig = await loadStagingResetConfig(cwd, profile);
-    const verificationPath = await assertPrivatePath(cwd, profile.privatePaths.authStatePath);
-    const verification = authVerificationSchema.parse(JSON.parse(await readFile(verificationPath, 'utf8')) as unknown);
+    const verification = await loadAuthVerification(cwd, profile);
     if (verification.profileId !== profile.id || verification.identityHash !== resetConfig.expectedAccountIdentityHash) {
       return blocked('Reset config does not match the verified staging profile identity.');
     }

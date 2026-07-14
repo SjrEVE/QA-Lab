@@ -4,13 +4,14 @@ import { lstat, realpath } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import path from 'node:path';
 import { z } from 'zod';
+import { runConfiguredAuthenticatedCatalogQa } from './authenticated-catalog-qa.js';
 import { runConfiguredAuthBootstrap } from './auth-bootstrap.js';
 import { redactSecrets } from './redaction.js';
 
 const LOOPBACK_HOST = '127.0.0.1';
 const DEFAULT_PORT = 4317;
 const MAX_BODY_BYTES = 8 * 1024;
-const actionSchema = z.object({ action: z.literal('bootstrap-auth') }).strict();
+const actionSchema = z.object({ action: z.enum(['bootstrap-auth', 'run-authenticated-catalog']) }).strict();
 export type ControlAction = z.infer<typeof actionSchema>['action'];
 
 export interface ControlCenterOptions {
@@ -51,8 +52,8 @@ function controlPage(controlToken: string): string {
 <title>TutorProof Control Center</title>
 <style>body{font:16px system-ui;max-width:760px;margin:40px auto;padding:0 20px;color:#172033}main{border:1px solid #d9dfeb;border-radius:16px;padding:24px;box-shadow:0 8px 28px #17203312}button{font:inherit;font-weight:650;padding:12px 18px;border:0;border-radius:10px;background:#2057c8;color:white;cursor:pointer}button:disabled{opacity:.6}pre{white-space:pre-wrap;background:#f5f7fb;padding:16px;border-radius:10px;min-height:72px}</style></head>
 <body><main><h1>TutorProof</h1><p>Trung tâm kiểm thử staging chạy cục bộ. Không có quyền production hoặc deploy.</p>
-<button id="auth" type="button">Xác minh tài khoản staging</button><pre id="result" aria-live="polite">Sẵn sàng.</pre></main>
-<script>const token=${JSON.stringify(controlToken)};const button=document.getElementById('auth');const result=document.getElementById('result');button.addEventListener('click',async()=>{button.disabled=true;result.textContent='Đang mở trình duyệt xác minh...';try{const response=await fetch('/api/actions',{method:'POST',headers:{'content-type':'application/json','x-tutorproof-token':token},body:JSON.stringify({action:'bootstrap-auth'})});const data=await response.json();result.textContent=JSON.stringify(data,null,2)}catch{result.textContent='Không thể chạy action.'}finally{button.disabled=false}});</script></body></html>`;
+<button id="auth" type="button">Xác minh tài khoản staging</button> <button id="catalog" type="button">Kiểm tra dashboard và catalog</button><pre id="result" aria-live="polite">Sẵn sàng.</pre></main>
+<script>const token=${JSON.stringify(controlToken)};const result=document.getElementById('result');async function run(button,action,label){button.disabled=true;result.textContent=label;try{const response=await fetch('/api/actions',{method:'POST',headers:{'content-type':'application/json','x-tutorproof-token':token},body:JSON.stringify({action})});const data=await response.json();result.textContent=JSON.stringify(data,null,2)}catch{result.textContent='Không thể chạy action.'}finally{button.disabled=false}}document.getElementById('auth').addEventListener('click',event=>run(event.currentTarget,'bootstrap-auth','Đang mở trình duyệt xác minh...'));document.getElementById('catalog').addEventListener('click',event=>run(event.currentTarget,'run-authenticated-catalog','Đang kiểm tra dashboard và catalog...'));</script></body></html>`;
 }
 
 async function readJsonBody(request: IncomingMessage): Promise<unknown> {
@@ -143,6 +144,7 @@ export async function startControlCenter(options: ControlCenterOptions = {}): Pr
   const nonce = randomBytes(18).toString('base64url');
   const handlers: Record<ControlAction, () => Promise<unknown>> = {
     'bootstrap-auth': options.actionHandlers?.['bootstrap-auth'] ?? (() => runConfiguredAuthBootstrap()),
+    'run-authenticated-catalog': options.actionHandlers?.['run-authenticated-catalog'] ?? (() => runConfiguredAuthenticatedCatalogQa()),
   };
   let active = false;
   let expectedOrigin = '';

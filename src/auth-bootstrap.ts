@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { lstat, mkdir, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium, type BrowserContext, type Page, type Request } from 'playwright';
 import { z } from 'zod';
@@ -8,6 +8,14 @@ import { loadConfig, type QaConfig } from './config.js';
 import { assertPrivatePath, loadStagingProfile, type StagingProfile } from './staging-profile.js';
 
 const expectedEmailSchema = z.string().trim().email().max(254);
+export const authVerificationSchema = z.object({
+  schemaVersion: z.literal(1),
+  profileId: z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/),
+  identityHash: z.string().regex(/^sha256:[a-f0-9]{64}$/),
+  verifiedAt: z.string().datetime({ offset: true }),
+  verifiedInFreshBrowser: z.literal(true),
+}).strict();
+export type AuthVerification = z.infer<typeof authVerificationSchema>;
 type IdentitySource = StagingProfile['auth']['accountIdentitySource'];
 
 export interface AuthBrowserLaunchOptions {
@@ -55,12 +63,17 @@ function requestKind(request: Request): 'navigation' | 'redirect' | 'subresource
   return request.redirectedFrom() === null ? 'navigation' : 'redirect';
 }
 
-function normalizeEmail(value: string): string {
+export function normalizeAccountEmail(value: string): string {
   return expectedEmailSchema.parse(value.normalize('NFKC')).toLowerCase();
 }
 
-function hashIdentity(email: string): string {
+export function hashAccountIdentity(email: string): string {
   return `sha256:${createHash('sha256').update(email).digest('hex')}`;
+}
+
+export async function loadAuthVerification(cwd: string, profile: StagingProfile): Promise<AuthVerification> {
+  const filename = await assertPrivatePath(cwd, profile.privatePaths.authStatePath);
+  return authVerificationSchema.parse(JSON.parse(await readFile(filename, 'utf8')) as unknown);
 }
 
 class PlaywrightAuthSession implements AuthBrowserSession {
@@ -147,7 +160,7 @@ async function readVerifiedIdentity(
 ): Promise<string> {
   await session.waitForVisible(profile.auth.authenticatedSelector);
   await session.waitForVisible(profile.auth.accountIdentitySelector);
-  const observed = normalizeEmail(await session.readIdentity(
+  const observed = normalizeAccountEmail(await session.readIdentity(
     profile.auth.accountIdentitySelector,
     profile.auth.accountIdentitySource,
   ));
@@ -179,7 +192,7 @@ export async function bootstrapStagingAuth(options: AuthBootstrapOptions): Promi
   const cwd = path.resolve(options.cwd ?? process.cwd());
   let expectedEmail: string;
   try {
-    expectedEmail = normalizeEmail(options.expectedEmail ?? '');
+    expectedEmail = normalizeAccountEmail(options.expectedEmail ?? '');
   } catch {
     return blocked('QA_EXPECTED_TEST_EMAIL is missing or invalid.');
   }
@@ -235,7 +248,7 @@ export async function bootstrapStagingAuth(options: AuthBootstrapOptions): Promi
     return blocked('Persisted session was not authenticated in a fresh browser process.');
   }
 
-  const identityHash = hashIdentity(identity);
+  const identityHash = hashAccountIdentity(identity);
   await mkdir(path.dirname(verificationPath), { recursive: true });
   await writeFile(verificationPath, `${JSON.stringify({
     schemaVersion: 1,

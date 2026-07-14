@@ -22,5 +22,6 @@ auth:
 suites:
   publicWebScenarioIds:
     - gia-su-ai-public-smoke
-  authenticatedWebScenarioIds: []
+  authenticatedWebScenarioIds:
+    - gia-su-ai-authenticated-catalog
   journeyIds: []

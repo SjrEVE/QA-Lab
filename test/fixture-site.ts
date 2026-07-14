@@ -18,7 +18,7 @@ export async function startFixtureSite(): Promise<FixtureSite> {
         const authenticated = request.headers.cookie?.includes('qa_session=verified') ?? false;
         response.writeHead(authenticated ? 200 : 401, { 'content-type': 'text/html; charset=utf-8' });
         response.end(authenticated
-          ? '<main data-qa="authenticated-shell"><span data-qa="account-email" data-email="qa-student@example.test">qa-student@example.test</span></main>'
+          ? `<main data-qa="authenticated-shell"><span data-qa="account-email" data-email="qa-student@example.test">qa-student@example.test</span><div id="catalog"><button data-qa="grade-option">Khối 6</button><section id="subjects" hidden><button data-qa="subject-option">Toán</button></section><section id="chapters" hidden><button data-qa="chapter-option">Chương fixture</button></section><section id="lessons" hidden><button data-qa="lesson-option" data-lesson-id="fixture-grade6-lesson1" data-registry-status="approved">Bài fixture</button></section></div></main><script>document.querySelector('[data-qa=grade-option]').onclick=()=>subjects.hidden=false;document.querySelector('[data-qa=subject-option]').onclick=()=>chapters.hidden=false;document.querySelector('[data-qa=chapter-option]').onclick=()=>lessons.hidden=false;document.querySelector('[data-qa=lesson-option]').onclick=()=>{history.pushState({},'', '/auth/classroom/fixture-grade6-lesson1');catalog.innerHTML='<section data-qa="lesson-ready" data-lesson-id="fixture-grade6-lesson1"><button data-qa="start-lesson">Bắt đầu học</button></section>'};</script>`
           : '<main data-qa="login-required">Login required</main>');
         return;
       }

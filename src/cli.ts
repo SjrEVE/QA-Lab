@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import path from 'node:path';
+import { runConfiguredAuthenticatedCatalogQa } from './authenticated-catalog-qa.js';
 import { runConfiguredAuthBootstrap } from './auth-bootstrap.js';
 import { startControlCenter } from './control-center.js';
 import { loadConfig } from './config.js';
@@ -38,7 +39,7 @@ async function main(args: readonly string[]): Promise<number> {
         typedAuthenticatedProfile: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         verifiedAuthBootstrap: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         localControlCenter: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
-        authenticatedDashboardCatalog: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
+        authenticatedDashboardCatalog: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         strictReset: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         scriptedLessonJourney: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
       },
@@ -70,6 +71,14 @@ async function main(args: readonly string[]): Promise<number> {
     const result = await runConfiguredStagingReset(scope);
     print(result);
     return result.status === 'READY' ? 0 : 1;
+  }
+  if (command === 'catalog') {
+    const scenarioIndex = args.indexOf('--scenario');
+    const scenarioId = scenarioIndex >= 0 ? args[scenarioIndex + 1] : 'gia-su-ai-authenticated-catalog';
+    if (!scenarioId) throw new Error('qa:catalog requires a valid scenario id.');
+    const result = await runConfiguredAuthenticatedCatalogQa(scenarioId);
+    print(result);
+    return result.status === 'PASSED' ? 0 : 1;
   }
   if (command === 'list') {
     const [web, student] = await Promise.all([listWebScenarios(), listStudentScenarios()]);
@@ -107,7 +116,7 @@ async function main(args: readonly string[]): Promise<number> {
     const mode = replayModeSchema.parse(modeIndex >= 0 ? args[modeIndex + 1] : 'same-session-fixture');
     const config = await loadConfig(); print(await replayRun(config.artifacts.root, run, mode)); return 0;
   }
-  process.stderr.write('Usage: qa-lab <status|doctor|auth|serve|reset --scope <scenario-id>|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
+  process.stderr.write('Usage: qa-lab <status|doctor|auth|serve|reset --scope <scenario-id>|catalog [--scenario <id>]|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
   return 2;
 }
 
