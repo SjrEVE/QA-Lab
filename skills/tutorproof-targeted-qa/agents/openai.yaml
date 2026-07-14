@@ -1,0 +1,4 @@
+interface:
+  display_name: "TutorProof Targeted QA"
+  short_description: "Run one bounded TutorProof staging QA flow"
+  default_prompt: "Use $tutorproof-targeted-qa to run only the requested staging QA flow and report exact evidence."

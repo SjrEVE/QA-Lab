@@ -4,10 +4,12 @@
 
 - Framework state: **Phase 0–10 implemented and validated at local deterministic-fixture scope only**.
 - `QA-STAGING-001` public smoke is validated against the approved non-production host `https://giasu-c2165.web.app`: run `20260714T182700Z-7e03242c` passed 16/16 checks across landing → login plus unauthenticated `/app` and `/app/tutor` route guards at mobile-common and laptop, with zero issues. Google Auth was not invoked; authenticated/reset/session staging acceptance remains separate and **BLOCKED** pending its dedicated account/bootstrap contract.
+- Authenticated staging is now partially validated on the same non-production host: the dedicated Google account persisted in a fresh browser process; catalog run `20260714T205654Z-440b92d2` passed 34/34 checks in mobile-common and laptop; and the strict `g12-session-start-smoke` reset contract completed twice idempotently.
+- The targeted G12 session-start runner is implemented and locally fixture-tested. Staging run `20260714T214415Z-fdd45d04` proved reset, verified identity, exact approved lesson `G12_MATH_KNTT_CH01_L01`, scoped client-pointer cleanup, classroom continuity, session creation, and cleanup, but is truthfully **BLOCKED** before realtime acceptance because Gemini returned `prepayment credits are depleted`. No student turn, transcript, mastery, verifier, OCR, or real-child audio was exercised.
 - Currently allowed evidence uses local deterministic fixtures, scripted brains, synthetic personas/WAV, and provider-free replay.
 - Readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`; this is not product or staging readiness.
 - Phase 5 recording has fixture-validated screenshot fallback; real FFmpeg recording is **NOT IMPLEMENTED / NOT ACCEPTED** on this host because FFmpeg is unavailable, so no `session.mp4` is claimed.
-- Real Gia Su AI staging acceptance: **NOT STARTED / NOT READY**. Separate tasks are required for staging browser/auth/reset, real providers/evaluators, native Linux voice, and FFmpeg real recording.
+- Real Gia Su AI staging acceptance: **PARTIAL / NOT READY**. Public UI, authenticated catalog, identity persistence, and strict reset have staging evidence; realtime provider connection remains blocked by depleted credits, while evaluator, native Linux voice, and FFmpeg real recording remain separate tasks.
 - Independent CI workflow is added at `.github/workflows/ci.yml` with least-privilege fixture-only Windows validation, local secret scanning, audit, and a separate truthful recording capability contract. The first remote run is **PENDING GITHUB ACTIONS CONFIRMATION**; local validation is not claimed as CI PASS.
 
 ## Phase 4 evidence

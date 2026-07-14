@@ -54,7 +54,9 @@ npm.cmd install
 Copy-Item .env.example .env
 ```
 
-Real staging execution is not currently authorized or ready. A separate task must approve the exact staging hostname, dedicated test account, auth/reset integration, and acceptance procedure. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
+Real staging execution is authorized only for the typed `giasu-c2165.web.app` profile and the explicitly requested flow. Public smoke, verified auth persistence, authenticated catalog, and the scoped G12 reset have bounded staging evidence. Realtime session-start remains blocked by depleted Gemini credits. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
+
+Use the repo-local `skills/tutorproof-targeted-qa` skill as the dispatcher for one requested QA capability at a time. It deliberately does not run the whole framework unless a full suite is explicitly requested.
 
 ## Commands
 
@@ -62,6 +64,10 @@ Real staging execution is not currently authorized or ready. A separate task mus
 npm.cmd run qa:status
 npm.cmd run qa:doctor
 npm.cmd run qa:list
+npm.cmd run qa:auth
+npm.cmd run qa:catalog
+npm.cmd run qa:reset -- --scope g12-session-start-smoke
+npm.cmd run qa:session:start
 npm.cmd run qa:run -- --scenario weak-fractions-lesson
 npm.cmd run qa:browser:fixture
 npm.cmd run qa:web:fixture

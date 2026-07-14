@@ -4,6 +4,10 @@ export { findAuthenticatedCatalogScenario, listAuthenticatedCatalogScenarios, lo
 export type { AuthenticatedCatalogScenario, CatalogSelectorContract } from './authenticated-catalog-scenario.js';
 export { runAuthenticatedCatalogQa, runConfiguredAuthenticatedCatalogQa } from './authenticated-catalog-qa.js';
 export type { AuthenticatedCatalogQaOptions, AuthenticatedCatalogQaResult, CatalogCheck, CatalogIssue } from './authenticated-catalog-qa.js';
+export { AUTHENTICATED_SESSION_SCENARIO_VERSION, authenticatedSessionScenarioSchema, findAuthenticatedSessionScenario, listAuthenticatedSessionScenarios, loadAuthenticatedSessionScenario } from './authenticated-session-scenario.js';
+export type { AuthenticatedSessionScenario } from './authenticated-session-scenario.js';
+export { runAuthenticatedSessionStartQa, runConfiguredAuthenticatedSessionStartQa } from './authenticated-session-qa.js';
+export type { AuthenticatedSessionQaOptions, AuthenticatedSessionQaResult, SessionCheck, SessionIssue, SessionResetGate } from './authenticated-session-qa.js';
 export { GuardedBrowserController } from './browser-controller.js';
 export type { BrowserAction, BrowserController, BrowserControllerOptions, BrowserEvent, LoginAdapter } from './browser-controller.js';
 export { authVerificationSchema, bootstrapStagingAuth, hashAccountIdentity, loadAuthVerification, normalizeAccountEmail, PlaywrightAuthBrowserLauncher, runConfiguredAuthBootstrap } from './auth-bootstrap.js';

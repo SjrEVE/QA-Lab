@@ -53,7 +53,11 @@ export async function listAuthenticatedCatalogScenarios(
 ): Promise<readonly AuthenticatedCatalogScenario[]> {
   const absolute = path.resolve(directory);
   const files = (await readdir(absolute)).filter((file) => file.endsWith('.yaml')).sort();
-  const scenarios = await Promise.all(files.map((file) => loadAuthenticatedCatalogScenario(path.join(absolute, file))));
+  const scenarios: AuthenticatedCatalogScenario[] = [];
+  for (const file of files) {
+    const raw = parseYaml(await readFile(path.join(absolute, file), 'utf8')) as { type?: unknown };
+    if (raw?.type === 'authenticated-catalog') scenarios.push(authenticatedCatalogScenarioSchema.parse(raw));
+  }
   const ids = new Set<string>();
   for (const scenario of scenarios) {
     if (ids.has(scenario.id)) throw new Error(`Duplicate authenticated catalog scenario id: ${scenario.id}`);

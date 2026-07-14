@@ -20,10 +20,12 @@ auth:
     - www.gstatic.com
     - www.googleapis.com
     - lh3.googleusercontent.com
+    - generativelanguage.googleapis.com
   bootstrapTimeoutMs: 600000
 suites:
   publicWebScenarioIds:
     - gia-su-ai-public-smoke
   authenticatedWebScenarioIds:
     - gia-su-ai-authenticated-catalog
-  journeyIds: []
+  journeyIds:
+    - gia-su-ai-session-start

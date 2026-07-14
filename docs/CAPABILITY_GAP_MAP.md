@@ -13,17 +13,17 @@
 
 A planning note, interface idea, config flag, tool detected by doctor, or artifact directory primitive is not evidence that a runtime capability exists.
 
-For authenticated staging expansion, status is reported with four independent booleans: `implemented`, `locallyTested`, `stagingValidated`, and `accepted`. Only the public staging smoke currently has `stagingValidated: true`; this does not imply acceptance of authenticated Gia Su AI staging.
+For authenticated staging expansion, status is reported with four independent booleans: `implemented`, `locallyTested`, `stagingValidated`, and `accepted`. Public smoke, verified auth persistence, authenticated catalog, and strict reset now have bounded staging evidence; none implies whole-product acceptance.
 
 | Staging capability | implemented | locallyTested | stagingValidated | accepted | Evidence / boundary |
 |---|---:|---:|---:|---:|---|
 | Public Web smoke | true | true | true | false | Run `20260714T182700Z-7e03242c` passed 16/16 public checks; authenticated product acceptance is separate. |
-| Typed authenticated staging profile | true | true | false | false | Strict versioned schema, exact typed target match, `.qa-private/` containment, and negative tests; no credential or authenticated run. |
-| Verified Firebase auth bootstrap | true | true | false | false | Headed manual login uses a dedicated persistent Chromium profile, hashes account identity, and must prove the session in a fresh browser process; no staging account has been supplied or validated. |
+| Typed authenticated staging profile | true | true | true | false | Exact `giasu-c2165.web.app` target, `.qa-private/` containment, verified identity hash, and strict request allowlist were exercised without committing account state. |
+| Verified Firebase auth bootstrap | true | true | true | false | The dedicated test account completed Google Auth and persisted in a fresh browser process; email, cookies, and credentials remain private and untracked. |
 | Local Control Center | true | true | false | false | Loopback-only UI uses a random token, exact Host/Origin checks, fixed action allowlist, bounded bodies, and non-active HTML artifact delivery; no authenticated staging action has passed. |
-| Authenticated dashboard/catalog | true | true | false | false | Persistent-profile runner verifies the hashed account, grade/subject/chapter hierarchy, explicit approved runtime lesson ID continuity, start CTA, two viewports, runtime events, overflow and overlap. Staging remains unvalidated until a verified private profile exists. |
-| Strict reset contract | true | true | false | false | Manual confirmation is literal-only; HTTP reset is exact-host HTTPS, token-from-env, idempotent, bounded, and strict about account hash/scope/version/timestamp. No private reset contract or staging reset evidence has been supplied. |
-| Scripted authenticated lesson journey | false | false | false | false | Not implemented or run. |
+| Authenticated dashboard/catalog | true | true | true | false | Run `20260714T205654Z-440b92d2` passed 34/34 across mobile-common and laptop, including hashed identity, hierarchy, approved runtime lesson ID continuity, start CTA, events, overflow, and overlap. |
+| Strict reset contract | true | true | true | false | Staging-only HTTP reset for `g12-session-start-smoke` is exact-host, token-from-env, identity-bound, lesson-bound, bounded, idempotent, and twice returned `READY`; it preserves completed history and all unrelated product data. |
+| Targeted authenticated session start | true | true | false | false | Run `20260714T214415Z-fdd45d04` passed reset, identity, exact approved G12 lesson, scoped client-pointer cleanup, classroom continuity, and failure cleanup, then stopped `BLOCKED` when Gemini reported depleted prepayment credits. No student turn was sent. |
 
 ## Foundation Phase 0–1 audit
 
