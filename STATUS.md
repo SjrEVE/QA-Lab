@@ -2,61 +2,50 @@
 
 ## Current state
 
-- Current phase: **Phase 0–1 — Foundation**.
-- Phase 0 environment audit: **implemented and validated**.
-- Phase 1 local foundation: **implemented and validated**.
-- Readiness label: `FOUNDATION_READY`.
-- Next roadmap capability: **Browser / Phase 2**, planned and not authorized by this docs-only task.
-- Runtime target: Node.js 20+ / strict TypeScript / Windows 10 compatible.
+- Current phase: **Phase 2 — Browser Foundation/Guard**.
+- Phase 0–1 foundation: **implemented and validated**.
+- Phase 2 guarded browser runtime: **implemented and locally fixture-validated**.
+- Readiness label: `BROWSER_FOUNDATION_READY`.
+- Next roadmap capability: **Web QA / Phase 3**, not implemented by this task.
+- Runtime target: Node.js 20+ / strict TypeScript / Playwright Chromium / Windows 10 compatible.
 
 ## Authority and evidence
 
 - Product strategy: `docs/QA_LAB_PRODUCT_STRATEGY.md`.
 - Delivery order: `docs/ROADMAP.md`.
 - Capability/gap truth: `docs/CAPABILITY_GAP_MAP.md`.
-- Supporting notes only: `docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md`.
+- Browser source: `src/browser-policy.ts`, `src/browser-controller.ts`.
+- Browser tests: `test/browser-policy.test.ts`, `test/browser-controller.integration.test.ts`.
+- Local fixture smoke: `scripts/browser-fixture-smoke.ts`; generated evidence under ignored `runs/phase2-browser-fixture-evidence/`.
 
 ## Implemented
 
-- Independent repository governance and local environment audit.
-- Typed, strict, schema-versioned YAML configuration with environment overrides.
-- Exact-host HTTPS staging URL authorization primitive.
-- Safe run IDs, run/status directories, and exclusive artifact creation.
-- Recursive secret redaction and structured JSON logger.
-- Offline-friendly `status` and `doctor` CLI commands.
-- Unit and negative security tests for current foundation boundaries.
+- Existing strict configuration, exact-host staging authorization, safe artifacts, redaction, and offline doctor/status foundation.
+- Playwright/Chromium persistent context with a dedicated QA profile.
+- Browser Controller interface and bounded runtime actions: navigate, screenshot, and wait.
+- Login adapter interface without credentials or provider/account implementation.
+- Fail-closed staging policy for navigation, redirects, subresources, and WebSocket handshakes using exact allowlisted hosts and HTTPS/WSS.
+- Explicit test-only loopback fixture mode requiring HTTP loopback and exact ephemeral port.
+- External redirect denial with JSONL evidence.
+- Screenshot, console, page error, failed request, denied request, and navigation event capture with recursive redaction.
+- Default operation/navigation timeouts and idempotent cleanup; disposable profile removal by default.
+- Fixture endpoints `/ok`, `/console-error`, `/network-error`, and `/redirect-external` with unit/integration coverage.
 
-## Partial
+## Validation evidence
 
-- Run/artifact primitives exist, but complete run orchestration, event timeline, evaluation, reporting, retention, and replay do not.
-- URL authorization exists, but browser-level navigation/redirect enforcement does not because no browser driver exists.
-- Foundation security/redaction supports later work, but later browser/provider/voice boundaries have not been implemented or tested.
+- Dependency installed only for this phase: `playwright` with Chromium; `npm audit` reported 0 vulnerabilities at installation.
+- Unit/integration suite currently contains 18 passing tests, including guard, redirect, screenshot, console, network failure, profile isolation, and cleanup.
+- Fixture screenshot observed at 6,325 bytes with SHA-256 `FAADC433CB88ED104F84CE05DBC49B2ED20D61ECB7FFF43723E8AB1138FA9191`.
+- Fixture JSONL observed with `console`, `request-failed`, and external `request-denied` redirect evidence.
+- These generated artifacts are ignored by Git and are local execution evidence, not committed fixtures.
 
-## Planned in authoritative order
+## Blocked inputs / truthful limitations
 
-1. Browser.
-2. Web QA.
-3. Student text.
-4. Recording.
-5. Voice.
-6. Education Eval.
-7. Replay / Regression.
-8. Model Arena.
-9. Cohorts.
-10. Safety / Optimizer.
-
-## Blocked inputs for later phases
-
-- No approved real staging hostname or authorization was used by this task.
-- No dedicated Web QA/Student QA accounts or reset contract are available in this repository.
-- No transcript or whiteboard observability integration contract has been validated.
-- Voice/recording host readiness, privacy, disk quota, and retention policy require later explicit work.
-- No model, voice, or evaluator provider credentials/configuration are present.
+- No approved real staging hostname or authorization is configured; no staging URL was accessed.
+- No dedicated test account, credentials, or reset contract exists; the login adapter is interface-only.
+- No production target is allowed or accessed.
+- Phase 2 local fixture validation is not staging acceptance and not Web QA MVP acceptance.
 
 ## Explicitly unavailable
 
-Production access, browser automation, guarded browser profile, screenshot/console/network capture, Web QA scenarios, Student QA, voice/microphone, recording, Education Eval, unified timeline, replay/regression, Model Arena, cohorts, safety suite, optimizer, dashboard, deployment, model-provider execution, autonomous repair, and external-repository integration.
-
-## Validation record
-
-The final validation evidence for this documentation alignment is recorded in the commit/report for the task. Repository governance requires lint, tests, build, status, doctor, and working-tree inspection even though source code is unchanged.
+Web QA scenario/report execution, Student QA, recorder/video/audio, voice/microphone, Education Eval, replay/regression, Model Arena, cohorts, safety suite, optimizer, dashboard, deployment, provider execution, autonomous repair, and runtime shell/source/Git access remain unavailable.

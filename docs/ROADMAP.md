@@ -12,9 +12,9 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Environment audit, independent repository, strict TypeScript, versioned config, exact-host HTTPS staging guard, safe run/artifact primitives, redacted logs, offline status/doctor CLI, and unit/security tests.
    - Current label: `FOUNDATION_READY`.
 
-2. **Browser — Phase 2 — Planned; next implementation phase**
-   - Guarded browser launcher, dedicated profile, navigation/redirect enforcement, screenshot, console/network capture, basic navigation, login adapter interface, and cleanup.
-   - Must use local fixture validation before any approved staging execution.
+2. **Browser — Phase 2 — Implemented; local fixture validated**
+   - Guarded Playwright/Chromium launcher, dedicated profile, navigation/redirect/subresource/WebSocket policy, screenshot, console/failed-network JSONL capture, basic navigation, login adapter interface, timeouts, and cleanup.
+   - Validated only against explicit loopback fixture mode. No staging URL/account was configured or accessed; staging acceptance remains unclaimed.
 
 3. **Web QA — Phase 3 — Planned**
    - Web scenario contract, risk-bounded flow execution, viewport matrix, deterministic checks, evidence-backed issue schema, report, summary, and fixture coverage.
@@ -45,4 +45,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-This docs-only alignment does not authorize Phase 2 implementation or staging access. The next coding task may begin Browser only after explicit authorization and must not include Web QA, Student QA, recording, voice, replay, or later-phase dependencies by anticipation.
+Phase 2 implementation is complete with local fixture evidence. Phase 3 is next in roadmap order but is not implemented by this task. Real staging execution remains blocked until an approved exact hostname and dedicated test account are configured. Web QA, Student QA, recording, voice, replay, and later-phase capabilities remain out of scope.

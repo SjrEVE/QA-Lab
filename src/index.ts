@@ -1,3 +1,7 @@
+export { GuardedBrowserController } from './browser-controller.js';
+export type { BrowserAction, BrowserController, BrowserControllerOptions, BrowserEvent, LoginAdapter } from './browser-controller.js';
+export { assertAllowedBrowserUrl, decideBrowserRequest } from './browser-policy.js';
+export type { BrowserPolicyDecision, BrowserResourceKind, BrowserTargetPolicy } from './browser-policy.js';
 export { CONFIG_VERSION, loadConfig, qaConfigSchema } from './config.js';
 export type { LoadConfigOptions, QaConfig } from './config.js';
 export { runDoctor } from './doctor.js';

@@ -21,7 +21,7 @@ A planning note, interface idea, config flag, tool detected by doctor, or artifa
 | Windows runtime audit | Implemented | `docs/environment-audit.md` | Audit is a point-in-time local observation, not proof of staging readiness. |
 | Node.js 20+ and strict TypeScript foundation | Implemented | `package.json`; `tsconfig.json`; build/lint commands | No browser or provider runtime follows from this foundation. |
 | Typed, schema-versioned YAML config | Implemented | `src/config.ts`; `test/config.test.ts`; `config/qa-lab.yaml` | Current schema covers foundation settings only, not scenario/persona/provider contracts. |
-| Fail-closed staging target authorization | Implemented | `src/security.ts`; `test/security.test.ts` | URL validation exists; no browser navigation interception or redirect enforcement exists yet. |
+| Fail-closed staging target authorization | Implemented | `src/security.ts`; `src/browser-policy.ts`; security/policy tests | Browser requests apply exact-host HTTPS/WSS policy; loopback HTTP requires explicit fixture mode and exact bound port. No real staging target has been exercised. |
 | Safe run ID and artifact primitives | Implemented | `src/run-store.ts`; `test/run-store.test.ts` | Can create run/status files and exclusive artifacts; full run lifecycle, timeline, report, and retention are absent. |
 | Structured redacted logging | Implemented | `src/redaction.ts`; `src/logger.ts`; `test/redaction-logger.test.ts` | Foundation redaction exists; future browser/provider artifacts require additional boundary tests. |
 | Offline status and doctor CLI | Implemented | `src/cli.ts`; `src/doctor.ts`; package scripts | Doctor intentionally does not contact staging, launch Chromium, validate accounts, audio routing, or recording. |
@@ -34,8 +34,8 @@ A planning note, interface idea, config flag, tool detected by doctor, or artifa
 | Ordered capability | Status | Current evidence | Missing capability / prerequisite |
 |---|---|---|---|
 | Foundation | Implemented | Phase 0 audit; typed config; guards; safe artifacts; redaction; offline CLI; tests | Maintain governance and validation as later phases extend boundaries. |
-| Browser | Planned | Only URL authorization primitive and environment observations exist | No Playwright/CDP dependency, browser launcher, dedicated profile, navigation guard, screenshot, console/network capture, login adapter, or cleanup. Phase 2 is not implemented. |
-| Web QA | Planned | Strategy and supporting notes only | No web scenario schema, viewport executor, assertions, issue contract, fixture site, report generator, or Web QA run evidence. |
+| Browser | Implemented | `src/browser-controller.ts`; `src/browser-policy.ts`; Playwright Chromium; unit/integration tests; ignored fixture evidence | Dedicated profile, bounded Browser Controller actions, navigation/redirect/subresource/WebSocket policy, screenshot, console/failed-network JSONL, login adapter interface, timeout and cleanup exist. Local fixture evidence only; no staging acceptance. |
+| Web QA | Planned | Minimal fixture exists only to validate Browser Phase 2 | No web scenario schema, viewport executor, assertions, issue contract, report generator, or Web QA run evidence. Fixture endpoints are not a Web QA scenario. |
 | Student text QA | Planned | Strategy and supporting notes only | No persona/scenario schema, StudentBrain adapter, transcript-driven loop, UX diary, turn artifacts, or student report. |
 | Recording | Planned | Environment audit records future disk risk | No recorder interface, screenshot timeline, FFmpeg integration, video/audio artifact, timestamp muxing, or retention enforcement. |
 | Voice | Planned | Strategy only | No voice provider adapter, virtual sink routing, Chromium microphone selection, one-turn test, echo isolation, or voice artifacts. |
@@ -49,7 +49,7 @@ A planning note, interface idea, config flag, tool detected by doctor, or artifa
 
 These are **blocked inputs**, not implemented capabilities:
 
-- **Approved staging hostname and authorization:** required before any later browser execution; current placeholder configuration authorizes no real target.
+- **Approved staging hostname and authorization:** required before any real staging browser execution; current placeholder configuration authorizes no real target. Phase 2 acceptance uses explicit loopback fixture mode only.
 - **Dedicated test accounts and reset contract:** required for authenticated Web QA and Student QA; no account or reset integration has been supplied or tested.
 - **Product transcript/whiteboard observability contracts:** required for precise Student QA and replay; screenshots may provide estimated evidence but must not be presented as exact event timing.
 - **Voice/recording host readiness:** FFmpeg, virtual audio routing, microphone permissions, display capture, disk quota, and retention policy require a later local audit and explicit phase authorization.
@@ -57,4 +57,4 @@ These are **blocked inputs**, not implemented capabilities:
 
 ## Truthful current conclusion
 
-QA Lab is `FOUNDATION_READY`, not browser-ready and not MVP-complete. Phase 0–1 establishes local policy and storage primitives. Browser, Web QA, Student QA, recording, voice, Education Eval, replay/regression, Model Arena, cohorts, and safety/optimization remain future work in the authoritative order.
+QA Lab is `BROWSER_FOUNDATION_READY`, not staging-accepted and not MVP-complete. Phase 0–2 establishes local policy/storage primitives and a guarded browser runtime proven against a loopback fixture. Web QA, Student QA, recording, voice, Education Eval, replay/regression, Model Arena, cohorts, and safety/optimization remain future work in the authoritative order.

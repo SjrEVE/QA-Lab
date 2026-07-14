@@ -12,13 +12,13 @@ async function main(args: readonly string[]): Promise<number> {
     const config = await loadConfig();
     print({
       service: 'qa-lab',
-      phase: 1,
-      readiness: 'FOUNDATION_READY',
+      phase: 2,
+      readiness: 'BROWSER_FOUNDATION_READY',
       environment: config.environment,
       configVersion: config.version,
       allowedStagingHosts: config.staging.allowedHosts,
       artifactRoot: config.artifacts.root,
-      capabilities: { browser: false, voice: false, recording: false, dashboard: false, deploy: false },
+      capabilities: { browser: true, stagingAccepted: false, webQa: false, voice: false, recording: false, dashboard: false, deploy: false },
     });
     return 0;
   }
