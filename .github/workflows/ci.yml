@@ -72,6 +72,7 @@ jobs:
 
   recording-capability:
     name: Recording capability (PASS or expected BLOCKED)
+    needs: validate
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
