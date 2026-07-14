@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import path from 'node:path';
+import { runConfiguredAuthBootstrap } from './auth-bootstrap.js';
 import { loadConfig } from './config.js';
 import { runDoctor } from './doctor.js';
 import { compareRuns } from './regression.js';
@@ -33,7 +34,7 @@ async function main(args: readonly string[]): Promise<number> {
       stagingCapabilities: {
         publicWebSmoke: { implemented: true, locallyTested: true, stagingValidated: true, accepted: false },
         typedAuthenticatedProfile: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
-        verifiedAuthBootstrap: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
+        verifiedAuthBootstrap: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         authenticatedDashboardCatalog: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
         strictReset: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
         scriptedLessonJourney: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
@@ -46,6 +47,11 @@ async function main(args: readonly string[]): Promise<number> {
     const report = await runDoctor();
     print(report);
     return report.ok ? 0 : 1;
+  }
+  if (command === 'auth') {
+    const result = await runConfiguredAuthBootstrap();
+    print(result);
+    return result.status === 'VERIFIED' ? 0 : 1;
   }
   if (command === 'list') {
     const [web, student] = await Promise.all([listWebScenarios(), listStudentScenarios()]);
@@ -83,7 +89,7 @@ async function main(args: readonly string[]): Promise<number> {
     const mode = replayModeSchema.parse(modeIndex >= 0 ? args[modeIndex + 1] : 'same-session-fixture');
     const config = await loadConfig(); print(await replayRun(config.artifacts.root, run, mode)); return 0;
   }
-  process.stderr.write('Usage: qa-lab <status|doctor|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
+  process.stderr.write('Usage: qa-lab <status|doctor|auth|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
   return 2;
 }
 

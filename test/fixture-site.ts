@@ -10,6 +10,18 @@ export async function startFixtureSite(): Promise<FixtureSite> {
   const server = createServer((request, response) => {
     const pathname = new URL(request.url ?? '/', 'http://fixture.invalid').pathname;
     switch (pathname) {
+      case '/auth/bootstrap':
+        response.writeHead(302, { location: '/auth/app', 'set-cookie': 'qa_session=verified; Path=/; Max-Age=3600; HttpOnly; SameSite=Lax' });
+        response.end();
+        return;
+      case '/auth/app': {
+        const authenticated = request.headers.cookie?.includes('qa_session=verified') ?? false;
+        response.writeHead(authenticated ? 200 : 401, { 'content-type': 'text/html; charset=utf-8' });
+        response.end(authenticated
+          ? '<main data-qa="authenticated-shell"><span data-qa="account-email" data-email="qa-student@example.test">qa-student@example.test</span></main>'
+          : '<main data-qa="login-required">Login required</main>');
+        return;
+      }
       case '/':
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
         response.end('<!doctype html><meta name="viewport" content="width=device-width"><title>QA Home</title><style>body{font:16px sans-serif;margin:24px}button,a,input{font:inherit;padding:12px}</style><h1>QA Fixture Home</h1><a data-qa="primary-cta" href="/login">Đăng nhập</a>');

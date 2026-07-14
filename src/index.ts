@@ -2,6 +2,8 @@ export { chromiumVoiceOptions, createAudioRoutePlan, probeAudioRouting, validate
 export type { AudioCommandRunner, AudioRoutePlan, AudioRoutingCapability, ChromiumVoiceOptions } from './audio-routing.js';
 export { GuardedBrowserController } from './browser-controller.js';
 export type { BrowserAction, BrowserController, BrowserControllerOptions, BrowserEvent, LoginAdapter } from './browser-controller.js';
+export { bootstrapStagingAuth, PlaywrightAuthBrowserLauncher, runConfiguredAuthBootstrap } from './auth-bootstrap.js';
+export type { AuthBootstrapOptions, AuthBootstrapResult, AuthBrowserLauncher, AuthBrowserSession, ConfiguredAuthBootstrapOptions } from './auth-bootstrap.js';
 export { assertAllowedBrowserUrl, decideBrowserRequest } from './browser-policy.js';
 export type { BrowserPolicyDecision, BrowserResourceKind, BrowserTargetPolicy } from './browser-policy.js';
 export { CONFIG_VERSION, loadConfig, qaConfigSchema } from './config.js';

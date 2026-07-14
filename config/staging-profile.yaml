@@ -2,7 +2,7 @@ version: 1
 id: gia-su-ai
 name: Gia Su AI staging
 target:
-  expectedHost: staging-placeholder.invalid
+  expectedHost: giasu-c2165.web.app
   loginPath: /login
   authenticatedPath: /app
 privatePaths:
@@ -12,6 +12,12 @@ privatePaths:
 auth:
   authenticatedSelector: '[data-qa="authenticated-shell"]'
   accountIdentitySelector: '[data-qa="account-email"]'
+  accountIdentitySource: textContent
+  allowedHosts:
+    - accounts.google.com
+    - apis.google.com
+    - ssl.gstatic.com
+    - www.gstatic.com
   bootstrapTimeoutMs: 600000
 suites:
   publicWebScenarioIds:

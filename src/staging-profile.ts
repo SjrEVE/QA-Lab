@@ -48,6 +48,8 @@ export const stagingProfileSchema = z.object({
   auth: z.object({
     authenticatedSelector: selector,
     accountIdentitySelector: selector,
+    accountIdentitySource: z.enum(['textContent', 'value', 'data-email']).default('textContent'),
+    allowedHosts: z.array(bareHost).max(20).default([]),
     bootstrapTimeoutMs: z.number().int().min(30_000).max(900_000),
   }).strict(),
   suites: z.object({
