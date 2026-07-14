@@ -1,0 +1,9 @@
+version: 1
+environment: staging
+staging:
+  allowedHosts:
+    - staging-placeholder.invalid
+artifacts:
+  root: runs
+logging:
+  level: info
