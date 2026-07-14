@@ -32,8 +32,9 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Provider-neutral voice adapter, silent/text/WAV implementations, optional external TTS boundary, isolated student/tutor route plan, Linux capability probe/setup, Chromium microphone permission/selection config, one/multi-turn deterministic validation, echo isolation, safe-off flag, text fallback, and audio metadata are implemented.
    - This Windows host cannot validate native PulseAudio/PipeWire routing and lacks FFmpeg. Native voice E2E is truthfully `BLOCKED`; synthetic WAV evidence does not claim a physical microphone.
 
-7. **Education Eval — Phase 7 — Planned**
-   - Skill/subskill rubric registry, deterministic graders, independent AI-assisted UX grader, human calibration, confidence/limitations, and hard-failure precedence.
+7. **Education Eval — Phase 7 — Implemented; deterministic fixture validated**
+   - Versioned evaluation/rubric contracts, fractions rubric, deterministic checks/metrics, hard-failure precedence, vendor-neutral UX evaluator boundary with scripted mock only, confidence/evidence/limitations, human-calibration marker, and integrated Student evaluation artifact/report.
+   - Scores are explicitly non-authoritative. No real evaluator provider/key, replay, staging, production, or dashboard is claimed.
 
 8. **Replay / Regression — Phase 8 — Planned**
    - Unified event timeline, deterministic replay, baseline comparison, incident-to-regression conversion, issue fingerprinting/deduplication, and delta reports.
@@ -49,4 +50,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-Phase 6 Voice Bridge is implemented with safe opt-in, deterministic fixture evidence and truthful capability gating. Native PulseAudio/PipeWire voice E2E is `BLOCKED` on this Windows host; FFmpeg is also unavailable. Text and screenshot fallback remain intact. Real staging execution remains blocked until an approved exact hostname, dedicated test account, and reset integration are configured. Education Eval, replay, real provider, dashboard, staging, production, and later capabilities remain out of scope.
+Phase 7 Education Eval is implemented with deterministic fixture evidence and a scripted evaluator boundary only. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Replay, real evaluator/provider, dashboard, staging/production execution, and later phases remain out of scope.

@@ -1,0 +1,32 @@
+schemaVersion: 1
+id: fractions.compare.unlike-denominators.v1
+skill: fractions.compare.unlike-denominators
+title: Compare fractions with unlike denominators
+criteria:
+  - id: misconception_detection
+    weight: 20
+    grader: hybrid
+    description: Detects the learner's specific fraction misconception before progressing.
+  - id: no_early_answer_reveal
+    weight: 15
+    grader: hybrid
+    description: Avoids revealing the final answer before the learner has attempted reasoning.
+  - id: progressive_hints
+    weight: 15
+    grader: ai
+    description: Gives increasingly explicit hints while preserving learner agency.
+  - id: adaptation
+    weight: 20
+    grader: ai
+    description: Changes explanation or representation when confusion persists.
+  - id: whiteboard_alignment
+    weight: 10
+    grader: hybrid
+    description: Keeps visual state aligned with the spoken or written explanation.
+  - id: independent_answer
+    weight: 20
+    grader: rule
+    description: Requires and observes a final answer completed independently.
+humanCalibration:
+  required: true
+  marker: UNCALIBRATED_SCRIPTED_EVALUATOR

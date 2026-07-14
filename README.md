@@ -1,5 +1,9 @@
 # QA Lab
 
+## Phase 7 Education/UX Evaluation
+
+Deterministic-first Education Eval is implemented in `src/education-eval.ts` with versioned input/result contracts, evidence/confidence/limitations, hard-blocker precedence, response/turn/whiteboard metrics, and `PASS` / `PASS_WITH_RISKS` / `FAIL` / `BLOCKED` / `NEEDS_REVIEW` policy. The first rubric is `rubrics/fractions-compare-unlike-denominators.yaml`. `UxEvaluator` is vendor-neutral, but only a scripted mock exists: no provider, key, or external model call. Scores are **NON_AUTHORITATIVE**, human calibration remains marked, and unknown product/model/prompt versions remain null rather than invented. Run `npm.cmd run qa:evaluation:fixture` for integrated Student artifact evidence.
+
 ## Phase 6 Voice Bridge
 
 Voice Bridge là opt-in, vendor-neutral và mặc định tắt (`QA_ENABLE_VOICE=true` mới bật). Contracts `VoiceRequest`/`VoiceArtifact`, providers silent/text/deterministic WAV, external TTS interface không vendor/key, Linux PulseAudio/PipeWire probe, routing hai sink chống echo, Chromium microphone permission chỉ khi voice bật, text fallback, recorder audio metadata và deterministic one/multi-turn fixture đã có.
