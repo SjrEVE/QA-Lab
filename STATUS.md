@@ -2,12 +2,11 @@
 
 ## Current state
 
-- Current phase: **Phase 10 — Safety Lab + Cost–Quality–Latency Optimizer (final authority roadmap phase)**.
-- Phase 0–3 foundation/browser/Web QA: **implemented and locally validated**.
-- Phase 4 deterministic Student text QA: **implemented and locally fixture-validated**.
-- Readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`.
-- Phase 5 recording: **implemented with fixture-validated screenshot fallback**; dedicated video fixture is `BLOCKED` on this Windows host because FFmpeg is unavailable, so no `session.mp4` is claimed.
-- Real staging acceptance: **BLOCKED** pending approved exact host, dedicated test account, and working reset integration.
+- Framework state: **Phase 0–10 implemented and validated at local deterministic-fixture scope only**.
+- Currently allowed evidence uses local deterministic fixtures, scripted brains, synthetic personas/WAV, and provider-free replay.
+- Readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`; this is not product or staging readiness.
+- Phase 5 recording has fixture-validated screenshot fallback; real FFmpeg recording is **NOT IMPLEMENTED / NOT ACCEPTED** on this host because FFmpeg is unavailable, so no `session.mp4` is claimed.
+- Real Gia Su AI staging acceptance: **NOT STARTED / NOT READY**. Separate tasks are required for staging browser/auth/reset, real providers/evaluators, native Linux voice, and FFmpeg real recording.
 
 ## Phase 4 evidence
 
@@ -31,7 +30,7 @@
 - Fixture mode is explicit and permits only exact-port loopback HTTP.
 - Real run remains `BLOCKED` without staging URL/account/reset; no production target is accessed.
 - UX scores are deterministic state-based estimates and are labeled estimated with limitations; turns, duration, and DOM whiteboard states are observed.
-- No real voice vendor, physical microphone claim, provider brain/evaluator, Education Eval, replay/regression, dashboard, deployment, model arena, or cohort exists.
+- No real voice vendor, physical microphone claim, provider brain/evaluator, dashboard, deployment, or real-product acceptance exists. Education Eval, replay/regression, Model Arena, and cohorts are deterministic fixture foundations only.
 
 ## Phase 5 recording evidence
 
@@ -85,12 +84,12 @@
 - `qa:arena` writes `arena.json` and `report.md`; `qa:arena:fixture` additionally writes `cohort-manifest.json` under ignored `runs/phase9-arena-cohort-fixture-evidence/`.
 ## Phase 10 Safety Lab and optimizer evidence
 
-- Strict versioned Safety scenario/action/report contracts cover eight categories: child safety, PII leakage, boundary/manipulation/distress, student/web/image-metadata-placeholder injection, tool safety, and data safety.
+- A strict versioned Safety policy-contract fixture covers eight categories: child safety, PII leakage, boundary/manipulation/distress, student/web/image-metadata-placeholder injection, tool safety, and data safety. Real tutor red-team execution is not implemented.
 - Deterministic policy-first evaluation validates structured allowlisted actions before controller execution. Shell, filesystem, Git, arbitrary domain, cloud console, and payment proposals are denied; blocker/critical failures override aggregate results.
 - Fixture boundaries are local artifact sandbox, synthetic test identities, no production/staging, no real child data, recursively redacted evidence, scripted/mock agents only, and zero harmful/live calls.
-- Optimizer config/candidates/report are vendor-neutral and versioned. Required quality, p95 latency, and cost unknowns are `NEEDS_REVIEW`; unknown is null and never zero. Any critical failure rejects a candidate.
+- Optimizer fixture config/candidates/report provide a vendor-neutral algorithm foundation, not a real provider-configuration optimizer. Required quality, p95 latency, and cost unknowns are `NEEDS_REVIEW`; unknown is null and never zero. Any critical failure rejects a candidate.
 - Pareto frontier maximizes quality while minimizing latency/cost; deterministic order is cost, quality, latency, stable ID, with exact metric ties sharing rank.
 - Cost formula v1 explicitly records currency, session duration, assumptions, provenance, and `(inputUnits * inputRate) + (outputUnits * outputRate) + (audioMinutes * audioMinuteRate)`.
 - Routing outputs for simple turn, repeated confusion, vision board, final verifier, and degraded text are proposals with evidence/limitations only. Provider config mutation and deployment are always false.
 - `qa:phase10:fixture` writes redacted Safety and optimizer JSON/Markdown plus fixture summary under ignored `runs/phase10-safety-optimizer-fixture-evidence/`.
-- Full authority roadmap Phase 0–10 is complete at local deterministic-fixture capability. Native Linux voice, FFmpeg recording, physical microphone, approved staging account/domain/reset, and real provider/evaluator measurements remain blocked or unaccepted. No dashboard, production, auto-fix, or deploy exists.
+- The Phase 0–10 framework is implemented and locally deterministic-fixture validated. Real Gia Su AI staging acceptance is **NOT STARTED / NOT READY**. Native Linux voice, FFmpeg real recording, physical microphone, approved staging browser/auth/reset, and real provider/evaluator measurements each require a separate task. Production, real child data without approved policy, auto-fix, and deployment are forbidden.

@@ -2,11 +2,11 @@
 
 ## Phase 10 Safety Lab + Cost–Quality–Latency Optimizer
 
-Safety Lab trong `src/safety-lab.ts` dùng schema/version và deterministic policy-first evaluator cho child safety, PII, boundary/manipulation/distress escalation, injection từ student text/web/image-metadata placeholder, tool/domain/shell/cloud/payment denial, và data/artifact redaction. Structured actions phải qua allowlist trước controller; fixture chỉ dùng scripted/mock agent và dữ liệu tổng hợp được diễn đạt an toàn, không gọi harmful/live provider, staging hay production.
+Safety Lab trong `src/safety-lab.ts` là policy-contract fixture dùng schema/version và deterministic policy-first evaluator cho child safety, PII, boundary/manipulation/distress escalation, injection từ student text/web/image-metadata placeholder, tool/domain/shell/cloud/payment denial, và data/artifact redaction. Đây không phải real tutor red-team implementation. Structured actions phải qua allowlist trước controller; fixture chỉ dùng scripted/mock agent và dữ liệu tổng hợp được diễn đạt an toàn, không gọi harmful/live provider, staging hay production.
 
-Optimizer trong `src/quality-optimizer.ts` áp constraints quality/p95 latency/cost/critical failure, giữ provenance `observed`/`estimated`/`unknown`, đưa required unknown về `NEEDS_REVIEW` thay vì giả zero, tính Pareto quality/latency/cost và ranking/tie deterministic. Cost formula v1 cùng assumptions được ghi rõ; routing simple turn/repeated confusion/vision board/verifier final/degraded text chỉ là proposal có evidence/limitations, không mutate provider config và không deploy.
+Optimizer trong `src/quality-optimizer.ts` là fixture algorithm foundation, không phải real provider-configuration optimizer. Nó áp constraints quality/p95 latency/cost/critical failure, giữ provenance `observed`/`estimated`/`unknown`, đưa required unknown về `NEEDS_REVIEW` thay vì giả zero, tính Pareto quality/latency/cost và ranking/tie deterministic. Cost formula v1 cùng assumptions được ghi rõ; routing simple turn/repeated confusion/vision board/verifier final/degraded text chỉ là proposal có evidence/limitations, không mutate provider config và không deploy.
 
-Chạy `npm.cmd run qa:phase10:fixture`. Evidence JSON/Markdown nằm dưới ignored `runs/phase10-safety-optimizer-fixture-evidence/`. Roadmap Phase 0–10 đã hoàn tất ở mức local deterministic fixture; native Linux voice, FFmpeg recording, physical microphone, real providers và staging vẫn blocked/unaccepted.
+Chạy `npm.cmd run qa:phase10:fixture`. Evidence JSON/Markdown nằm dưới ignored `runs/phase10-safety-optimizer-fixture-evidence/`. Framework Phase 0–10 đã được triển khai và kiểm chứng ở phạm vi local deterministic fixture, scripted brain, synthetic personas/WAV và provider-free replay. Real Gia Su AI staging acceptance là **NOT STARTED / NOT READY**. Staging browser/auth/reset, real providers/evaluators, native Linux voice và FFmpeg real recording đều cần task riêng. Production, real child data khi chưa có policy, auto-fix và deploy bị cấm.
 
 ## Phase 9 Model Arena + Synthetic Student Cohorts
 
@@ -48,7 +48,7 @@ npm.cmd install
 Copy-Item .env.example .env
 ```
 
-Before real staging execution, configure only the exact approved staging hostname and dedicated test account/reset integration. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
+Real staging execution is not currently authorized or ready. A separate task must approve the exact staging hostname, dedicated test account, auth/reset integration, and acceptance procedure. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
 
 ## Commands
 

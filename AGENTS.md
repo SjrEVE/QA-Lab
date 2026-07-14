@@ -6,14 +6,18 @@ The Founder/Product Owner controls product intent. Technical agents own safe imp
 
 Read `docs/QA_LAB_PRODUCT_STRATEGY.md` as the authoritative product strategy, `docs/ROADMAP.md` as the authoritative delivery order, and `docs/CAPABILITY_GAP_MAP.md` as capability truth. `docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md` is supporting context only and cannot override those documents.
 
-Current implemented scope is Phase 0–1 foundation only. Phase 2 remains unimplemented and requires an explicit task authorization. Inspect before editing and keep commits focused.
+The Phase 0–10 framework is implemented and validated only through local deterministic fixtures. This means local fixture/scripted-brain/synthetic-persona/synthetic-WAV/provider-free replay capability; it does not mean Gia Su AI staging acceptance or production readiness. Real Gia Su AI staging acceptance is **NOT STARTED / NOT READY**. Inspect before editing and keep commits focused.
+
+Separate, explicit tasks and acceptance evidence are required for each of: staging browser/auth/reset execution; real brain, voice, and evaluator providers; native Linux voice routing; and FFmpeg-backed real recording. None may be inferred from deterministic fixture success.
 
 ## Hard prohibitions
 
 - Never access or probe production.
+- Never use real child data without an approved child-data/privacy policy and explicit task authorization.
 - Never bypass the exact-host HTTPS staging allowlist.
 - Never commit credentials, tokens, cookies, API keys, `.env`, raw audio, raw images, or recordings.
-- Do not add browser automation, voice, microphone, recording, dashboards, deployment, provider SDKs, or repair agents unless a later task explicitly authorizes them.
+- Do not execute staging browser/auth/reset, real providers/evaluators, native Linux voice, or FFmpeg real recording unless a separate task explicitly authorizes that capability and its prerequisites.
+- Do not add dashboards, auto-fix/repair behavior, deployment, or production capability unless a later task explicitly authorizes it; automated deployment remains forbidden.
 - Do not grant models shell, filesystem editing, Git, deployment, Firebase, arbitrary navigation, or unknown-domain access.
 - Do not force push or rewrite shared history.
 
