@@ -28,8 +28,9 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Vendor-neutral Recorder interface, lifecycle, screenshot timeline, FFmpeg/browser-video adapter, synchronized checkpoint timestamps, report links, retention policy, disk guard, and partial cleanup are implemented.
    - The Windows recording fixture emits explicit `BLOCKED` evidence because FFmpeg is unavailable; no `session.mp4` success is claimed. Web/Student fixture recording fallback is locally validated.
 
-6. **Voice — Phase 6 — Planned**
-   - Provider-neutral voice adapter, virtual student/tutor audio routing, Chromium microphone selection, one-turn then multi-turn validation, echo isolation, feature flag, and text-mode fallback.
+6. **Voice — Phase 6 — Implemented; deterministic fixture validated, native host blocked**
+   - Provider-neutral voice adapter, silent/text/WAV implementations, optional external TTS boundary, isolated student/tutor route plan, Linux capability probe/setup, Chromium microphone permission/selection config, one/multi-turn deterministic validation, echo isolation, safe-off flag, text fallback, and audio metadata are implemented.
+   - This Windows host cannot validate native PulseAudio/PipeWire routing and lacks FFmpeg. Native voice E2E is truthfully `BLOCKED`; synthetic WAV evidence does not claim a physical microphone.
 
 7. **Education Eval — Phase 7 — Planned**
    - Skill/subskill rubric registry, deterministic graders, independent AI-assisted UX grader, human calibration, confidence/limitations, and hard-failure precedence.
@@ -48,4 +49,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-Phase 5 Recording is implemented with safe opt-in and truthful FFmpeg/browser capability fallback. The current Windows host has no FFmpeg, so the dedicated video fixture is explicitly `BLOCKED` and does not claim `session.mp4`; screenshot checkpoint evidence remains available. Real staging execution remains blocked until an approved exact hostname, dedicated test account, and reset integration are configured. Voice, provider evaluator, replay, dashboard, and later capabilities remain out of scope.
+Phase 6 Voice Bridge is implemented with safe opt-in, deterministic fixture evidence and truthful capability gating. Native PulseAudio/PipeWire voice E2E is `BLOCKED` on this Windows host; FFmpeg is also unavailable. Text and screenshot fallback remain intact. Real staging execution remains blocked until an approved exact hostname, dedicated test account, and reset integration are configured. Education Eval, replay, real provider, dashboard, staging, production, and later capabilities remain out of scope.

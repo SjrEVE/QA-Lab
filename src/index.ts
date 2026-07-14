@@ -1,3 +1,5 @@
+export { chromiumVoiceOptions, createAudioRoutePlan, probeAudioRouting, validateAudioRoutePlan } from './audio-routing.js';
+export type { AudioCommandRunner, AudioRoutePlan, AudioRoutingCapability, ChromiumVoiceOptions } from './audio-routing.js';
 export { GuardedBrowserController } from './browser-controller.js';
 export type { BrowserAction, BrowserController, BrowserControllerOptions, BrowserEvent, LoginAdapter } from './browser-controller.js';
 export { assertAllowedBrowserUrl, decideBrowserRequest } from './browser-policy.js';
@@ -9,8 +11,8 @@ export type { CheckStatus, DoctorCheck, DoctorReport } from './doctor.js';
 export { createLogger } from './logger.js';
 export type { LogLevel, LogSink, StructuredLogger } from './logger.js';
 export { REDACTED, redactSecrets } from './redaction.js';
-export { PlaywrightFfmpegRecorder, probeFfmpeg, recordingEnabled } from './recorder.js';
-export type { FfmpegCapability, Recorder, RecorderCheckpoint, RecorderPrepareOptions, RecordingOutcome, RecordingState, RecordingSummary } from './recorder.js';
+export { PlaywrightFfmpegRecorder, audioArtifactMetadata, probeFfmpeg, recordingEnabled } from './recorder.js';
+export type { FfmpegCapability, Recorder, RecorderCheckpoint, RecorderPrepareOptions, RecordingAudioArtifact, RecordingOutcome, RecordingState, RecordingSummary } from './recorder.js';
 export { createRun, createRunId, RUN_STATUSES, writeArtifact } from './run-store.js';
 export type { RunRecord, RunStatus } from './run-store.js';
 export { assertAllowedStagingUrl, TargetDeniedError } from './security.js';
@@ -20,3 +22,7 @@ export { PERSONA_SCHEMA_VERSION, STUDENT_SCENARIO_VERSION, findStudentPersona, f
 export type { StudentPersona, StudentScenario } from './student-contracts.js';
 export { ManualResetAdapter, StubResetAdapter, runStudentQa } from './student-qa.js';
 export type { ResetAdapter, StudentQaOptions, StudentQaResult } from './student-qa.js';
+export { VoiceBridge } from './voice-bridge.js';
+export type { VoiceBridgeOptions, VoiceTurnInput, VoiceTurnResult } from './voice-bridge.js';
+export { DeterministicWavVoiceProvider, ExternalTtsVoiceProvider, MockSilentVoiceProvider, TextOnlyVoiceProvider, WavFixtureVoiceProvider, createDeterministicWav, inspectWav, voiceEnabled } from './voice-provider.js';
+export type { ExternalTtsAdapter, VoiceArtifact, VoiceProvider, VoiceRequest, WavInfo } from './voice-provider.js';

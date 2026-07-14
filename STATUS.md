@@ -2,10 +2,10 @@
 
 ## Current state
 
-- Current phase: **Phase 5 — Recording MVP**.
+- Current phase: **Phase 6 — Voice Bridge**.
 - Phase 0–3 foundation/browser/Web QA: **implemented and locally validated**.
 - Phase 4 deterministic Student text QA: **implemented and locally fixture-validated**.
-- Readiness label: `RECORDING_MVP_READY`.
+- Readiness label: `VOICE_BRIDGE_FIXTURE_READY`.
 - Phase 5 recording: **implemented with fixture-validated screenshot fallback**; dedicated video fixture is `BLOCKED` on this Windows host because FFmpeg is unavailable, so no `session.mp4` is claimed.
 - Real staging acceptance: **BLOCKED** pending approved exact host, dedicated test account, and working reset integration.
 
@@ -31,7 +31,7 @@
 - Fixture mode is explicit and permits only exact-port loopback HTTP.
 - Real run remains `BLOCKED` without staging URL/account/reset; no production target is accessed.
 - UX scores are deterministic state-based estimates and are labeled estimated with limitations; turns, duration, and DOM whiteboard states are observed.
-- No voice/microphone, provider brain, provider evaluator, replay/regression, dashboard, deployment, model arena, cohort, or Phase 5+ capability exists.
+- No real voice vendor, physical microphone claim, provider brain/evaluator, Education Eval, replay/regression, dashboard, deployment, model arena, or cohort exists.
 
 ## Phase 5 recording evidence
 
@@ -41,3 +41,13 @@
 - PASS video early deletion defaults on; FAIL/release retention and idempotent partial cleanup are supported.
 - Browser visuals only: no audio, microphone, TTS, voice, replay, or raw child data by default.
 - Current machine evidence: doctor reports FFmpeg `warn/not found`; `qa:recording:fixture` writes explicit `BLOCKED` evidence and exits non-zero rather than fabricating video success.
+
+## Phase 6 voice evidence
+
+- Vendor-neutral `VoiceRequest`, `VoiceArtifact`, `VoiceProvider`, silent/text/deterministic WAV providers and optional external TTS interface exist; no vendor SDK/key is hard-coded.
+- `student_audio` and `tutor_audio` routing plan is isolated; Chromium mic is `student_audio.monitor`; cross-monitor loopbacks are forbidden.
+- Linux PulseAudio/PipeWire probe is read-only. Idempotent setup creates only missing null sinks and refuses unsafe echo state; it is never auto-run.
+- `QA_ENABLE_VOICE` defaults off. Permission/media flags are applied only when enabled; failures preserve text mode and make no audio claim.
+- Deterministic WAV validity/duration, routing, permissions, one/multi-turn, fallback, redaction and metadata tests pass.
+- Windows host evidence: native Linux audio route is **BLOCKED** (`platform=win32`); deterministic fixture passes and explicitly claims no physical microphone. FFmpeg remains unavailable.
+- Phase 7 Education Eval, replay, real provider, staging and production remain out of scope.

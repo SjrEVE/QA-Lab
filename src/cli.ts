@@ -5,6 +5,7 @@ import { createRunId } from './run-store.js';
 import { ScriptedStudentBrain } from './student-brain.js';
 import { findStudentPersona, listStudentScenarios } from './student-contracts.js';
 import { runStudentQa, StubResetAdapter } from './student-qa.js';
+import { voiceEnabled } from './voice-provider.js';
 import { findWebScenario, listWebScenarios } from './web-scenario.js';
 import { runWebQa } from './web-qa.js';
 
@@ -18,13 +19,13 @@ async function main(args: readonly string[]): Promise<number> {
     const config = await loadConfig();
     print({
       service: 'qa-lab',
-      phase: 5,
-      readiness: 'RECORDING_MVP_READY',
+      phase: 6,
+      readiness: 'VOICE_BRIDGE_FIXTURE_READY',
       environment: config.environment,
       configVersion: config.version,
       allowedStagingHosts: config.staging.allowedHosts,
       artifactRoot: config.artifacts.root,
-      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voice: false, recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, replay: false, dashboard: false, deploy: false },
+      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, educationEval: false, replay: false, dashboard: false, deploy: false },
     });
     return 0;
   }

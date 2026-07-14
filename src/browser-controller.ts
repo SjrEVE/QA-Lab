@@ -29,6 +29,7 @@ export interface BrowserControllerOptions {
   readonly headless?: boolean;
   readonly preserveProfile?: boolean;
   readonly recordVideoDirectory?: string;
+  readonly voice?: { readonly enabled: boolean; readonly permissions?: readonly ['microphone']; readonly args?: readonly string[] };
 }
 
 export interface BrowserController {
@@ -74,7 +75,11 @@ export class GuardedBrowserController implements BrowserController {
       acceptDownloads: false,
       serviceWorkers: 'block',
       ...(this.#options.recordVideoDirectory ? { recordVideo: { dir: this.#options.recordVideoDirectory } } : {}),
+      ...(this.#options.voice?.enabled && this.#options.voice.args ? { args: [...this.#options.voice.args] } : {}),
     });
+    if (this.#options.voice?.enabled && this.#options.voice.permissions) {
+      await this.#context.grantPermissions([...this.#options.voice.permissions]);
+    }
     this.#context.setDefaultTimeout(this.#options.timeoutMs ?? 10_000);
     this.#context.setDefaultNavigationTimeout(this.#options.timeoutMs ?? 10_000);
     await this.#context.route('**/*', async (route) => {

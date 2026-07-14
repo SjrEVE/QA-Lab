@@ -3,6 +3,8 @@ import { access, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadConfig } from './config.js';
+import { probeAudioRouting } from './audio-routing.js';
+import { voiceEnabled } from './voice-provider.js';
 
 export type CheckStatus = 'pass' | 'warn' | 'fail';
 export interface DoctorCheck { readonly name: string; readonly status: CheckStatus; readonly detail: string }
@@ -36,5 +38,9 @@ export async function runDoctor(cwd = process.cwd()): Promise<DoctorReport> {
     checks.push({ name: 'config/artifact-root', status: 'fail', detail: error instanceof Error ? error.message : String(error) });
   }
   checks.push(commandCheck('ffmpeg', false), commandCheck('docker', false), commandCheck('firebase', false), commandCheck('gh', false));
+  const voice = voiceEnabled();
+  const audio = await probeAudioRouting();
+  checks.push({ name: 'voice-feature', status: voice ? 'pass' : 'warn', detail: voice ? 'enabled by explicit QA_ENABLE_VOICE=true' : 'disabled by safe default' });
+  checks.push({ name: 'voice-routing', status: audio.available ? 'pass' : 'warn', detail: `${audio.reason} ${audio.evidence.join('; ')}` });
   return { ok: checks.every((check) => check.status !== 'fail'), offline: true, checks };
 }

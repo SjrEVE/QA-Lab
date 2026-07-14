@@ -15,6 +15,14 @@ export interface RecorderCheckpoint {
   readonly screenshot: string;
 }
 
+export interface RecordingAudioArtifact {
+  readonly role: 'student' | 'tutor';
+  readonly state: RecordingState;
+  readonly file: string | null;
+  readonly source: string;
+  readonly limitation: string | null;
+}
+
 export interface RecordingSummary {
   readonly schemaVersion: 1;
   readonly enabled: boolean;
@@ -22,6 +30,7 @@ export interface RecordingSummary {
   readonly adapter: string;
   readonly video: string | null;
   readonly checkpoints: string;
+  readonly audio?: readonly RecordingAudioArtifact[];
   readonly limitations: readonly string[];
   readonly retained: boolean;
 }
@@ -87,7 +96,7 @@ export class PlaywrightFfmpegRecorder implements Recorder {
   private stopped = false;
   private current: RecordingSummary = {
     schemaVersion: 1, enabled: false, state: 'unavailable', adapter: this.name, video: null,
-    checkpoints: 'recording-checkpoints.jsonl', limitations: ['Recorder has not been prepared.'], retained: false,
+    checkpoints: 'recording-checkpoints.jsonl', audio: audioArtifactMetadata(false), limitations: ['Recorder has not been prepared.'], retained: false,
   };
 
   public constructor(private readonly probe: () => Promise<FfmpegCapability> = () => probeFfmpeg()) {}
@@ -110,7 +119,7 @@ export class PlaywrightFfmpegRecorder implements Recorder {
         : this.capability.available
           ? ['Browser video contains no audio; Phase 5 does not capture microphone, voice, or TTS.']
           : ['FFmpeg unavailable; session.mp4 cannot be produced. Screenshot timeline remains available.'];
-    this.current = { schemaVersion: 1, enabled: options.enabled, state, adapter: this.name, video: null, checkpoints: 'recording-checkpoints.jsonl', limitations, retained: false };
+    this.current = { schemaVersion: 1, enabled: options.enabled, state, adapter: this.name, video: null, checkpoints: 'recording-checkpoints.jsonl', audio: audioArtifactMetadata(false), limitations, retained: false };
     return this.current;
   }
 
@@ -180,6 +189,13 @@ export class PlaywrightFfmpegRecorder implements Recorder {
     const body = this.checkpointItems.length ? `${this.checkpointItems.map((item) => JSON.stringify(item)).join('\n')}\n` : '';
     await writeFile(path.join(this.options.artifactDirectory, this.current.checkpoints), body, { flag: 'wx' });
   }
+}
+
+export function audioArtifactMetadata(available: boolean, studentFile: string | null = null, tutorFile: string | null = null): readonly RecordingAudioArtifact[] {
+  return [
+    { role: 'student', state: available && studentFile ? 'available' : 'unavailable', file: available ? studentFile : null, source: 'student_audio.monitor', limitation: available && studentFile ? null : 'Student audio was not captured; no audio artifact is claimed.' },
+    { role: 'tutor', state: available && tutorFile ? 'available' : 'unavailable', file: available ? tutorFile : null, source: 'tutor_audio.monitor', limitation: available && tutorFile ? null : 'Tutor audio was not captured; no audio artifact is claimed.' },
+  ];
 }
 
 export function recordingEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
