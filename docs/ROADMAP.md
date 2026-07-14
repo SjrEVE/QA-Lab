@@ -46,9 +46,10 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 10. **Cohorts — Phase 9B — Implemented; deterministic fixture validated**
     - Versioned fixed golden and seeded exploratory cohorts cover six controlled dimensions, remain bounded and PII-free, reproduce from identical seed/config, vary across exploratory seeds, and adapt to Student QA contracts with zero provider calls.
 
-11. **Safety / Optimizer — Phase 10 — Planned**
-    - Child safety, PII, prompt injection, boundary/escalation and tool-safety suites; then cost–quality–latency measurement and constrained routing optimization.
+11. **Safety / Optimizer — Phase 10 — Implemented; deterministic fixture validated**
+    - Versioned Safety Lab covers child safety, PII, boundary/manipulation/distress escalation, three prompt-injection sources, tool/domain/shell/cloud/payment denial, data safety, redacted evidence, blocker precedence, and controller action validation.
+    - Versioned optimizer enforces quality/p95 latency/cost/zero-critical constraints, provenance-aware unknown handling, explicit cost formula assumptions, deterministic Pareto/ranking/ties, and evidence-backed routing proposals without mutation or deployment.
 
 ## Current execution gate
 
-Phase 9 Model Arena/cohorts is implemented with deterministic local fixture evidence and zero provider calls. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Real evaluator/provider, Safety Lab, optimizer, dashboard, staging/production execution, and auto-fix remain out of scope.
+The complete Phase 0–10 authority roadmap is implemented at deterministic local-fixture scope. Phase 10 uses scripted/mock agents, safely phrased synthetic data, and zero harmful/live provider calls. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Real providers/evaluators, native Linux voice/recording acceptance, physical microphone, staging/production execution, dashboard, auto-fix, provider configuration mutation, and deployment are unaccepted or out of scope.

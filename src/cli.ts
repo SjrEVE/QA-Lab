@@ -23,13 +23,13 @@ async function main(args: readonly string[]): Promise<number> {
     const config = await loadConfig();
     print({
       service: 'qa-lab',
-      phase: 9,
-      readiness: 'MODEL_ARENA_COHORT_FIXTURE_READY',
+      phase: 10,
+      readiness: 'PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY',
       environment: config.environment,
       configVersion: config.version,
       allowedStagingHosts: config.staging.allowedHosts,
       artifactRoot: config.artifacts.root,
-      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: true, cohorts: true, providerArenaCalls: false, safetyLab: false, optimizer: false, dashboard: false, deploy: false },
+      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: true, cohorts: true, providerArenaCalls: false, safetyLab: true, scriptedSafetyOnly: true, optimizer: true, optimizerProposalOnly: true, providerConfigMutation: false, dashboard: false, deploy: false },
     });
     return 0;
   }

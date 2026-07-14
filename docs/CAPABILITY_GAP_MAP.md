@@ -43,7 +43,7 @@ A planning note, interface idea, config flag, tool detected by doctor, or artifa
 | Replay / Regression | Implemented; deterministic fixture validated | `src/event-timeline.ts`; `src/replay-engine.ts`; `src/regression.ts`; `src/incident-regression.ts`; CLI/tests and ignored Phase 8 fixture evidence | Provider-free replay and artifact comparison are implemented. Web emits unified timeline; Student JSONL can be normalized as recorded source evidence. No live provider replay, staging acceptance, Model Arena, cohorts, dashboard, or auto-fix. |
 | Model Arena | Implemented; deterministic fixture validated | `src/model-arena.ts`; versioned fixture config; tests; `qa:arena` and `qa:arena:fixture`; ignored arena JSON/Markdown evidence | Scripted configurations only. Latency is fixture-observed and cost is unknown; no provider/staging calls or marketing benchmark claim. |
 | Synthetic Cohorts | Implemented; deterministic fixture validated | `src/synthetic-cohorts.ts`; golden/exploratory configs; tests; cohort manifest fixture evidence | Small bounded fixture cohorts only; no real child data, provider calls, large dataset, or Safety Lab behavior. |
-| Safety / Optimizer | Planned | Foundation guards and redaction partially support the future boundary | No child-safety suite, PII/prompt-injection cases, escalation rubric, tool-safety runtime, cost accounting, quality constraint solver, or routing optimizer. |
+| Safety / Optimizer | Implemented; deterministic fixture validated | `src/safety-lab.ts`; `src/quality-optimizer.ts`; versioned config/scenarios; tests; Phase 10 JSON/Markdown fixture evidence | Scripted/mock and synthetic fixture scope only. No harmful live call, real child data, real provider measurement, provider configuration mutation, staging/production, auto-fix, or deployment. Routing outputs are proposals, not runtime policy changes. |
 
 ## Explicit blockers and external prerequisites
 
@@ -58,4 +58,4 @@ These are **blocked inputs**, not implemented capabilities:
 
 ## Truthful current conclusion
 
-QA Lab is `MODEL_ARENA_COHORT_FIXTURE_READY`, not real-provider, native-voice, or staging-accepted. Phase 9 provides deterministic provider-free arena comparison and bounded synthetic cohorts while preserving Phase 8 replay/regression. Native Linux routing, real provider/evaluator, physical microphone acceptance, dashboard, staging/production, auto-fix, Safety Lab, and optimizer are not claimed.
+QA Lab is `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`: the complete Phase 0–10 roadmap is implemented and locally deterministic-fixture validated. This is not real-provider, native-voice/recording, or staging acceptance. Native Linux routing, FFmpeg recording proof, physical microphone, approved staging host/account/reset, real provider/evaluator metrics and privacy review remain blocked or unaccepted. Dashboard, production, auto-fix/deploy, and provider configuration mutation are not implemented.

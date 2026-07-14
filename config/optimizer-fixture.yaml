@@ -1,0 +1,35 @@
+schemaVersion: 1
+id: phase10.fixture
+constraints:
+  qualityScoreMinimum: 85
+  p95LatencyMsMaximum: 2500
+  costPerSessionMaximum: 0.50
+  criticalFailuresMaximum: 0
+costFormula:
+  version: 1
+  currency: USD
+  sessionMinutes: 30
+  assumptions:
+    - Unit rates are fixture estimates, not vendor quotes.
+    - Session usage is synthetic and excludes taxes and discounts.
+routingProposals:
+  - route: simple_turn
+    candidateId: economy
+    rationale: Lowest eligible fixture cost for a bounded simple turn.
+    limitation: Scripted fixture evidence only.
+  - route: repeated_confusion
+    candidateId: strong
+    rationale: Higher fixture quality for repeated confusion.
+    limitation: No real-provider or child outcome validation.
+  - route: vision_board
+    candidateId: strong
+    rationale: Proposed stronger lane for board interpretation.
+    limitation: No live image or vision call was made.
+  - route: verifier_final
+    candidateId: strong
+    rationale: Preserve an independent final verification lane.
+    limitation: Proposal does not configure a verifier.
+  - route: degraded_text
+    candidateId: economy
+    rationale: Prefer bounded text when realtime capability degrades.
+    limitation: Native voice remains unaccepted.

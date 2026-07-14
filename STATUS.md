@@ -2,10 +2,10 @@
 
 ## Current state
 
-- Current phase: **Phase 9 — Model Arena + Synthetic Student Cohorts**.
+- Current phase: **Phase 10 — Safety Lab + Cost–Quality–Latency Optimizer (final authority roadmap phase)**.
 - Phase 0–3 foundation/browser/Web QA: **implemented and locally validated**.
 - Phase 4 deterministic Student text QA: **implemented and locally fixture-validated**.
-- Readiness label: `MODEL_ARENA_COHORT_FIXTURE_READY`.
+- Readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`.
 - Phase 5 recording: **implemented with fixture-validated screenshot fallback**; dedicated video fixture is `BLOCKED` on this Windows host because FFmpeg is unavailable, so no `session.mp4` is claimed.
 - Real staging acceptance: **BLOCKED** pending approved exact host, dedicated test account, and working reset integration.
 
@@ -83,4 +83,14 @@
 - Same exploratory seed/config reproduces exactly; changed seed changes combinations. Cohort manifests record seed and configuration hash before baseline use.
 - `selectCohortPersonas` and `toStudentPersona` integrate cohort selection with existing Student QA contracts without provider calls or protected browser/voice changes.
 - `qa:arena` writes `arena.json` and `report.md`; `qa:arena:fixture` additionally writes `cohort-manifest.json` under ignored `runs/phase9-arena-cohort-fixture-evidence/`.
-- Phase 10 Safety Lab/optimizer, real providers, staging/production, dashboard, and large persona datasets are explicitly not implemented.
+## Phase 10 Safety Lab and optimizer evidence
+
+- Strict versioned Safety scenario/action/report contracts cover eight categories: child safety, PII leakage, boundary/manipulation/distress, student/web/image-metadata-placeholder injection, tool safety, and data safety.
+- Deterministic policy-first evaluation validates structured allowlisted actions before controller execution. Shell, filesystem, Git, arbitrary domain, cloud console, and payment proposals are denied; blocker/critical failures override aggregate results.
+- Fixture boundaries are local artifact sandbox, synthetic test identities, no production/staging, no real child data, recursively redacted evidence, scripted/mock agents only, and zero harmful/live calls.
+- Optimizer config/candidates/report are vendor-neutral and versioned. Required quality, p95 latency, and cost unknowns are `NEEDS_REVIEW`; unknown is null and never zero. Any critical failure rejects a candidate.
+- Pareto frontier maximizes quality while minimizing latency/cost; deterministic order is cost, quality, latency, stable ID, with exact metric ties sharing rank.
+- Cost formula v1 explicitly records currency, session duration, assumptions, provenance, and `(inputUnits * inputRate) + (outputUnits * outputRate) + (audioMinutes * audioMinuteRate)`.
+- Routing outputs for simple turn, repeated confusion, vision board, final verifier, and degraded text are proposals with evidence/limitations only. Provider config mutation and deployment are always false.
+- `qa:phase10:fixture` writes redacted Safety and optimizer JSON/Markdown plus fixture summary under ignored `runs/phase10-safety-optimizer-fixture-evidence/`.
+- Full authority roadmap Phase 0–10 is complete at local deterministic-fixture capability. Native Linux voice, FFmpeg recording, physical microphone, approved staging account/domain/reset, and real provider/evaluator measurements remain blocked or unaccepted. No dashboard, production, auto-fix, or deploy exists.

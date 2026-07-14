@@ -1,12 +1,20 @@
 # QA Lab
 
+## Phase 10 Safety Lab + Cost–Quality–Latency Optimizer
+
+Safety Lab trong `src/safety-lab.ts` dùng schema/version và deterministic policy-first evaluator cho child safety, PII, boundary/manipulation/distress escalation, injection từ student text/web/image-metadata placeholder, tool/domain/shell/cloud/payment denial, và data/artifact redaction. Structured actions phải qua allowlist trước controller; fixture chỉ dùng scripted/mock agent và dữ liệu tổng hợp được diễn đạt an toàn, không gọi harmful/live provider, staging hay production.
+
+Optimizer trong `src/quality-optimizer.ts` áp constraints quality/p95 latency/cost/critical failure, giữ provenance `observed`/`estimated`/`unknown`, đưa required unknown về `NEEDS_REVIEW` thay vì giả zero, tính Pareto quality/latency/cost và ranking/tie deterministic. Cost formula v1 cùng assumptions được ghi rõ; routing simple turn/repeated confusion/vision board/verifier final/degraded text chỉ là proposal có evidence/limitations, không mutate provider config và không deploy.
+
+Chạy `npm.cmd run qa:phase10:fixture`. Evidence JSON/Markdown nằm dưới ignored `runs/phase10-safety-optimizer-fixture-evidence/`. Roadmap Phase 0–10 đã hoàn tất ở mức local deterministic fixture; native Linux voice, FFmpeg recording, physical microphone, real providers và staging vẫn blocked/unaccepted.
+
 ## Phase 9 Model Arena + Synthetic Student Cohorts
 
 Model Arena và cohorts được triển khai provider-free trong `src/model-arena.ts` và `src/synthetic-cohorts.ts`. Arena dùng config/version/hash vendor-neutral, cùng scenario/cohort/seed/rubric/build/evidence version, ít nhất hai scripted brain configurations với evaluator độc lập, hard-blocker exclusion, deterministic ranking/tie, reliability, consistency variance, và latency/cost provenance `observed`/`estimated`/`unknown`. Đây là internal fixture evidence, không phải marketing benchmark.
 
 Golden cohort gồm ba persona cố định; exploratory cohort sinh sáu persona từ seed, bounded, PII-free, có đủ ability/misconception/behavior/communication/environment/learning psychology. `toStudentPersona` và `selectCohortPersonas` tích hợp contract Student QA mà không gọi provider. Chạy `npm.cmd run qa:arena:fixture`; evidence gồm `arena.json`, `report.md`, và `cohort-manifest.json` dưới ignored `runs/phase9-arena-cohort-fixture-evidence/`.
 
-Phase 10 Safety Lab/optimizer, provider thật, staging/production và dashboard không nằm trong phạm vi này.
+Provider thật, staging/production và dashboard không được triển khai.
 
 ## Phase 7 Education/UX Evaluation
 
@@ -55,6 +63,7 @@ npm.cmd run qa:student:fixture
 npm.cmd run qa:recording:fixture
 npm.cmd run qa:voice:fixture
 npm.cmd run qa:arena:fixture
+npm.cmd run qa:phase10:fixture
 npm.cmd run lint
 npm.cmd test
 npm.cmd run build
