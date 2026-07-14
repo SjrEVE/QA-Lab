@@ -4,7 +4,9 @@
 
 The Founder/Product Owner controls product intent. Technical agents own safe implementation and truthful validation. This repository is independent: do not read, inherit, modify, or copy source/config/secrets from another repository.
 
-Current approved scope is Phase 0–1 foundation only. Inspect before editing and keep commits focused.
+Read `docs/QA_LAB_PRODUCT_STRATEGY.md` as the authoritative product strategy, `docs/ROADMAP.md` as the authoritative delivery order, and `docs/CAPABILITY_GAP_MAP.md` as capability truth. `docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md` is supporting context only and cannot override those documents.
+
+Current implemented scope is Phase 0–1 foundation only. Phase 2 remains unimplemented and requires an explicit task authorization. Inspect before editing and keep commits focused.
 
 ## Hard prohibitions
 

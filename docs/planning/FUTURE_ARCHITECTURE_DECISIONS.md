@@ -1,165 +1,70 @@
-# QA Lab — Future Architecture Decisions
+# QA Lab — Supporting Architecture Notes
 
-> Preserved Founder direction for development after Phase 1. This document is planning context only. Browser automation, voice, recording, dashboards, model providers, deployment, and production access are explicitly out of scope for Phase 0–1.
+> **Authority notice:** This file is non-authoritative supporting context preserved from the Phase 0–1 foundation work. Product intent, architecture direction, and roadmap order are controlled by [`../QA_LAB_PRODUCT_STRATEGY.md`](../QA_LAB_PRODUCT_STRATEGY.md). Current capability truth is recorded in [`../CAPABILITY_GAP_MAP.md`](../CAPABILITY_GAP_MAP.md), and delivery order in [`../ROADMAP.md`](../ROADMAP.md).
+>
+> Nothing below proves a runtime capability. Browser automation, Web QA, Student QA, recording, voice, Education Eval, replay/regression, Model Arena, cohorts, safety, optimization, provider execution, deployment, and production access are not implemented by these notes.
 
-## Core principle
+## Preserved Phase 0–1 reasoning
 
-QA Lab must not depend on Hermes. Hermes is an optional brain/provider and a specialized Student QA runner, never the whole system. The QA Controller selects bounded scenarios before invoking any agent. Models propose typed actions; policy validates them; deterministic executors perform them.
+These notes captured useful architectural reasoning before the authoritative Founder strategy was recorded. They are retained as evidence and implementation context, not as a competing source of product authority.
+
+### Controller and provider boundary
+
+QA Lab must not depend on Hermes. Hermes is an optional brain/provider, never the whole system. The controller selects bounded scenarios before invoking an agent. Models propose typed actions; policy validates them; deterministic executors perform them.
+
+A future shape considered during foundation was:
 
 ```text
 QA Lab Core / QA Controller
 ├── Scenario engine / risk-based selector
-├── Web Smoke Runner (fast, deterministic)
-├── Visual/Copy Runner (layout, copy, responsive)
-├── Student UX Runner (Hermes or another brain as student)
-├── Browser driver (future Playwright adapter)
-├── Brain adapters (Scripted, Gemini, Claude, OpenAI, Hermes)
-├── Voice adapter (future Gemini Live/TTS or equivalent)
-├── Rule evaluator (hard failures)
-├── Independent AI UX evaluator (subjective review)
+├── Web Smoke Runner
+├── Visual/Copy Runner
+├── Student UX Runner
+├── Browser driver
+├── Brain and voice adapters
+├── Rule and independent UX evaluators
 ├── Artifact store
 └── Report, regression, and issue deduplication
 ```
 
-Codex is a technical investigator after an issue is confirmed: inspect artifacts/source/diff, identify root cause, and prepare a repair task. It is not the preferred student persona brain. Gemini is the preferred initial Student QA brain; Claude or Gemini may review UX independently. Scripted/Mock brains support cheap deterministic regression.
+This shape remains broadly compatible with the strategy but does not authorize implementation or override its ordered roadmap.
 
-## Input contract and scenario selection
+### Bounded scenario execution
 
-A run receives bounded metadata such as staging base URL, build ID, commit, changed areas, and run mode. The Controller—not Hermes—selects scenarios based on changed areas. A parent-report-only change must not trigger a 30-minute student lesson; whiteboard/Gemini Live/runtime changes may trigger relevant student, reconnect, and cleanup scenarios.
+A future run may receive approved staging metadata such as base URL, build ID, commit, changed areas, and run mode. The controller—not a model—selects scenarios from changed areas. Models must not discover arbitrary scope. Scenarios require explicit goals, bounded behavior, stop conditions, maximum duration/turns/failures, and terminal status.
 
-Models must not discover arbitrary test scope. Every scenario has explicit goals, deterministic persona behavior where possible, stop conditions, maximum duration/turns/failures, and terminal status:
+Risk tiers considered:
 
-```text
-COMPLETED | FAILED | BLOCKED | TIMED_OUT | APP_CRASHED
-```
+1. **Fast Gate:** deterministic availability, login, API, lesson start, control, console/network, and principal layout checks.
+2. **Focused UX:** bounded layout, responsive, copy, CTA, animation, loading, navigation, accessibility, and screenshot review.
+3. **Student Session:** bounded lesson evaluation only for relevant runtime/prompt/voice/whiteboard/mastery/exercise changes or scheduled release checks.
 
-## Three test tiers
+### Observation and evaluator separation
 
-1. **Fast Gate** — after every staging deploy; deterministic checks only; target a few minutes. Check availability, login, primary APIs, lesson start, key controls, severe console errors, responsive layout, and microphone permission flow. If this fails, stop before paid Student QA.
-2. **Focused UX** — for UI, copy, whiteboard, or lesson-flow changes; target 5–10 minutes. Check layout, responsive behavior, copy, CTA, animation, loading, navigation, basic accessibility, and screenshot comparison. Deterministic checks precede AI vision.
-3. **Student Session** — only for lesson runtime, prompt, voice, whiteboard, mastery, exercise changes, nightly, or release runs. Hermes/Gemini/Claude may act as a student for bounded 10–30 minute scenarios and must not modify code.
+Prefer structured sources in this order when they exist: DOM/accessibility tree, transcript events, whiteboard debug events, screenshot checkpoints, then vision for genuinely visual judgments.
 
-## Student QA lifecycle
+The student actor may emit an experience diary but cannot be the sole final judge. Deterministic rules evaluate hard failures first; an independent evaluator may assess subjective teaching, age appropriateness, copy, and UX but cannot override a hard blocker.
 
-1. Reset a test student account.
-2. Reuse a dedicated authenticated staging browser profile.
-3. Open the exact approved lesson scenario.
-4. Verify microphone, audio, and transcript readiness.
-5. Consume the latest final tutor transcript/event.
-6. Decide a bounded student reaction from persona/scenario state.
-7. Use the voice bridge when required.
-8. Record transcript, whiteboard events, latency, and decisions.
-9. Continue until scenario goal or hard stop.
-10. Evaluate independently, write report, and clean up session.
+### Artifacts, retention, and deduplication
 
-Only minimal state should reach the brain: persona, goals, latest final tutor turn, current problem state, 3–5 recent turns, current misconception, understanding level, used behaviors, and remaining goals. Do not repeatedly send a full long transcript. Invoke a student brain on final tutor-turn events, not by frequent polling.
+Future runs may produce summaries, reports, issues, transcripts, student turns, metrics, console/network logs, screenshots, and video. Passing runs should retain minimal evidence; failures and release runs may retain richer evidence under an explicit privacy, disk, and retention policy.
 
-## Observation priority
-
-Prefer, in order:
-
-1. DOM/accessibility tree.
-2. Transcript events.
-3. Whiteboard debug events.
-4. Screenshots at checkpoints.
-5. Vision only when visual judgment is needed.
-
-Checkpoint images include lesson start, major board change, error, activity end, and final screen. Structured timestamps should measure delays without requiring continuous visual inference.
-
-## Student and evaluator separation
-
-The student actor emits a diary (understanding, clarity, smoothness, reason) but cannot decide the entire verdict. An independent evaluator consumes transcript, timestamps, board events, console/network logs, screenshots, student diary, and final exercise outcome.
-
-Verdicts:
-
-```text
-PASS | PASS_WITH_RISKS | FAIL | NEEDS_REVIEW
-```
-
-Rule evaluation runs first for crashes, latency, overlap, missing transcript, and request failures. AI evaluates subjective teaching, age appropriateness, copy, and UX. AI may not override a hard failure such as a WebSocket crash.
-
-## Run modes
-
-- **post-deploy:** Fast Gate plus scenarios selected from changed areas; no full lesson by default.
-- **nightly:** all Web QA plus 2–3 student personas and one short lesson per persona; regression comparison.
-- **release:** critical flows/viewports, multiple personas, voice, reconnect, 20–30 minute lessons, parent report, usage/session cleanup.
-- **manual:** explicit scenario/persona/duration/recording flags.
-
-Start with five high-value personas: weak/common misconception, average/moderate hints, strong/fast, distracted, and communication difficulty. Persona plans remain partly deterministic; AI naturalizes wording but cannot invent all behavior.
-
-## Artifacts and retention
-
-Each future run may produce:
-
-```text
-runs/<run-id>/
-├── summary.json
-├── report.md
-├── issues.json
-├── transcript.jsonl
-├── student-turns.jsonl
-├── metrics.json
-├── console.jsonl
-├── network.jsonl
-├── screenshots/
-└── session.mp4
-```
-
-Retain minimal summaries/metrics/checkpoint images for passing runs and delete video after a short period. Retain full evidence for failures and longer for release runs. Default recording policy should be retain-on-failure.
-
-## Regression and issue deduplication
-
-Fingerprint issues using category, route, element, normalized error, and scenario. Aggregate occurrences and affected runs instead of spamming duplicates. Classify each run's issue state as:
+Potential issue lifecycle:
 
 ```text
 NEW | PERSISTING | REGRESSED | RESOLVED | FLAKY
 ```
 
-Repair flow: deploy staging build A, detect issue, Codex verifies code/artifacts, coder repairs, deploy build B, rerun Fast Gate plus the failing and related regression scenarios. Stop after `maxRepairCycles: 3` and mark `NEEDS_HUMAN_REVIEW`.
+Fingerprinting may use category, route, element, normalized error, and scenario to reduce duplicate issues. This remains planned until replay/regression is implemented and validated.
 
-## Performance and resource policy
+### Resource and provider notes
 
-Reuse one browser process/profile across sequential scenarios; reset app state rather than the VPS. Login once with a dedicated staging profile. Use deterministic Web QA instead of Hermes. Capture vision/video only when necessary. Use cheap/fast models for simple behavior, stronger models for final UX review, and no model for deterministic checks.
+Foundation reasoning favored one browser process/profile for sequential scenarios, one student voice session at a time, deterministic checks before model calls, and a simple file-based queue before introducing database/queue infrastructure.
 
-Initial concurrency target:
+Scenario code should remain provider-neutral. Scripted/mock adapters support deterministic tests; provider adapters may be added only in their authorized phases. Brain and voice remain separate contracts even when supplied by the same vendor.
 
-```text
-1 browser
-1 student voice session at a time
-2–4 deterministic Web QA workers
-```
+### Security boundary
 
-The resource controller observes CPU, RAM, disk, browser processes, audio sinks, and active sessions. Queue additional student voice runs with a simple file-based queue (`pending`, `running`, `completed`) before considering Redis/SQLite.
+Future model capabilities must be allowlisted and validated by the controller: approved observation, click/type/scroll targets, speak, wait, issue reporting, and finish. No model receives shell, arbitrary filesystem editing, Git, Firebase, deployment, production, unknown-domain navigation, payment, or real child data access.
 
-## Provider-neutral brain contract
-
-Scenario code must not depend on a model provider. A brain returns a typed decision such as click, type, speak, wait, report issue, or finish. The Controller validates targets, domains, limits, and permissions before execution.
-
-Future adapters:
-
-```text
-ScriptedBrain
-MockBrain
-GeminiBrain
-ClaudeBrain
-OpenAIBrain
-HermesBrain
-```
-
-Recommended initial split:
-
-```text
-Playwright smoke → Gemini student → Claude independent UX evaluation
-→ hard rule evaluation → regression/dedup → report
-→ Codex technical investigation → coder repair → targeted retest
-```
-
-Brain and voice should remain separate even if both use Gemini, so failures are debuggable and behavior remains more deterministic.
-
-## Security boundaries
-
-A model may receive only allowlisted capabilities: observe approved DOM/screenshot/transcript, click/type/scroll on approved targets, speak, wait, report an issue, and finish a scenario. It must not receive shell, filesystem editing, Git, Firebase, deployment, production, arbitrary navigation, or unknown-domain access. Exact-host HTTPS staging enforcement belongs in the Controller before any future driver/provider executes an action.
-
-## Delivery order
-
-Phase 0–1 deliver only local foundation, typed/versioned configuration, guards, safe run/artifact primitives, redaction/logging, CLI status, offline-friendly doctor, documentation, and tests. Future phases may add deterministic browser runners first, then focused UX, then bounded Student QA/providers/voice, then regression/reporting maturity. A dashboard is deferred until run data is stable; a clear CLI is sufficient initially.
+The exact-host HTTPS staging guard implemented in Phase 1 is a foundation primitive. Browser-level enforcement does not exist until Phase 2 is implemented and validated.

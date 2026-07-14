@@ -2,6 +2,10 @@
 
 Local-first, policy-guarded foundation for a future QA Controller. Không kiếm được người kiểm thì mình tự kiểm thôi.
 
+## Product authority
+
+The Founder-approved product strategy is [`docs/QA_LAB_PRODUCT_STRATEGY.md`](docs/QA_LAB_PRODUCT_STRATEGY.md). Use [`docs/ROADMAP.md`](docs/ROADMAP.md) for the authoritative delivery order and [`docs/CAPABILITY_GAP_MAP.md`](docs/CAPABILITY_GAP_MAP.md) for implemented/partial/planned/blocked capability truth. [`docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md`](docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md) is supporting context only.
+
 ## Scope
 
 This repository currently implements only Phase 0 and Phase 1: Windows runtime audit, strict TypeScript foundation, versioned configuration, staging guardrails, safe local artifacts, redacted structured logs, offline doctor/status CLI, documentation, and tests.
@@ -51,4 +55,4 @@ Unknown YAML keys, unsupported versions, non-staging environments, malformed hos
 
 All future targets must pass exact normalized hostname equality and HTTPS checks. URL credentials and non-default ports are denied. Run/artifact names are safe single path segments and writes use exclusive creation. Logger payloads are recursively redacted.
 
-See `docs/threat-model.md`, `docs/environment-audit.md`, `AGENTS.md`, and `STATUS.md`.
+See [`docs/threat-model.md`](docs/threat-model.md), [`docs/environment-audit.md`](docs/environment-audit.md), [`AGENTS.md`](AGENTS.md), and [`STATUS.md`](STATUS.md).
