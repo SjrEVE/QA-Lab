@@ -36,7 +36,7 @@ Không có provider thật, credential, Education Eval, replay, dashboard, deplo
 
 ## Product authority
 
-Founder strategy: [`docs/QA_LAB_PRODUCT_STRATEGY.md`](docs/QA_LAB_PRODUCT_STRATEGY.md). Delivery order: [`docs/ROADMAP.md`](docs/ROADMAP.md). Capability truth: [`docs/CAPABILITY_GAP_MAP.md`](docs/CAPABILITY_GAP_MAP.md). Governance: [`AGENTS.md`](AGENTS.md).
+Founder strategy: [`docs/QA_LAB_PRODUCT_STRATEGY.md`](docs/QA_LAB_PRODUCT_STRATEGY.md). Delivery order: [`docs/ROADMAP.md`](docs/ROADMAP.md). Capability truth: [`docs/CAPABILITY_GAP_MAP.md`](docs/CAPABILITY_GAP_MAP.md). Authoritative Phase 0–10 system security model and future staging gates: [`docs/threat-model.md`](docs/threat-model.md). Governance: [`AGENTS.md`](AGENTS.md).
 
 ## Requirements and setup
 
@@ -80,7 +80,7 @@ npm.cmd run validate
 
 ## Security model
 
-Staging navigation, redirects, subresources, and WebSockets require exact normalized hostname membership and HTTPS/WSS. Fixture HTTP requires explicit loopback mode and exact ephemeral port. StudentBrain can propose only typed lesson input/click, bounded wait, issue report, or finish actions; it receives no shell, source, filesystem editing, Git, cloud console, arbitrary navigation, provider, voice, or deploy capability. Run artifacts are redacted and run paths are validated.
+The authoritative system threat model is [`docs/threat-model.md`](docs/threat-model.md). Staging navigation, redirects, popups, subresources, and WebSockets require exact normalized hostname membership and HTTPS/WSS. Fixture HTTP requires explicit loopback mode and exact ephemeral port. StudentBrain can propose only typed lesson input/click, bounded wait, issue report, or finish actions; it receives no shell, source, filesystem editing, Git, cloud console, arbitrary navigation, provider, voice, or deploy capability. Run artifacts are redacted and run paths are validated. Phase 10 Safety evidence is a contract fixture, not a real tutor red-team result.
 
 See [`docs/threat-model.md`](docs/threat-model.md), [`docs/environment-audit.md`](docs/environment-audit.md), and [`STATUS.md`](STATUS.md).
 

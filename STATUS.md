@@ -26,6 +26,7 @@
 
 ## Security and truthful boundaries
 
+- The authoritative Phase 0–10 system threat model, status matrix, residual risks, verification map, and future staging security gates are documented in `docs/threat-model.md`.
 - Phase 2 exact-host HTTPS/WSS, dedicated profile, request policy, redaction, and artifact protections remain in force.
 - Fixture mode is explicit and permits only exact-port loopback HTTP.
 - Real run remains `BLOCKED` without staging URL/account/reset; no production target is accessed.
@@ -84,7 +85,7 @@
 - `qa:arena` writes `arena.json` and `report.md`; `qa:arena:fixture` additionally writes `cohort-manifest.json` under ignored `runs/phase9-arena-cohort-fixture-evidence/`.
 ## Phase 10 Safety Lab and optimizer evidence
 
-- A strict versioned Safety policy-contract fixture covers eight categories: child safety, PII leakage, boundary/manipulation/distress, student/web/image-metadata-placeholder injection, tool safety, and data safety. Real tutor red-team execution is not implemented.
+- A strict versioned Safety policy-contract fixture covers eight categories: child safety, PII leakage, boundary/manipulation/distress, student/web/image-metadata-placeholder injection, tool safety, and data safety. This is contract-fixture evidence only; real tutor or multimodal provider red-team execution is not implemented.
 - Deterministic policy-first evaluation validates structured allowlisted actions before controller execution. Shell, filesystem, Git, arbitrary domain, cloud console, and payment proposals are denied; blocker/critical failures override aggregate results.
 - Fixture boundaries are local artifact sandbox, synthetic test identities, no production/staging, no real child data, recursively redacted evidence, scripted/mock agents only, and zero harmful/live calls.
 - Optimizer fixture config/candidates/report provide a vendor-neutral algorithm foundation, not a real provider-configuration optimizer. Required quality, p95 latency, and cost unknowns are `NEEDS_REVIEW`; unknown is null and never zero. Any critical failure rejects a candidate.
