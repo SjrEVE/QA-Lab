@@ -2,11 +2,11 @@
 
 ## Current state
 
-- Current phase: **Phase 4 — Student QA text-mode MVP**.
+- Current phase: **Phase 5 — Recording MVP**.
 - Phase 0–3 foundation/browser/Web QA: **implemented and locally validated**.
 - Phase 4 deterministic Student text QA: **implemented and locally fixture-validated**.
-- Readiness label: `STUDENT_TEXT_QA_MVP_READY`.
-- Next roadmap capability: **Phase 5 Recording**, explicitly not implemented.
+- Readiness label: `RECORDING_MVP_READY`.
+- Phase 5 recording: **implemented with fixture-validated screenshot fallback**; dedicated video fixture is `BLOCKED` on this Windows host because FFmpeg is unavailable, so no `session.mp4` is claimed.
 - Real staging acceptance: **BLOCKED** pending approved exact host, dedicated test account, and working reset integration.
 
 ## Phase 4 evidence
@@ -31,4 +31,13 @@
 - Fixture mode is explicit and permits only exact-port loopback HTTP.
 - Real run remains `BLOCKED` without staging URL/account/reset; no production target is accessed.
 - UX scores are deterministic state-based estimates and are labeled estimated with limitations; turns, duration, and DOM whiteboard states are observed.
-- No recording/FFmpeg, voice/microphone, provider brain, provider evaluator, replay/regression, dashboard, deployment, model arena, cohort, or Phase 5+ capability exists.
+- No voice/microphone, provider brain, provider evaluator, replay/regression, dashboard, deployment, model arena, cohort, or Phase 5+ capability exists.
+
+## Phase 5 recording evidence
+
+- Vendor-neutral Recorder lifecycle is implemented in src/recorder.ts.
+- QA_ENABLE_RECORDING defaults off; FFmpeg is optional and doctor warns when absent.
+- Checkpoints JSONL and screenshot fallback remain available; session.mp4 is only claimed when produced.
+- PASS video early deletion defaults on; FAIL/release retention and idempotent partial cleanup are supported.
+- Browser visuals only: no audio, microphone, TTS, voice, replay, or raw child data by default.
+- Current machine evidence: doctor reports FFmpeg `warn/not found`; `qa:recording:fixture` writes explicit `BLOCKED` evidence and exits non-zero rather than fabricating video success.

@@ -24,8 +24,9 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Versioned persona/student scenario contracts, vendor-neutral bounded StudentBrain, deterministic scripted adapter, browser-only transcript loop, reset boundary, truthful lifecycle/limits, UX diary, turn/whiteboard/screenshot artifacts, deterministic checks, and independent report.
    - Real staging execution is `BLOCKED` without approved exact host, dedicated account, and working reset integration. UX scores are explicitly estimated; no provider brain/evaluator is present.
 
-5. **Recording — Phase 5 — Planned**
-   - Recorder interface, screenshot timeline, FFmpeg integration when locally viable, synchronized timestamps, artifact links, retention policy, disk guard, and cleanup.
+5. **Recording — Phase 5 — Implemented; video fixture capability-blocked on this machine**
+   - Vendor-neutral Recorder interface, lifecycle, screenshot timeline, FFmpeg/browser-video adapter, synchronized checkpoint timestamps, report links, retention policy, disk guard, and partial cleanup are implemented.
+   - The Windows recording fixture emits explicit `BLOCKED` evidence because FFmpeg is unavailable; no `session.mp4` success is claimed. Web/Student fixture recording fallback is locally validated.
 
 6. **Voice — Phase 6 — Planned**
    - Provider-neutral voice adapter, virtual student/tutor audio routing, Chromium microphone selection, one-turn then multi-turn validation, echo isolation, feature flag, and text-mode fallback.
@@ -47,4 +48,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-Phase 4 Student text QA MVP is complete with deterministic eight-turn local fixture evidence. Phase 5 Recording is next but remains unimplemented. Real staging execution remains blocked until an approved exact hostname, dedicated test account, and reset integration are configured. Recording, voice, provider evaluator, replay, dashboard, and later capabilities remain out of scope.
+Phase 5 Recording is implemented with safe opt-in and truthful FFmpeg/browser capability fallback. The current Windows host has no FFmpeg, so the dedicated video fixture is explicitly `BLOCKED` and does not claim `session.mp4`; screenshot checkpoint evidence remains available. Real staging execution remains blocked until an approved exact hostname, dedicated test account, and reset integration are configured. Voice, provider evaluator, replay, dashboard, and later capabilities remain out of scope.

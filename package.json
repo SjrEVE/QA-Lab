@@ -19,6 +19,7 @@
     "qa:browser:fixture": "tsx scripts/browser-fixture-smoke.ts --fixture-mode",
     "qa:web:fixture": "tsx scripts/web-fixture-e2e.ts --fixture-mode",
     "qa:student:fixture": "tsx scripts/student-fixture-e2e.ts --fixture-mode",
+    "qa:recording:fixture": "tsx scripts/recording-fixture-e2e.ts --fixture-mode",
     "qa:list": "tsx src/cli.ts list",
     "qa:run": "tsx src/cli.ts run",
     "qa:doctor": "tsx src/cli.ts doctor",

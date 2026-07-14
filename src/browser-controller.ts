@@ -28,6 +28,7 @@ export interface BrowserControllerOptions {
   readonly timeoutMs?: number;
   readonly headless?: boolean;
   readonly preserveProfile?: boolean;
+  readonly recordVideoDirectory?: string;
 }
 
 export interface BrowserController {
@@ -72,6 +73,7 @@ export class GuardedBrowserController implements BrowserController {
       headless: this.#options.headless ?? true,
       acceptDownloads: false,
       serviceWorkers: 'block',
+      ...(this.#options.recordVideoDirectory ? { recordVideo: { dir: this.#options.recordVideoDirectory } } : {}),
     });
     this.#context.setDefaultTimeout(this.#options.timeoutMs ?? 10_000);
     this.#context.setDefaultNavigationTimeout(this.#options.timeoutMs ?? 10_000);
@@ -133,7 +135,9 @@ export class GuardedBrowserController implements BrowserController {
     } finally {
       this.#context = undefined;
       this.#page = undefined;
-      if (!(this.#options.preserveProfile ?? false)) await rm(this.#options.profileDirectory, { recursive: true, force: true });
+      if (!(this.#options.preserveProfile ?? false)) {
+        await rm(this.#options.profileDirectory, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+      }
     }
   }
 

@@ -9,6 +9,8 @@ export type { CheckStatus, DoctorCheck, DoctorReport } from './doctor.js';
 export { createLogger } from './logger.js';
 export type { LogLevel, LogSink, StructuredLogger } from './logger.js';
 export { REDACTED, redactSecrets } from './redaction.js';
+export { PlaywrightFfmpegRecorder, probeFfmpeg, recordingEnabled } from './recorder.js';
+export type { FfmpegCapability, Recorder, RecorderCheckpoint, RecorderPrepareOptions, RecordingOutcome, RecordingState, RecordingSummary } from './recorder.js';
 export { createRun, createRunId, RUN_STATUSES, writeArtifact } from './run-store.js';
 export type { RunRecord, RunStatus } from './run-store.js';
 export { assertAllowedStagingUrl, TargetDeniedError } from './security.js';

@@ -35,6 +35,6 @@ export async function runDoctor(cwd = process.cwd()): Promise<DoctorReport> {
   } catch (error) {
     checks.push({ name: 'config/artifact-root', status: 'fail', detail: error instanceof Error ? error.message : String(error) });
   }
-  checks.push(commandCheck('docker', false), commandCheck('firebase', false), commandCheck('gh', false));
+  checks.push(commandCheck('ffmpeg', false), commandCheck('docker', false), commandCheck('firebase', false), commandCheck('gh', false));
   return { ok: checks.every((check) => check.status !== 'fail'), offline: true, checks };
 }

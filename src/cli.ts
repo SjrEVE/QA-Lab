@@ -18,13 +18,13 @@ async function main(args: readonly string[]): Promise<number> {
     const config = await loadConfig();
     print({
       service: 'qa-lab',
-      phase: 4,
-      readiness: 'STUDENT_TEXT_QA_MVP_READY',
+      phase: 5,
+      readiness: 'RECORDING_MVP_READY',
       environment: config.environment,
       configVersion: config.version,
       allowedStagingHosts: config.staging.allowedHosts,
       artifactRoot: config.artifacts.root,
-      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voice: false, recording: false, replay: false, dashboard: false, deploy: false },
+      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voice: false, recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, replay: false, dashboard: false, deploy: false },
     });
     return 0;
   }
