@@ -30,6 +30,14 @@ async function main(args: readonly string[]): Promise<number> {
       allowedStagingHosts: config.staging.allowedHosts,
       stagingTargetConfigured: Boolean(config.staging.baseUrl),
       artifactRoot: config.artifacts.root,
+      stagingCapabilities: {
+        publicWebSmoke: { implemented: true, locallyTested: true, stagingValidated: true, accepted: false },
+        typedAuthenticatedProfile: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
+        verifiedAuthBootstrap: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
+        authenticatedDashboardCatalog: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
+        strictReset: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
+        scriptedLessonJourney: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
+      },
       capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: true, cohorts: true, providerArenaCalls: false, safetyLab: true, scriptedSafetyOnly: true, optimizer: true, optimizerProposalOnly: true, providerConfigMutation: false, dashboard: false, deploy: false },
     });
     return 0;

@@ -1,0 +1,20 @@
+version: 1
+id: gia-su-ai
+name: Gia Su AI staging
+target:
+  expectedHost: staging-placeholder.invalid
+  loginPath: /login
+  authenticatedPath: /app
+privatePaths:
+  browserProfileDirectory: .qa-private/browser/gia-su-ai
+  authStatePath: .qa-private/auth/gia-su-ai.json
+  resetConfigPath: .qa-private/reset/gia-su-ai.json
+auth:
+  authenticatedSelector: '[data-qa="authenticated-shell"]'
+  accountIdentitySelector: '[data-qa="account-email"]'
+  bootstrapTimeoutMs: 600000
+suites:
+  publicWebScenarioIds:
+    - gia-su-ai-public-smoke
+  authenticatedWebScenarioIds: []
+  journeyIds: []

@@ -22,6 +22,8 @@ export type { RunRecord, RunStatus } from './run-store.js';
 export { SAFETY_REPORT_VERSION, SAFETY_SCENARIO_VERSION, evaluateSafetySuite, loadSafetyScenario, redactSafetyEvidence, safetyActionSchema, safetyCategorySchema, safetyScenarioSchema, safetySeveritySchema, validateSafetyAction, writeSafetyReport } from './safety-lab.js';
 export type { SafetyAction, SafetyScenario } from './safety-lab.js';
 export { assertAllowedStagingUrl, TargetDeniedError } from './security.js';
+export { assertPrivatePath, loadStagingProfile, PRIVATE_ROOT, resolvePrivatePath, STAGING_PROFILE_VERSION, stagingProfileSchema } from './staging-profile.js';
+export type { LoadStagingProfileOptions, StagingProfile } from './staging-profile.js';
 export { ScriptedStudentBrain, assertBoundedBrainContext, studentActionSchema } from './student-brain.js';
 export type { BrainTurn, StudentAction, StudentBrain, StudentBrainContext, StudentBrainDecision } from './student-brain.js';
 export { PERSONA_SCHEMA_VERSION, STUDENT_SCENARIO_VERSION, findStudentPersona, findStudentScenario, listStudentPersonas, listStudentScenarios, loadStudentPersona, loadStudentScenario, studentPersonaSchema, studentScenarioSchema } from './student-contracts.js';

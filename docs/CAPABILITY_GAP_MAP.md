@@ -13,6 +13,17 @@
 
 A planning note, interface idea, config flag, tool detected by doctor, or artifact directory primitive is not evidence that a runtime capability exists.
 
+For authenticated staging expansion, status is reported with four independent booleans: `implemented`, `locallyTested`, `stagingValidated`, and `accepted`. Only the public staging smoke currently has `stagingValidated: true`; this does not imply acceptance of authenticated Gia Su AI staging.
+
+| Staging capability | implemented | locallyTested | stagingValidated | accepted | Evidence / boundary |
+|---|---:|---:|---:|---:|---|
+| Public Web smoke | true | true | true | false | Run `20260714T182700Z-7e03242c` passed 16/16 public checks; authenticated product acceptance is separate. |
+| Typed authenticated staging profile | true | true | false | false | Strict versioned schema, exact typed target match, `.qa-private/` containment, and negative tests; no credential or authenticated run. |
+| Verified Firebase auth bootstrap | false | false | false | false | Not implemented in this checkpoint. |
+| Authenticated dashboard/catalog | false | false | false | false | Not implemented or run. |
+| Strict reset contract | false | false | false | false | Not implemented or run. |
+| Scripted authenticated lesson journey | false | false | false | false | Not implemented or run. |
+
 ## Foundation Phase 0–1 audit
 
 | Capability | Status | Evidence | Gap / boundary |

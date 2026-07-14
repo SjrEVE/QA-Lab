@@ -1,6 +1,7 @@
 node_modules/
 dist/
 runs/
+.qa-private/
 .env
 .env.*
 !.env.example
