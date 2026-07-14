@@ -3,6 +3,7 @@
 ## Current state
 
 - Framework state: **Phase 0–10 implemented and validated at local deterministic-fixture scope only**.
+- `QA-STAGING-001` public smoke is validated against the approved non-production host `https://giasu-c2165.web.app`: run `20260714T182700Z-7e03242c` passed 16/16 checks across landing → login plus unauthenticated `/app` and `/app/tutor` route guards at mobile-common and laptop, with zero issues. Google Auth was not invoked; authenticated/reset/session staging acceptance remains separate and **BLOCKED** pending its dedicated account/bootstrap contract.
 - Currently allowed evidence uses local deterministic fixtures, scripted brains, synthetic personas/WAV, and provider-free replay.
 - Readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`; this is not product or staging readiness.
 - Phase 5 recording has fixture-validated screenshot fallback; real FFmpeg recording is **NOT IMPLEMENTED / NOT ACCEPTED** on this host because FFmpeg is unavailable, so no `session.mp4` is claimed.

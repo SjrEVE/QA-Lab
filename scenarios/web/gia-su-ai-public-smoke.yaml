@@ -1,0 +1,51 @@
+version: 1
+id: gia-su-ai-public-smoke
+name: Gia Su AI public smoke
+type: web
+target:
+  path: /
+viewports:
+  - mobile-common
+  - laptop
+limits:
+  max_minutes: 3
+  max_steps: 30
+  max_screenshots: 10
+  max_issues: 20
+flow:
+  - action: open
+    path: /
+  - action: expect_visible
+    selector: "[data-qa=primary-cta], header a.btn-primary[href='/login']"
+    name: Primary CTA
+  - action: click
+    selector: "[data-qa=primary-cta], header a.btn-primary[href='/login']"
+    name: Primary CTA
+  - action: expect_url
+    path: /login
+  - action: expect_visible
+    selector: "[data-qa=google-login], button.google-signin-button"
+    name: Google login
+  - action: open
+    path: /app
+  - action: expect_url
+    path: /login
+  - action: expect_visible
+    selector: "[data-qa=google-login], button.google-signin-button"
+    name: Google login after app guard
+  - action: open
+    path: /app/tutor
+  - action: expect_url
+    path: /login
+  - action: expect_visible
+    selector: "[data-qa=google-login], button.google-signin-button"
+    name: Google login after tutor guard
+checks:
+  page_open: true
+  primary_actions_clickable:
+    - selector: "[data-qa=google-login], button.google-signin-button"
+      name: Google login
+  console_blockers: true
+  network_blockers: true
+  text_overflow: true
+  blocking_overlap: true
