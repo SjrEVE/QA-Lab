@@ -20,6 +20,7 @@ For authenticated staging expansion, status is reported with four independent bo
 | Public Web smoke | true | true | true | false | Run `20260714T182700Z-7e03242c` passed 16/16 public checks; authenticated product acceptance is separate. |
 | Typed authenticated staging profile | true | true | false | false | Strict versioned schema, exact typed target match, `.qa-private/` containment, and negative tests; no credential or authenticated run. |
 | Verified Firebase auth bootstrap | true | true | false | false | Headed manual login uses a dedicated persistent Chromium profile, hashes account identity, and must prove the session in a fresh browser process; no staging account has been supplied or validated. |
+| Local Control Center | true | true | false | false | Loopback-only UI uses a random token, exact Host/Origin checks, fixed action allowlist, bounded bodies, and non-active HTML artifact delivery; no authenticated staging action has passed. |
 | Authenticated dashboard/catalog | false | false | false | false | Not implemented or run. |
 | Strict reset contract | false | false | false | false | Not implemented or run. |
 | Scripted authenticated lesson journey | false | false | false | false | Not implemented or run. |

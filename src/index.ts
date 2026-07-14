@@ -4,6 +4,8 @@ export { GuardedBrowserController } from './browser-controller.js';
 export type { BrowserAction, BrowserController, BrowserControllerOptions, BrowserEvent, LoginAdapter } from './browser-controller.js';
 export { bootstrapStagingAuth, PlaywrightAuthBrowserLauncher, runConfiguredAuthBootstrap } from './auth-bootstrap.js';
 export type { AuthBootstrapOptions, AuthBootstrapResult, AuthBrowserLauncher, AuthBrowserSession, ConfiguredAuthBootstrapOptions } from './auth-bootstrap.js';
+export { startControlCenter } from './control-center.js';
+export type { ControlAction, ControlCenterOptions, ControlCenterServer } from './control-center.js';
 export { assertAllowedBrowserUrl, decideBrowserRequest } from './browser-policy.js';
 export type { BrowserPolicyDecision, BrowserResourceKind, BrowserTargetPolicy } from './browser-policy.js';
 export { CONFIG_VERSION, loadConfig, qaConfigSchema } from './config.js';

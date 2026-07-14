@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import { runConfiguredAuthBootstrap } from './auth-bootstrap.js';
+import { startControlCenter } from './control-center.js';
 import { loadConfig } from './config.js';
 import { runDoctor } from './doctor.js';
 import { compareRuns } from './regression.js';
@@ -35,6 +36,7 @@ async function main(args: readonly string[]): Promise<number> {
         publicWebSmoke: { implemented: true, locallyTested: true, stagingValidated: true, accepted: false },
         typedAuthenticatedProfile: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         verifiedAuthBootstrap: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
+        localControlCenter: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
         authenticatedDashboardCatalog: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
         strictReset: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
         scriptedLessonJourney: { implemented: false, locallyTested: false, stagingValidated: false, accepted: false },
@@ -52,6 +54,13 @@ async function main(args: readonly string[]): Promise<number> {
     const result = await runConfiguredAuthBootstrap();
     print(result);
     return result.status === 'VERIFIED' ? 0 : 1;
+  }
+  if (command === 'serve') {
+    const config = await loadConfig();
+    const server = await startControlCenter({ artifactRoot: config.artifacts.root });
+    print({ service: 'TutorProof Control Center', url: server.url, note: 'Open this loopback URL. Ctrl+C stops the server.' });
+    await new Promise<void>(() => undefined);
+    return 0;
   }
   if (command === 'list') {
     const [web, student] = await Promise.all([listWebScenarios(), listStudentScenarios()]);
@@ -89,7 +98,7 @@ async function main(args: readonly string[]): Promise<number> {
     const mode = replayModeSchema.parse(modeIndex >= 0 ? args[modeIndex + 1] : 'same-session-fixture');
     const config = await loadConfig(); print(await replayRun(config.artifacts.root, run, mode)); return 0;
   }
-  process.stderr.write('Usage: qa-lab <status|doctor|auth|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
+  process.stderr.write('Usage: qa-lab <status|doctor|auth|serve|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
   return 2;
 }
 
