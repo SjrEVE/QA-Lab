@@ -2,10 +2,10 @@
 
 ## Current state
 
-- Current phase: **Phase 7 — Education/UX Evaluation**.
+- Current phase: **Phase 8 — Replay & Regression Engine**.
 - Phase 0–3 foundation/browser/Web QA: **implemented and locally validated**.
 - Phase 4 deterministic Student text QA: **implemented and locally fixture-validated**.
-- Readiness label: `EDUCATION_EVAL_FIXTURE_READY`.
+- Readiness label: `REPLAY_REGRESSION_FIXTURE_READY`.
 - Phase 5 recording: **implemented with fixture-validated screenshot fallback**; dedicated video fixture is `BLOCKED` on this Windows host because FFmpeg is unavailable, so no `session.mp4` is claimed.
 - Real staging acceptance: **BLOCKED** pending approved exact host, dedicated test account, and working reset integration.
 
@@ -58,4 +58,17 @@
 - Vendor-neutral evaluator interface has scripted/mock implementation only. No real provider, SDK, key, or external call.
 - Fractions rubric weights misconception detection, no early reveal, progressive hints, adaptation, whiteboard alignment, and independent answer; rule/AI responsibilities are separated and human calibration is marked `UNCALIBRATED_SCRIPTED_EVALUATOR`.
 - Student runs write integrated `evaluation.json`; Web remains deterministic-only where relevant. Scores are `NON_AUTHORITATIVE`; unavailable product/model/prompt versions are null, never invented.
-- Replay, staging/production, dashboard, real AI evaluator, and Phase 8+ remain out of scope.
+- Real provider evaluation, staging/production, dashboard, Model Arena, cohorts, and Phase 9+ remain out of scope.
+
+## Phase 8 Replay/Regression evidence
+
+- Strict schema-versioned unified `timeline.jsonl` normalizes browser, tutor, student, whiteboard, evaluation, and checkpoint events; timestamps and sequences are validated monotonically and payloads are recursively redacted.
+- Replay modes `same-session-fixture` and `transcript-action` operate only from recorded events/scenario decisions, are digest-deterministic, and make zero provider calls. Missing, corrupt, reordered, or version-mismatched inputs fail closed.
+- Run selectors accept validated run IDs or relative paths resolved under the configured artifact root only; traversal/dot/backslash escapes and absolute paths are rejected.
+- Issue fingerprint is category + route + element + normalized error + scenario. Comparison deduplicates and classifies `NEW`, `PERSISTING`, `RESOLVED`, `REGRESSED`, and `FLAKY`, retaining baseline/candidate evidence.
+- Metric comparison records threshold, direction, delta, regression result, and `observed`/`estimated` quality. Outputs are `regression.json`, `regression-summary.json`, and `regression-delta.md` without overwrite.
+- CLI: `qa:compare -- --baseline <run> --candidate <run>`; `qa:replay -- --run <run> --mode same-session-fixture`; deterministic fixture: `qa:replay:fixture`.
+- Incident packaging requires `anonymized: true`, recursively redacts secrets, rejects raw child identity/audio/image/transcript fields, and never stores raw child data.
+- Web QA now writes the unified timeline. Existing Student tutor/student/whiteboard timelines remain unchanged and usable as normalization sources; protected browser, voice, recording, and education-eval behavior is preserved.
+- Fixture evidence is generated under ignored `runs/phase8-regression-fixture-evidence/` with baseline, candidate, comparison, and replay digest evidence.
+- No code auto-fix, provider call, staging/production access, dashboard, Model Arena, or synthetic cohort behavior is implemented.

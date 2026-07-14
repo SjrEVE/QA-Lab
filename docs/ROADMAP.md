@@ -36,8 +36,9 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Versioned evaluation/rubric contracts, fractions rubric, deterministic checks/metrics, hard-failure precedence, vendor-neutral UX evaluator boundary with scripted mock only, confidence/evidence/limitations, human-calibration marker, and integrated Student evaluation artifact/report.
    - Scores are explicitly non-authoritative. No real evaluator provider/key, replay, staging, production, or dashboard is claimed.
 
-8. **Replay / Regression — Phase 8 — Planned**
-   - Unified event timeline, deterministic replay, baseline comparison, incident-to-regression conversion, issue fingerprinting/deduplication, and delta reports.
+8. **Replay / Regression — Phase 8 — Implemented; deterministic fixture validated**
+   - Versioned unified event timeline with redaction and monotonic validation; provider-free same-session/transcript-action replay; artifact-root baseline selection; issue fingerprint/lifecycle comparison; observed/estimated metric deltas; anonymized incident packaging; JSON/Markdown reports and local baseline/candidate/replay evidence.
+   - Web QA emits the unified timeline. Existing Student tutor/student/whiteboard JSONL remains supported as source evidence without changing its protected browser/voice behavior. Missing/corrupt/version-mismatched replay inputs fail closed.
 
 9. **Model Arena — Phase 9A — Planned**
    - Controlled comparison of model/prompt/policy configurations on identical scenarios, personas, seeds, rubrics, build, and observability contracts.
@@ -50,4 +51,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-Phase 7 Education Eval is implemented with deterministic fixture evidence and a scripted evaluator boundary only. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Replay, real evaluator/provider, dashboard, staging/production execution, and later phases remain out of scope.
+Phase 8 Replay/Regression is implemented with deterministic local fixture evidence and zero provider calls. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Model Arena, cohorts, real evaluator/provider, dashboard, staging/production execution, auto-fix, and later phases remain out of scope.

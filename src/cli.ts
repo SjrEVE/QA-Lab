@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { loadConfig } from './config.js';
 import { runDoctor } from './doctor.js';
+import { compareRuns } from './regression.js';
+import { replayModeSchema, replayRun } from './replay-engine.js';
 import { createRunId } from './run-store.js';
 import { ScriptedStudentBrain } from './student-brain.js';
 import { findStudentPersona, listStudentScenarios } from './student-contracts.js';
@@ -19,13 +21,13 @@ async function main(args: readonly string[]): Promise<number> {
     const config = await loadConfig();
     print({
       service: 'qa-lab',
-      phase: 7,
-      readiness: 'EDUCATION_EVAL_FIXTURE_READY',
+      phase: 8,
+      readiness: 'REPLAY_REGRESSION_FIXTURE_READY',
       environment: config.environment,
       configVersion: config.version,
       allowedStagingHosts: config.staging.allowedHosts,
       artifactRoot: config.artifacts.root,
-      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: false, dashboard: false, deploy: false },
+      capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: false, cohorts: false, dashboard: false, deploy: false },
     });
     return 0;
   }
@@ -52,7 +54,19 @@ async function main(args: readonly string[]): Promise<number> {
     print(result);
     return result.status === 'PASSED' ? 0 : 1;
   }
-  process.stderr.write('Usage: qa-lab <status|doctor|list|run --scenario <id>>\n');
+  if (command === 'compare') {
+    const baselineIndex = args.indexOf('--baseline'); const candidateIndex = args.indexOf('--candidate');
+    const baseline = baselineIndex >= 0 ? args[baselineIndex + 1] : undefined; const candidate = candidateIndex >= 0 ? args[candidateIndex + 1] : undefined;
+    if (!baseline || !candidate) throw new Error('qa:compare requires --baseline <run> --candidate <run>.');
+    const config = await loadConfig(); print(await compareRuns(config.artifacts.root, baseline, candidate)); return 0;
+  }
+  if (command === 'replay') {
+    const runIndex = args.indexOf('--run'); const modeIndex = args.indexOf('--mode'); const run = runIndex >= 0 ? args[runIndex + 1] : undefined;
+    if (!run) throw new Error('qa:replay requires --run <run>.');
+    const mode = replayModeSchema.parse(modeIndex >= 0 ? args[modeIndex + 1] : 'same-session-fixture');
+    const config = await loadConfig(); print(await replayRun(config.artifacts.root, run, mode)); return 0;
+  }
+  process.stderr.write('Usage: qa-lab <status|doctor|list|run --scenario <id>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
   return 2;
 }
 

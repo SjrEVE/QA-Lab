@@ -5,6 +5,7 @@ import type { Page } from 'playwright';
 import { z } from 'zod';
 import { GuardedBrowserController, type BrowserEvent } from './browser-controller.js';
 import type { BrowserTargetPolicy } from './browser-policy.js';
+import { normalizeTimeline } from './event-timeline.js';
 import { redactSecrets } from './redaction.js';
 import { PlaywrightFfmpegRecorder, recordingEnabled, type Recorder, type RecordingSummary } from './recorder.js';
 import { WEB_VIEWPORTS, type WebScenario } from './web-scenario.js';
@@ -99,6 +100,12 @@ async function writeReports(directory: string, options: WebQaOptions, status: st
   const summary = { schemaVersion: 1, status, recording, flows: { passed: status === 'PASSED' ? options.scenario.viewports.length : 0, total: options.scenario.viewports.length }, checks: { passed, failed, total: checks.length }, issues: { total: issues.length, blocker: issues.filter((x) => x.severity === 'BLOCKER').length, high: issues.filter((x) => x.severity === 'HIGH').length } };
   const metrics = { schemaVersion: 1, durationMs: ended - started, steps, screenshots, viewports: options.scenario.viewports.length, checksPassed: passed, checksFailed: failed, issues: issues.length };
   const report = `# QA Lab Web QA — ${options.scenario.name}\n\n- Status: **${status}**\n- Run: \`${options.runId}\`\n- Mode: \`${metadata.mode}\`\n- Recording: **${recording.state}** (${recording.video??recording.checkpoints})\n- Recording limitations: ${recording.limitations.join('; ')}\n- Viewports: ${options.scenario.viewports.join(', ')}\n- Checks: ${passed} passed / ${failed} failed\n- Issues: ${issues.length}\n\n## Passed checks\n${checks.filter((x) => x.passed).map((x) => `- ${x.viewport}: ${x.check}`).join('\n') || '- None'}\n\n## Issues\n${issues.map((x) => `- **${x.severity}** ${x.title} (${x.viewport}) — confidence ${x.confidence}; ${x.limitations}`).join('\n') || '- None'}\n`;
+  const timeline = normalizeTimeline([
+    { timestampMs: 0, source: 'checkpoint' as const, event: 'run_started', scenarioId: options.scenario.id, data: { runner: 'web', mode: metadata.mode } },
+    ...issues.map((issue) => ({ timestampMs: issue.timestampMs, source: 'evaluation' as const, event: 'issue_observed', scenarioId: options.scenario.id, ...(issue.url ? { route: new URL(issue.url).pathname } : {}), data: { category: issue.category, severity: issue.severity, actual: issue.actual, evidence: issue.evidence } })),
+    { timestampMs: ended - started, source: 'checkpoint' as const, event: 'run_completed', scenarioId: options.scenario.id, data: { status, checksPassed: passed, checksFailed: failed } },
+  ].sort((a, b) => a.timestampMs - b.timestampMs));
+  const timelineJsonl = `${timeline.map((event) => JSON.stringify(event)).join('\n')}\n`;
   await Promise.all([['run.json', metadata], ['status.json', metadata], ['summary.json', summary], ['issues.json', { schemaVersion: 1, issues }], ['metrics.json', metrics]].map(([name, value]) => writeFile(path.join(directory, name as string), `${JSON.stringify(value, null, 2)}\n`, { flag: 'wx' })));
-  await writeFile(path.join(directory, 'report.md'), report, { flag: 'wx' });
+  await Promise.all([writeFile(path.join(directory, 'timeline.jsonl'), timelineJsonl, { flag: 'wx' }), writeFile(path.join(directory, 'report.md'), report, { flag: 'wx' })]);
 }
