@@ -19,6 +19,7 @@ auth:
     - ssl.gstatic.com
     - www.gstatic.com
     - www.googleapis.com
+    - lh3.googleusercontent.com
   bootstrapTimeoutMs: 600000
 suites:
   publicWebScenarioIds:

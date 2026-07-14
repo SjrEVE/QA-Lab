@@ -105,24 +105,47 @@ function addBrowserEventIssues(
   }
 }
 
-async function layoutFindings(page: Page): Promise<{ overflow: number; overlap: number }> {
+interface CatalogLayoutFindings {
+  readonly overflow: number;
+  readonly overlap: number;
+  readonly overflowElements: readonly {
+    readonly tag: string;
+    readonly id: string;
+    readonly className: string;
+    readonly scroll: string;
+    readonly client: string;
+  }[];
+}
+
+async function layoutFindings(page: Page): Promise<CatalogLayoutFindings> {
   return page.evaluate(() => {
     const visible = [...document.querySelectorAll<HTMLElement>('body *')].filter((element) => {
       const style = getComputedStyle(element);
       return style.display !== 'none' && style.visibility !== 'hidden';
     });
-    const overflow = visible.filter((element) => {
+    const overflowElements = visible.filter((element) => {
       const style = getComputedStyle(element);
-      return (element.scrollWidth > element.clientWidth + 2 || element.scrollHeight > element.clientHeight + 2)
+      return (element.innerText?.trim().length ?? 0) > 0
+        && (element.scrollWidth > element.clientWidth + 2 || element.scrollHeight > element.clientHeight + 2)
         && ['hidden', 'clip'].includes(style.overflow);
-    }).length;
+    });
     const overlap = visible.filter((element) => {
       const style = getComputedStyle(element);
       if (!['fixed', 'sticky'].includes(style.position)) return false;
       const rect = element.getBoundingClientRect();
       return rect.width * rect.height > innerWidth * innerHeight * 0.5;
     }).length;
-    return { overflow, overlap };
+    return {
+      overflow: overflowElements.length,
+      overlap,
+      overflowElements: overflowElements.slice(0, 5).map((element) => ({
+        tag: element.tagName.toLowerCase(),
+        id: element.id,
+        className: typeof element.className === 'string' ? element.className : '',
+        scroll: `${element.scrollWidth}x${element.scrollHeight}`,
+        client: `${element.clientWidth}x${element.clientHeight}`,
+      })),
+    };
   });
 }
 
