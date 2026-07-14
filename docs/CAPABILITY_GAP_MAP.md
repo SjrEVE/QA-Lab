@@ -35,7 +35,7 @@ A planning note, interface idea, config flag, tool detected by doctor, or artifa
 |---|---|---|---|
 | Foundation | Implemented | Phase 0 audit; typed config; guards; safe artifacts; redaction; offline CLI; tests | Maintain governance and validation as later phases extend boundaries. |
 | Browser | Implemented | `src/browser-controller.ts`; `src/browser-policy.ts`; Playwright Chromium; unit/integration tests; ignored fixture evidence | Dedicated profile, bounded Browser Controller actions, navigation/redirect/subresource/WebSocket policy, screenshot, console/failed-network JSONL, login adapter interface, timeout and cleanup exist. Local fixture evidence only; no staging acceptance. |
-| Web QA | Planned | Minimal fixture exists only to validate Browser Phase 2 | No web scenario schema, viewport executor, assertions, issue contract, report generator, or Web QA run evidence. Fixture endpoints are not a Web QA scenario. |
+| Web QA | Implemented | `src/web-scenario.ts`; `src/web-qa.ts`; `scenarios/web/home-smoke.yaml`; Web QA tests and ignored fixture run | Two-viewport deterministic MVP with bounded flows, issues/reports and fixture evidence. Heuristic layout findings require review. No copy AI, accessibility suite, source access, lesson learning, or staging acceptance. |
 | Student text QA | Planned | Strategy and supporting notes only | No persona/scenario schema, StudentBrain adapter, transcript-driven loop, UX diary, turn artifacts, or student report. |
 | Recording | Planned | Environment audit records future disk risk | No recorder interface, screenshot timeline, FFmpeg integration, video/audio artifact, timestamp muxing, or retention enforcement. |
 | Voice | Planned | Strategy only | No voice provider adapter, virtual sink routing, Chromium microphone selection, one-turn test, echo isolation, or voice artifacts. |
@@ -57,4 +57,4 @@ These are **blocked inputs**, not implemented capabilities:
 
 ## Truthful current conclusion
 
-QA Lab is `BROWSER_FOUNDATION_READY`, not staging-accepted and not MVP-complete. Phase 0–2 establishes local policy/storage primitives and a guarded browser runtime proven against a loopback fixture. Web QA, Student QA, recording, voice, Education Eval, replay/regression, Model Arena, cohorts, and safety/optimization remain future work in the authoritative order.
+QA Lab is `WEB_QA_MVP_READY`, not staging-accepted. Phase 0–3 provides guarded browser execution and a deterministic Web QA MVP proven against a loopback fixture. Student QA, recording, voice, Education Eval, replay/regression, Model Arena, cohorts, and safety/optimization remain future work in authoritative order.

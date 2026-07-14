@@ -38,6 +38,11 @@ export interface BrowserController {
   close(): Promise<void>;
 }
 
+export interface BrowserRuntimeSnapshot {
+  readonly page: Page;
+  readonly events: readonly BrowserEvent[];
+}
+
 function safeArtifactName(name: string): string {
   if (!/^[A-Za-z0-9._-]+$/.test(name) || name === '.' || name === '..') throw new Error('Unsafe artifact name.');
   return name;
@@ -113,6 +118,10 @@ export class GuardedBrowserController implements BrowserController {
     const target = path.join(this.#options.artifactDirectory, filename);
     await this.#requirePage().screenshot({ path: target, fullPage: true });
     return target;
+  }
+
+  public runtime(): BrowserRuntimeSnapshot {
+    return { page: this.#requirePage(), events: this.#events };
   }
 
   public async close(): Promise<void> {

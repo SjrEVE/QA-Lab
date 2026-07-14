@@ -1,5 +1,11 @@
 # QA Lab
 
+## Phase 3 Web QA MVP
+
+Liệt kê scenario bằng `npm.cmd run qa:list`. Chạy staging bằng `npm.cmd run qa:run -- --scenario home-smoke`; lệnh chỉ dùng `QA_STAGING_BASE_URL` cùng exact-host allowlist và trả `BLOCKED` nếu thiếu target, không truy cập production. Tự kiểm E2E độc lập bằng `npm.cmd run qa:web:fixture`; fixture loopback hỗ trợ home, login, navigation, CTA, hai viewport và các route lỗi console/network/overflow/overlap.
+
+Web QA là deterministic browser-only: không đọc source runtime, không học lesson, không StudentBrain, voice, recording hay AI evaluator. Artifact gồm `run.json`, `status.json`, `summary.json`, `issues.json`, `metrics.json`, `report.md`, browser events và screenshot theo viewport. Heuristic overflow/overlap luôn ghi confidence và limitations để tránh tuyên bố pixel-perfect.
+
 Local-first, policy-guarded QA Controller foundation with a guarded Chromium runtime. Không kiếm được người kiểm thì mình tự kiểm thôi.
 
 ## Product authority

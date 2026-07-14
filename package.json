@@ -17,6 +17,9 @@
     "test": "node --import tsx --test test/**/*.test.ts",
     "test:coverage": "node --import tsx --test --experimental-test-coverage test/**/*.test.ts",
     "qa:browser:fixture": "tsx scripts/browser-fixture-smoke.ts --fixture-mode",
+    "qa:web:fixture": "tsx scripts/web-fixture-e2e.ts --fixture-mode",
+    "qa:list": "tsx src/cli.ts list",
+    "qa:run": "tsx src/cli.ts run",
     "qa:doctor": "tsx src/cli.ts doctor",
     "qa:status": "tsx src/cli.ts status",
     "validate": "npm run lint && npm test && npm run build && npm run qa:doctor"

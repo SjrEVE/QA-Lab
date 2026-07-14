@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { mkdtemp, readFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { findWebScenario } from '../src/web-scenario.js';
+import { runWebQa, webIssueSchema } from '../src/web-qa.js';
+import { startFixtureSite } from './fixture-site.js';
+
+test('complete fixture E2E executes two viewports and writes real reports', async () => {
+  const site = await startFixtureSite(); const root = await mkdtemp(path.join(os.tmpdir(), 'qa-web-'));
+  try { const result = await runWebQa({ scenario: await findWebScenario('home-smoke'), baseUrl: site.origin, artifactRoot: root, runId: 'e2e', policy: { allowedHosts: ['unused.invalid'], fixtureMode: true, fixturePort: site.port } }); assert.equal(result.status, 'PASSED'); assert.equal(result.checks.some((x) => x.viewport === 'mobile-common'), true); assert.equal(result.checks.some((x) => x.viewport === 'laptop'), true); for (const name of ['report.md','summary.json','issues.json','metrics.json','status.json','run.json']) assert.ok((await readFile(path.join(root, 'e2e', name))).length > 0); } finally { await site.close(); }
+});
+test('issue schema serializes confidence, limitations and evidence', () => { const issue = webIssueSchema.parse({ schemaVersion: 1, id: 'WEB-X', runner: 'web', scenarioId: 'x', viewport: 'laptop', category: 'console', severity: 'HIGH', title: 'x', url: 'http://127.0.0.1/', timestampMs: 1, expected: 'none', actual: 'error', evidence: ['events.jsonl'], confidence: .9, limitations: 'triage', status: 'NEW' }); assert.match(JSON.stringify(issue), /limitations/); });
+test('missing staging target is BLOCKED and never represented as PASS', async () => { const root = await mkdtemp(path.join(os.tmpdir(), 'qa-web-')); const result = await runWebQa({ scenario: await findWebScenario('home-smoke'), artifactRoot: root, runId: 'blocked', policy: { allowedHosts: ['staging.invalid'] } }); assert.equal(result.status, 'BLOCKED'); });

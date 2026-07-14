@@ -8,7 +8,28 @@ export interface FixtureSite {
 
 export async function startFixtureSite(): Promise<FixtureSite> {
   const server = createServer((request, response) => {
-    switch (request.url) {
+    const pathname = new URL(request.url ?? '/', 'http://fixture.invalid').pathname;
+    switch (pathname) {
+      case '/':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+        response.end('<!doctype html><meta name="viewport" content="width=device-width"><title>QA Home</title><style>body{font:16px sans-serif;margin:24px}button,a,input{font:inherit;padding:12px}</style><h1>QA Fixture Home</h1><a data-qa="primary-cta" href="/login">Đăng nhập</a>');
+        return;
+      case '/login':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+        response.end('<!doctype html><meta name="viewport" content="width=device-width"><title>Login</title><form action="/app"><label>Email <input data-qa="email" name="email"></label><button data-qa="login-submit">Tiếp tục</button></form>');
+        return;
+      case '/app':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+        response.end('<!doctype html><meta name="viewport" content="width=device-width"><title>App</title><nav>Trang chủ</nav><main><h1>Xin chào fixture</h1><button data-qa="app-cta">Bắt đầu</button></main>');
+        return;
+      case '/web-console-error':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<script>console.error("web blocker fixture")</script>'); return;
+      case '/web-network-error':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<script>fetch("/connection-reset").catch(()=>{})</script>'); return;
+      case '/web-overflow':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<div id="overflow" style="width:40px;height:20px;overflow:hidden;white-space:nowrap">This text is deliberately much too long</div>'); return;
+      case '/web-overlap':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<main id="content">Important content</main><div id="overlay" style="position:fixed;inset:0;background:white">Blocking overlay</div>'); return;
       case '/ok':
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
         response.end('<!doctype html><title>QA Fixture OK</title><h1 id="result">fixture ok</h1>');

@@ -16,8 +16,9 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Guarded Playwright/Chromium launcher, dedicated profile, navigation/redirect/subresource/WebSocket policy, screenshot, console/failed-network JSONL capture, basic navigation, login adapter interface, timeouts, and cleanup.
    - Validated only against explicit loopback fixture mode. No staging URL/account was configured or accessed; staging acceptance remains unclaimed.
 
-3. **Web QA — Phase 3 — Planned**
-   - Web scenario contract, risk-bounded flow execution, viewport matrix, deterministic checks, evidence-backed issue schema, report, summary, and fixture coverage.
+3. **Web QA — Phase 3 — Implemented; local fixture validated**
+   - Versioned typed web scenarios, bounded flow execution, mobile-common/laptop matrix, deterministic runtime/layout checks, evidence-backed issues, reports, listing/run CLI, and complete local fixture E2E.
+   - Real staging acceptance remains blocked without an approved target/account; a missing target yields `BLOCKED`, never synthetic PASS.
 
 4. **Student text — Phase 4 — Planned**
    - Persona and student scenario contracts, bounded StudentBrain decisions, transcript-driven loop, UX diary, turn artifacts, stop conditions, and independent report.
@@ -45,4 +46,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-Phase 2 implementation is complete with local fixture evidence. Phase 3 is next in roadmap order but is not implemented by this task. Real staging execution remains blocked until an approved exact hostname and dedicated test account are configured. Web QA, Student QA, recording, voice, replay, and later-phase capabilities remain out of scope.
+Phase 3 Web QA MVP is complete with local fixture evidence. Phase 4 is next but remains unimplemented and outside this task. Real staging execution remains blocked until an approved exact hostname and dedicated test account are configured. Student QA, recording, voice, replay, and later capabilities remain out of scope.

@@ -1,0 +1,45 @@
+version: 1
+id: home-smoke
+name: Home smoke
+type: web
+target:
+  path: /
+viewports:
+  - mobile-common
+  - laptop
+limits:
+  max_minutes: 3
+  max_steps: 20
+  max_screenshots: 10
+  max_issues: 20
+flow:
+  - action: open
+    path: /
+  - action: expect_visible
+    selector: "[data-qa=primary-cta]"
+    name: Primary CTA
+  - action: click
+    selector: "[data-qa=primary-cta]"
+    name: Primary CTA
+  - action: expect_url
+    path: /login
+  - action: fill
+    selector: "[data-qa=email]"
+    value: fixture@example.invalid
+  - action: click
+    selector: "[data-qa=login-submit]"
+    name: Login submit
+  - action: expect_url
+    path: /app
+  - action: expect_visible
+    selector: "[data-qa=app-cta]"
+    name: App CTA
+checks:
+  page_open: true
+  primary_actions_clickable:
+    - selector: "[data-qa=app-cta]"
+      name: App CTA
+  console_blockers: true
+  network_blockers: true
+  text_overflow: true
+  blocking_overlap: true

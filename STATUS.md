@@ -2,50 +2,32 @@
 
 ## Current state
 
-- Current phase: **Phase 2 — Browser Foundation/Guard**.
-- Phase 0–1 foundation: **implemented and validated**.
-- Phase 2 guarded browser runtime: **implemented and locally fixture-validated**.
-- Readiness label: `BROWSER_FOUNDATION_READY`.
-- Next roadmap capability: **Web QA / Phase 3**, not implemented by this task.
-- Runtime target: Node.js 20+ / strict TypeScript / Playwright Chromium / Windows 10 compatible.
+- Current phase: **Phase 3 — Web QA MVP**.
+- Phase 0–2 foundation/browser: **implemented and validated**.
+- Phase 3 deterministic Web QA: **implemented and locally fixture-validated**.
+- Readiness label: `WEB_QA_MVP_READY`.
+- Next roadmap capability: **Phase 4 Student text QA**, explicitly not implemented.
+- Real staging acceptance: **BLOCKED** pending approved exact host and dedicated test account.
 
-## Authority and evidence
+## Phase 3 evidence
 
-- Product strategy: `docs/QA_LAB_PRODUCT_STRATEGY.md`.
-- Delivery order: `docs/ROADMAP.md`.
-- Capability/gap truth: `docs/CAPABILITY_GAP_MAP.md`.
-- Browser source: `src/browser-policy.ts`, `src/browser-controller.ts`.
-- Browser tests: `test/browser-policy.test.ts`, `test/browser-controller.integration.test.ts`.
-- Local fixture smoke: `scripts/browser-fixture-smoke.ts`; generated evidence under ignored `runs/phase2-browser-fixture-evidence/`.
+- Versioned strict schema/YAML loader: `src/web-scenario.ts`.
+- Scenario: `scenarios/web/home-smoke.yaml`.
+- Guarded executor, checks, limits, issue/report contracts: `src/web-qa.ts` using `GuardedBrowserController`.
+- Viewports: mobile-common 390×844 and laptop 1366×768.
+- Deterministic checks: page/flow, primary action visibility/enabled state, console/runtime/network blockers, text overflow and blocking overlap heuristics.
+- Heuristic issues include confidence and limitations; they are not pixel-perfect claims.
+- Outputs: run/status metadata, summary, issues, metrics, report, screenshots and browser JSONL.
+- CLI: `qa:list`; `qa:run -- --scenario home-smoke`; explicit `qa:web:fixture` self-test.
+- Local fixture includes home/login/app navigation and CTA plus console, network, overflow and overlap failure routes.
+- Test suite: 28 passing tests at Phase 3 validation, including invalid schema/limits, two viewports, serialization/report output, failure capture and complete E2E artifact generation.
+- Generated local evidence: ignored `runs/phase3-web-fixture-evidence/`; it is fixture evidence, not staging acceptance.
 
-## Implemented
+## Security and truthful boundaries
 
-- Existing strict configuration, exact-host staging authorization, safe artifacts, redaction, and offline doctor/status foundation.
-- Playwright/Chromium persistent context with a dedicated QA profile.
-- Browser Controller interface and bounded runtime actions: navigate, screenshot, and wait.
-- Login adapter interface without credentials or provider/account implementation.
-- Fail-closed staging policy for navigation, redirects, subresources, and WebSocket handshakes using exact allowlisted hosts and HTTPS/WSS.
-- Explicit test-only loopback fixture mode requiring HTTP loopback and exact ephemeral port.
-- External redirect denial with JSONL evidence.
-- Screenshot, console, page error, failed request, denied request, and navigation event capture with recursive redaction.
-- Default operation/navigation timeouts and idempotent cleanup; disposable profile removal by default.
-- Fixture endpoints `/ok`, `/console-error`, `/network-error`, and `/redirect-external` with unit/integration coverage.
-
-## Validation evidence
-
-- Dependency installed only for this phase: `playwright` with Chromium; `npm audit` reported 0 vulnerabilities at installation.
-- Unit/integration suite currently contains 18 passing tests, including guard, redirect, screenshot, console, network failure, profile isolation, and cleanup.
-- Fixture screenshot observed at 6,325 bytes with SHA-256 `FAADC433CB88ED104F84CE05DBC49B2ED20D61ECB7FFF43723E8AB1138FA9191`.
-- Fixture JSONL observed with `console`, `request-failed`, and external `request-denied` redirect evidence.
-- These generated artifacts are ignored by Git and are local execution evidence, not committed fixtures.
-
-## Blocked inputs / truthful limitations
-
-- No approved real staging hostname or authorization is configured; no staging URL was accessed.
-- No dedicated test account, credentials, or reset contract exists; the login adapter is interface-only.
-- No production target is allowed or accessed.
-- Phase 2 local fixture validation is not staging acceptance and not Web QA MVP acceptance.
-
-## Explicitly unavailable
-
-Web QA scenario/report execution, Student QA, recorder/video/audio, voice/microphone, Education Eval, replay/regression, Model Arena, cohorts, safety suite, optimizer, dashboard, deployment, provider execution, autonomous repair, and runtime shell/source/Git access remain unavailable.
+- Phase 2 exact-host HTTPS/WSS, dedicated profile, request policy, redaction and artifact protections remain in force.
+- Fixture mode is explicit and permits only exact-port loopback HTTP.
+- Missing staging URL yields `BLOCKED`; it is never reported as PASS and no production target is accessed.
+- Runtime is browser-only and has no product source, shell, Git, cloud console or production access.
+- Web QA does not learn lessons and contains no StudentBrain/persona, voice/microphone, recording, AI evaluator, dashboard, deployment or autonomous repair.
+- No real staging hostname/account/reset contract was provided or exercised.
