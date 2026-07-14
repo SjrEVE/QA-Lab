@@ -1,65 +1,49 @@
 # QA Lab
 
-## Phase 3 Web QA MVP
+## Phase 4 Student QA text-mode MVP
 
-Liệt kê scenario bằng `npm.cmd run qa:list`. Chạy staging bằng `npm.cmd run qa:run -- --scenario home-smoke`; lệnh chỉ dùng `QA_STAGING_BASE_URL` cùng exact-host allowlist và trả `BLOCKED` nếu thiếu target, không truy cập production. Tự kiểm E2E độc lập bằng `npm.cmd run qa:web:fixture`; fixture loopback hỗ trợ home, login, navigation, CTA, hai viewport và các route lỗi console/network/overflow/overlap.
+Liệt kê cả Web QA và Student QA scenario bằng `npm.cmd run qa:list`. Chạy real-mode bằng `npm.cmd run qa:run -- --scenario weak-fractions-lesson`; khi thiếu staging target/account/reset, run trả `BLOCKED`, không giả PASS và không truy cập production. Chạy fixture tường minh bằng `npm.cmd run qa:student:fixture`.
 
-Web QA là deterministic browser-only: không đọc source runtime, không học lesson, không StudentBrain, voice, recording hay AI evaluator. Artifact gồm `run.json`, `status.json`, `summary.json`, `issues.json`, `metrics.json`, `report.md`, browser events và screenshot theo viewport. Heuristic overflow/overlap luôn ghi confidence và limitations để tránh tuyên bố pixel-perfect.
+Phase 4 có persona/scenario YAML typed + versioned, vendor-neutral `StudentBrain`, deterministic `ScriptedStudentBrain`, context 3–5 lượt, structured browser-only actions, lifecycle/limits, manual/stub reset boundary, `/lesson-mock` tám lượt, transcript/whiteboard/screenshot artifacts, deterministic checks, UX diary và report. Observed metrics và estimated UX scores được gắn nhãn riêng.
 
-Local-first, policy-guarded QA Controller foundation with a guarded Chromium runtime. Không kiếm được người kiểm thì mình tự kiểm thôi.
+Không có provider thật, credential, recording/FFmpeg, voice/microphone, provider evaluator, replay, dashboard, deployment hay Phase 5+.
 
 ## Product authority
 
-The Founder-approved product strategy is [`docs/QA_LAB_PRODUCT_STRATEGY.md`](docs/QA_LAB_PRODUCT_STRATEGY.md). Use [`docs/ROADMAP.md`](docs/ROADMAP.md) for the authoritative delivery order and [`docs/CAPABILITY_GAP_MAP.md`](docs/CAPABILITY_GAP_MAP.md) for implemented/partial/planned/blocked capability truth. [`docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md`](docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md) is supporting context only.
+Founder strategy: [`docs/QA_LAB_PRODUCT_STRATEGY.md`](docs/QA_LAB_PRODUCT_STRATEGY.md). Delivery order: [`docs/ROADMAP.md`](docs/ROADMAP.md). Capability truth: [`docs/CAPABILITY_GAP_MAP.md`](docs/CAPABILITY_GAP_MAP.md). Governance: [`AGENTS.md`](AGENTS.md).
 
-## Scope
+## Requirements and setup
 
-This repository implements Phase 0–2: foundation plus a Playwright/Chromium Browser Controller with a dedicated QA profile, exact-host HTTPS request guards, redirect evidence, screenshots, console/failed-network JSONL capture, bounded actions, cleanup/timeouts, and a credential-neutral login adapter interface.
-
-It does **not** access production. No real staging URL/account has been configured or exercised, so this is not staging acceptance. Web QA scenarios/reports, Student QA, voice, microphone, recording, evaluator, dashboard, deployment, model-provider execution, shell access, and source access by the runtime agent remain unavailable.
-
-## Requirements
-
-- Windows 10-compatible environment (cross-platform Node APIs are used)
-- Node.js 20+
-- npm
-- Git
-
-## Setup
+- Windows 10-compatible environment
+- Node.js 20+, npm, Git
 
 ```powershell
 npm.cmd install
 Copy-Item .env.example .env
 ```
 
-Before any later staging execution is introduced, replace the `.invalid` placeholder with the exact approved staging hostname. Never add a scheme, path, wildcard, production hostname, credentials, or arbitrary port.
+Before real staging execution, configure only the exact approved staging hostname and dedicated test account/reset integration. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
 
 ## Commands
 
 ```powershell
 npm.cmd run qa:status
 npm.cmd run qa:doctor
+npm.cmd run qa:list
+npm.cmd run qa:run -- --scenario weak-fractions-lesson
+npm.cmd run qa:browser:fixture
+npm.cmd run qa:web:fixture
+npm.cmd run qa:student:fixture
 npm.cmd run lint
 npm.cmd test
 npm.cmd run build
 npm.cmd run validate
-npm.cmd run qa:browser:fixture
 ```
 
-`qa:doctor` is intentionally offline-friendly. Missing Docker, Firebase CLI, or GitHub CLI produces warnings, not failure. It does not contact staging or production. `qa:browser:fixture` is the only local smoke command: it explicitly enables loopback fixture mode and writes real screenshot/event evidence under `runs/phase2-browser-fixture-evidence/` (ignored by Git). It cannot accept a staging target.
-
-## Configuration
-
-`config/qa-lab.yaml` has schema version `1`. Supported environment overrides:
-
-- `QA_CONFIG_PATH`
-- `QA_STAGING_ALLOWED_HOSTS` (comma-separated exact hostnames)
-- `QA_ARTIFACT_ROOT`
-
-Unknown YAML keys, unsupported versions, non-staging environments, malformed hosts, and empty allowlists are rejected.
+`qa:doctor` remains offline-friendly and does not contact staging or production. Fixture commands explicitly enable exact-port loopback mode and write ignored evidence under `runs/`.
 
 ## Security model
 
-Staging navigation, redirects, subresources, and WebSocket handshakes must pass exact normalized hostname equality and HTTPS/WSS checks. URL credentials and non-default ports are denied. Local HTTP is allowed only with explicit fixture mode, loopback host, and the exact ephemeral fixture port. Browser actions are limited to navigate, screenshot, and wait; the Browser Controller exposes no shell, source, Git, or arbitrary filesystem action. Profiles are per-run and removed on idempotent cleanup by default. Browser event payloads are recursively redacted.
+Staging navigation, redirects, subresources, and WebSockets require exact normalized hostname membership and HTTPS/WSS. Fixture HTTP requires explicit loopback mode and exact ephemeral port. StudentBrain can propose only typed lesson input/click, bounded wait, issue report, or finish actions; it receives no shell, source, filesystem editing, Git, cloud console, arbitrary navigation, provider, voice, or deploy capability. Run artifacts are redacted and run paths are validated.
 
-See [`docs/threat-model.md`](docs/threat-model.md), [`docs/environment-audit.md`](docs/environment-audit.md), [`AGENTS.md`](AGENTS.md), and [`STATUS.md`](STATUS.md).
+See [`docs/threat-model.md`](docs/threat-model.md), [`docs/environment-audit.md`](docs/environment-audit.md), and [`STATUS.md`](STATUS.md).

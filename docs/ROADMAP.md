@@ -20,8 +20,9 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Versioned typed web scenarios, bounded flow execution, mobile-common/laptop matrix, deterministic runtime/layout checks, evidence-backed issues, reports, listing/run CLI, and complete local fixture E2E.
    - Real staging acceptance remains blocked without an approved target/account; a missing target yields `BLOCKED`, never synthetic PASS.
 
-4. **Student text — Phase 4 — Planned**
-   - Persona and student scenario contracts, bounded StudentBrain decisions, transcript-driven loop, UX diary, turn artifacts, stop conditions, and independent report.
+4. **Student text — Phase 4 — Implemented; local fixture validated**
+   - Versioned persona/student scenario contracts, vendor-neutral bounded StudentBrain, deterministic scripted adapter, browser-only transcript loop, reset boundary, truthful lifecycle/limits, UX diary, turn/whiteboard/screenshot artifacts, deterministic checks, and independent report.
+   - Real staging execution is `BLOCKED` without approved exact host, dedicated account, and working reset integration. UX scores are explicitly estimated; no provider brain/evaluator is present.
 
 5. **Recording — Phase 5 — Planned**
    - Recorder interface, screenshot timeline, FFmpeg integration when locally viable, synchronized timestamps, artifact links, retention policy, disk guard, and cleanup.
@@ -46,4 +47,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-Phase 3 Web QA MVP is complete with local fixture evidence. Phase 4 is next but remains unimplemented and outside this task. Real staging execution remains blocked until an approved exact hostname and dedicated test account are configured. Student QA, recording, voice, replay, and later capabilities remain out of scope.
+Phase 4 Student text QA MVP is complete with deterministic eight-turn local fixture evidence. Phase 5 Recording is next but remains unimplemented. Real staging execution remains blocked until an approved exact hostname, dedicated test account, and reset integration are configured. Recording, voice, provider evaluator, replay, dashboard, and later capabilities remain out of scope.

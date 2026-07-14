@@ -1,0 +1,37 @@
+version: 1
+id: weak-fractions-lesson
+name: Phục hồi hiểu tử số và mẫu số
+type: student-text
+persona: weak-fractions-grade-4
+target:
+  path: /lesson-mock
+  tutor_turn_selector: '[data-qa="tutor-turn-final"]'
+  text_input_selector: '[data-qa="student-input"]'
+  send_selector: '[data-qa="student-send"]'
+  whiteboard_selector: '[data-qa="whiteboard"]'
+limits:
+  max_minutes: 5
+  max_turns: 8
+  max_brain_context_turns: 4
+  max_issues: 20
+  tutor_turn_timeout_ms: 5000
+goals:
+  - misconception_detected
+  - explanation_changes
+  - independent_check
+  - independent_success
+checks:
+  minimum_turns: 8
+  require_whiteboard_events: true
+  require_explanation_change: true
+  require_independent_check: true
+  require_independent_success: true
+scripted_responses:
+  - Con nghĩ số ở dưới là số phần đã tô.
+  - À con vẫn hay nhầm tử số với mẫu số.
+  - Con chưa hiểu, cô cho ví dụ khác được không?
+  - Với 3/4 thì 3 phần được tô, đúng không ạ?
+  - Mẫu số 4 là cả hình chia thành 4 phần bằng nhau.
+  - "Con tự thử nhé: 2/5 là tô 2 trong 5 phần."
+  - Cô cho con một câu tự làm không gợi ý nhé.
+  - 3/8 nghĩa là hình chia 8 phần bằng nhau và tô 3 phần.

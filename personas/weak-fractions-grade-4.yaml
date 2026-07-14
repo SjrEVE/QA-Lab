@@ -1,0 +1,15 @@
+version: 1
+id: weak-fractions-grade-4
+name: Học sinh lớp 4 yếu phân số
+grade: 4
+locale: vi-VN
+starting_understanding: 1
+misconception: numerator-denominator
+communication:
+  confidence: low
+  vocabulary: limited
+  response_style: short
+behaviors:
+  - repeat_mistake_once
+  - ask_for_example_once
+  - off_topic_once

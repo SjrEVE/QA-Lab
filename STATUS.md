@@ -2,32 +2,33 @@
 
 ## Current state
 
-- Current phase: **Phase 3 — Web QA MVP**.
-- Phase 0–2 foundation/browser: **implemented and validated**.
-- Phase 3 deterministic Web QA: **implemented and locally fixture-validated**.
-- Readiness label: `WEB_QA_MVP_READY`.
-- Next roadmap capability: **Phase 4 Student text QA**, explicitly not implemented.
-- Real staging acceptance: **BLOCKED** pending approved exact host and dedicated test account.
+- Current phase: **Phase 4 — Student QA text-mode MVP**.
+- Phase 0–3 foundation/browser/Web QA: **implemented and locally validated**.
+- Phase 4 deterministic Student text QA: **implemented and locally fixture-validated**.
+- Readiness label: `STUDENT_TEXT_QA_MVP_READY`.
+- Next roadmap capability: **Phase 5 Recording**, explicitly not implemented.
+- Real staging acceptance: **BLOCKED** pending approved exact host, dedicated test account, and working reset integration.
 
-## Phase 3 evidence
+## Phase 4 evidence
 
-- Versioned strict schema/YAML loader: `src/web-scenario.ts`.
-- Scenario: `scenarios/web/home-smoke.yaml`.
-- Guarded executor, checks, limits, issue/report contracts: `src/web-qa.ts` using `GuardedBrowserController`.
-- Viewports: mobile-common 390×844 and laptop 1366×768.
-- Deterministic checks: page/flow, primary action visibility/enabled state, console/runtime/network blockers, text overflow and blocking overlap heuristics.
-- Heuristic issues include confidence and limitations; they are not pixel-perfect claims.
-- Outputs: run/status metadata, summary, issues, metrics, report, screenshots and browser JSONL.
-- CLI: `qa:list`; `qa:run -- --scenario home-smoke`; explicit `qa:web:fixture` self-test.
-- Local fixture includes home/login/app navigation and CTA plus console, network, overflow and overlap failure routes.
-- Test suite: 28 passing tests at Phase 3 validation, including invalid schema/limits, two viewports, serialization/report output, failure capture and complete E2E artifact generation.
-- Generated local evidence: ignored `runs/phase3-web-fixture-evidence/`; it is fixture evidence, not staging acceptance.
+- Versioned strict persona/scenario loaders: `src/student-contracts.ts`.
+- Persona/scenario: `personas/weak-fractions-grade-4.yaml`; `scenarios/student/weak-fractions-lesson.yaml`.
+- Vendor-neutral `StudentBrain` and deterministic `ScriptedStudentBrain`: `src/student-brain.ts`; no provider adapter or credentials.
+- Browser-only structured action allowlist; no shell, source, Git, cloud, arbitrary navigation, voice, or provider action.
+- Bounded context retains only 3–5 recent turns plus understanding, misconception, used behaviors, and remaining goals.
+- Runner lifecycle and truthful limits: `src/student-qa.ts`; missing prerequisites/reset yield `BLOCKED`, never synthetic PASS.
+- Reset boundary: manual adapter requires explicit confirmation; stub always blocks and never claims success.
+- Local `/lesson-mock` supplies deterministic tutor text and whiteboard state for eight complete turns.
+- Artifacts: student/tutor/whiteboard JSONL, per-turn screenshots, UX diary, observed/estimated metrics, issues, evaluation, status, summary, and report.
+- Deterministic checks: minimum eight turns, whiteboard observation, explanation-change goal, independent-check goal, and independent-success goal.
+- CLI: `qa:list`; `qa:run -- --scenario weak-fractions-lesson`; explicit `qa:student:fixture` self-test.
+- Test suite: 37 passing tests at Phase 4 validation, including positive/negative schema, bounded context, action domain guard, complete E2E, missing target BLOCKED, and reset BLOCKED.
+- Generated local evidence: ignored `runs/phase4-student-fixture-evidence/`; fixture evidence is not staging acceptance.
 
 ## Security and truthful boundaries
 
-- Phase 2 exact-host HTTPS/WSS, dedicated profile, request policy, redaction and artifact protections remain in force.
+- Phase 2 exact-host HTTPS/WSS, dedicated profile, request policy, redaction, and artifact protections remain in force.
 - Fixture mode is explicit and permits only exact-port loopback HTTP.
-- Missing staging URL yields `BLOCKED`; it is never reported as PASS and no production target is accessed.
-- Runtime is browser-only and has no product source, shell, Git, cloud console or production access.
-- Web QA does not learn lessons and contains no StudentBrain/persona, voice/microphone, recording, AI evaluator, dashboard, deployment or autonomous repair.
-- No real staging hostname/account/reset contract was provided or exercised.
+- Real run remains `BLOCKED` without staging URL/account/reset; no production target is accessed.
+- UX scores are deterministic state-based estimates and are labeled estimated with limitations; turns, duration, and DOM whiteboard states are observed.
+- No recording/FFmpeg, voice/microphone, provider brain, provider evaluator, replay/regression, dashboard, deployment, model arena, cohort, or Phase 5+ capability exists.
