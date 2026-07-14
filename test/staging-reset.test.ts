@@ -83,6 +83,8 @@ test('HTTP reset uses a stable idempotency key and accepts only an exact strict 
   const secondHeaders = new Headers(calls[1]?.init.headers);
   assert.equal(firstHeaders.get('idempotency-key'), secondHeaders.get('idempotency-key'));
   assert.match(firstHeaders.get('idempotency-key') ?? '', /^[a-f0-9]{64}$/);
+  assert.equal(firstHeaders.get('authorization'), null);
+  assert.equal(firstHeaders.get('x-qa-reset-token'), 'unit-test-placeholder-not-secret');
   assert.equal(calls[0]?.url, 'https://stage.example.test/api/qa/reset');
 });
 

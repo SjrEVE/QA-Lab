@@ -151,9 +151,9 @@ export class StrictStagingResetAdapter {
       response = await (this.#options.httpClient ?? fetch)(resetConfig.url, {
         method: 'POST',
         headers: {
-          authorization: `Bearer ${token}`,
           'content-type': 'application/json',
           'idempotency-key': key,
+          'x-qa-reset-token': token,
         },
         body: JSON.stringify({
           schemaVersion: 1,
