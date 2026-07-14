@@ -28,6 +28,7 @@ async function main(args: readonly string[]): Promise<number> {
       environment: config.environment,
       configVersion: config.version,
       allowedStagingHosts: config.staging.allowedHosts,
+      stagingTargetConfigured: Boolean(config.staging.baseUrl),
       artifactRoot: config.artifacts.root,
       capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: true, cohorts: true, providerArenaCalls: false, safetyLab: true, scriptedSafetyOnly: true, optimizer: true, optimizerProposalOnly: true, providerConfigMutation: false, dashboard: false, deploy: false },
     });
@@ -48,7 +49,7 @@ async function main(args: readonly string[]): Promise<number> {
     const scenarioId = index >= 0 ? args[index + 1] : undefined;
     if (!scenarioId) throw new Error('qa:run requires --scenario <id>.');
     const config = await loadConfig();
-    const baseUrl = process.env.QA_STAGING_BASE_URL;
+    const baseUrl = config.staging.baseUrl;
     const student = (await listStudentScenarios()).find((candidate) => candidate.id === scenarioId);
     const result = student
       ? await runStudentQa({ scenario: student, persona: await findStudentPersona(student.persona), brain: new ScriptedStudentBrain(), reset: new StubResetAdapter(), ...(baseUrl ? { baseUrl } : {}), artifactRoot: config.artifacts.root, runId: createRunId(), policy: { allowedHosts: config.staging.allowedHosts } })

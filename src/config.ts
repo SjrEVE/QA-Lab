@@ -3,6 +3,7 @@ import path from 'node:path';
 import { config as loadDotenv } from 'dotenv';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
+import { assertAllowedStagingUrl } from './security.js';
 
 export const CONFIG_VERSION = 1 as const;
 
@@ -14,7 +15,10 @@ const hostname = z.string().trim().min(1).transform((value) => value.toLowerCase
 export const qaConfigSchema = z.object({
   version: z.literal(CONFIG_VERSION),
   environment: z.literal('staging'),
-  staging: z.object({ allowedHosts: z.array(hostname).min(1) }),
+  staging: z.object({
+    allowedHosts: z.array(hostname).min(1),
+    baseUrl: z.string().trim().url().optional(),
+  }).strict(),
   artifacts: z.object({ root: z.string().trim().min(1).default('runs') }),
   logging: z.object({ level: z.enum(['debug', 'info', 'warn', 'error']).default('info') }),
 }).strict();
@@ -36,10 +40,22 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<QaCon
   const raw = parseYaml(await readFile(configPath, 'utf8')) as unknown;
   const parsed = qaConfigSchema.parse(raw);
   const envHosts = env.QA_STAGING_ALLOWED_HOSTS?.split(',').map((value) => value.trim()).filter(Boolean);
+  const envBaseUrl = env.QA_STAGING_BASE_URL?.trim();
   const artifactRoot = env.QA_ARTIFACT_ROOT?.trim();
-  return qaConfigSchema.parse({
+  const config = qaConfigSchema.parse({
     ...parsed,
-    staging: envHosts?.length ? { allowedHosts: envHosts } : parsed.staging,
+    staging: {
+      ...parsed.staging,
+      ...(envHosts?.length ? { allowedHosts: envHosts } : {}),
+      ...(envBaseUrl ? { baseUrl: envBaseUrl } : {}),
+    },
     artifacts: artifactRoot ? { root: artifactRoot } : parsed.artifacts,
   });
+  if (config.staging.baseUrl) {
+    const target = assertAllowedStagingUrl(config.staging.baseUrl, config.staging.allowedHosts);
+    if (target.pathname !== '/' || target.search || target.hash) {
+      throw new Error('QA_STAGING_BASE_URL must be an HTTPS origin without a path, query, or hash.');
+    }
+  }
+  return config;
 }

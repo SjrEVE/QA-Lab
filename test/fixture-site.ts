@@ -24,6 +24,12 @@ export async function startFixtureSite(): Promise<FixtureSite> {
         return;
       case '/web-console-error':
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<script>console.error("web blocker fixture")</script>'); return;
+      case '/web-duplicate-console':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<script>console.error("duplicate blocker");console.error("duplicate blocker")</script>'); return;
+      case '/web-delayed-visible':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<button data-qa="delayed" style="display:none">Ready</button><script>setTimeout(()=>document.querySelector("[data-qa=delayed]").style.display="block",50)</script>'); return;
+      case '/web-delayed-route':
+        response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<script>setTimeout(()=>location.href="/login",50)</script>'); return;
       case '/web-network-error':
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); response.end('<script>fetch("/connection-reset").catch(()=>{})</script>'); return;
       case '/web-overflow':

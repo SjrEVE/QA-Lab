@@ -40,7 +40,8 @@ export async function runWebQa(options: WebQaOptions): Promise<WebQaResult> {
   let recording:RecordingSummary=await recorder.prepare({artifactDirectory:runDirectory,enabled:options.enableRecording??recordingEnabled(),...(options.release===undefined?{}:{release:options.release}),...(options.deletePassVideo===undefined?{}:{deletePassVideo:options.deletePassVideo})});
   const addIssue = (draft: Omit<WebIssue, 'schemaVersion' | 'id' | 'runner' | 'scenarioId' | 'timestampMs' | 'status'>): void => {
     if (issues.length >= options.scenario.limits.max_issues) return;
-    issues.push(webIssueSchema.parse({ ...draft, schemaVersion: 1, id: issueId(options.scenario.id, draft.viewport, draft.category, draft.actual), runner: 'web', scenarioId: options.scenario.id, timestampMs: Date.now() - started, status: 'NEW' }));
+    const issue = webIssueSchema.parse({ ...draft, schemaVersion: 1, id: issueId(options.scenario.id, draft.viewport, draft.category, draft.actual), runner: 'web', scenarioId: options.scenario.id, timestampMs: Date.now() - started, status: 'NEW' });
+    if (!issues.some((candidate) => candidate.id === issue.id)) issues.push(issue);
   };
   let blocked = false;
   if (!options.baseUrl) {
@@ -56,8 +57,19 @@ export async function runWebQa(options: WebQaOptions): Promise<WebQaResult> {
         if (item.action === 'open') await controller.navigate(joinUrl(options.baseUrl, item.path));
         else if (item.action === 'click') await page.locator(item.selector).click();
         else if (item.action === 'fill') await page.locator(item.selector).fill(item.value);
-        else if (item.action === 'expect_url') { const passed = new URL(page.url()).pathname === item.path; checks.push({ viewport: viewportName, check: `url:${item.path}`, passed, details: page.url() }); if (!passed) addIssue({ viewport: viewportName, category: 'action', severity: 'HIGH', title: 'Navigation did not reach expected route', url: page.url(), expected: item.path, actual: new URL(page.url()).pathname, evidence: [`screenshots/${viewportName}-checkpoint.png`], confidence: 1, limitations: 'Exact pathname comparison only.' }); }
-        else { const passed = await page.locator(item.selector).isVisible(); checks.push({ viewport: viewportName, check: `visible:${item.name}`, passed, details: item.selector }); if (!passed) addIssue({ viewport: viewportName, category: 'action', severity: 'HIGH', title: `${item.name} is not visible`, url: page.url(), expected: 'Element visible', actual: 'Element absent or hidden', evidence: [`screenshots/${viewportName}-checkpoint.png`], confidence: 1, limitations: 'Visibility does not establish visual quality.' }); }
+        else if (item.action === 'expect_url') {
+          let passed = true;
+          try { await page.waitForURL((url) => url.pathname === item.path); } catch { passed = false; }
+          checks.push({ viewport: viewportName, check: `url:${item.path}`, passed, details: page.url() });
+          if (!passed) addIssue({ viewport: viewportName, category: 'action', severity: 'HIGH', title: 'Navigation did not reach expected route', url: page.url(), expected: item.path, actual: new URL(page.url()).pathname, evidence: [`${viewportName}/${viewportName}-checkpoint.png`], confidence: 1, limitations: 'Bounded exact pathname comparison only.' });
+        }
+        else {
+          const locator = page.locator(item.selector);
+          let passed = true;
+          try { await locator.waitFor({ state: 'visible' }); } catch { passed = false; }
+          checks.push({ viewport: viewportName, check: `visible:${item.name}`, passed, details: item.selector });
+          if (!passed) addIssue({ viewport: viewportName, category: 'action', severity: 'HIGH', title: `${item.name} is not visible`, url: page.url(), expected: 'Element visible', actual: 'Element absent or hidden after the bounded wait', evidence: [`${viewportName}/${viewportName}-checkpoint.png`], confidence: 1, limitations: 'Visibility does not establish visual quality.' });
+        }
       }
       if (screenshots < options.scenario.limits.max_screenshots) { await controller.screenshot(`${viewportName}-checkpoint`); await recorder.checkpoint(`${viewportName}-complete`); screenshots++; }
       for (const action of options.scenario.checks.primary_actions_clickable) {
@@ -90,7 +102,7 @@ function addEventIssues(events: readonly BrowserEvent[], viewport: string, url: 
   for (const event of events) {
     const data = JSON.stringify(redactSecrets(event.data));
     if (event.event === 'console' && /"type":"(error|assert)"/.test(data)) add({ viewport, category: 'console', severity: 'HIGH', title: 'Console blocker captured', url, expected: 'No console errors', actual: data, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Browser console event; application impact may require triage.' });
-    if (event.event === 'request-failed' || event.event === 'page-error' || event.event === 'request-denied') add({ viewport, category: 'network', severity: 'HIGH', title: 'Runtime/network blocker captured', url, expected: 'No failed or denied runtime requests', actual: `${event.event}: ${data}`, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Failure may be non-critical; classified conservatively for MVP.' });
+    if ((event.event === 'request-failed' && !/net::ERR_ABORTED/.test(data)) || event.event === 'page-error' || event.event === 'request-denied') add({ viewport, category: 'network', severity: 'HIGH', title: 'Runtime/network blocker captured', url, expected: 'No failed or denied runtime requests', actual: `${event.event}: ${data}`, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Failure may be non-critical; classified conservatively for MVP.' });
   }
 }
 
