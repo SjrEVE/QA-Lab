@@ -21,7 +21,10 @@ export const authenticatedCatalogScenarioSchema = z.object({
   viewports: z.array(z.enum(['mobile-common', 'laptop'])).min(1).max(2).refine((items) => new Set(items).size === items.length),
   selectors: z.object({
     authenticatedShell: selectorContract,
+    accountTrigger: selectorContract,
     accountIdentity: selectorContract,
+    switchAccount: selectorContract,
+    logout: selectorContract,
     grade: selectorContract,
     subject: selectorContract,
     chapter: selectorContract,
@@ -33,6 +36,12 @@ export const authenticatedCatalogScenarioSchema = z.object({
     lessonIdAttribute: z.literal('data-lesson-id'),
     registryStatusAttribute: z.literal('data-registry-status'),
     approvedRegistryValue: z.literal('approved'),
+    learningModeAttribute: z.literal('data-learning-mode'),
+    expectedLearningModes: z.tuple([
+      z.literal('textbook'),
+      z.literal('foundation_recovery'),
+      z.literal('review'),
+    ]),
   }).strict(),
   limits: z.object({
     maxMinutes: z.number().int().min(1).max(15),

@@ -8,6 +8,8 @@ test('loads the Gia Su AI authenticated catalog contract without inventing a les
   assert.equal(scenario.id, 'gia-su-ai-authenticated-catalog');
   assert.match(scenario.selectors.lesson.primary, /data-lesson-id/);
   assert.equal('lessonId' in scenario.lessonContract, false);
+  assert.deepEqual(scenario.lessonContract.expectedLearningModes, ['textbook', 'foundation_recovery', 'review']);
+  assert.match(scenario.selectors.switchAccount.primary, /switch-account/);
 });
 
 test('requires data-qa as the primary selector and rejects malformed versions', () => {
@@ -18,8 +20,8 @@ test('requires data-qa as the primary selector and rejects malformed versions', 
     type: 'authenticated-catalog',
     target: { path: '/app' },
     viewports: ['laptop'],
-    selectors: Object.fromEntries(['authenticatedShell', 'accountIdentity', 'grade', 'subject', 'chapter', 'lesson', 'classroomReady', 'startLesson'].map((key) => [key, { primary: '[data-qa="fixture"]', name: key }])),
-    lessonContract: { lessonIdAttribute: 'data-lesson-id', registryStatusAttribute: 'data-registry-status', approvedRegistryValue: 'approved' },
+    selectors: Object.fromEntries(['authenticatedShell', 'accountTrigger', 'accountIdentity', 'switchAccount', 'logout', 'grade', 'subject', 'chapter', 'lesson', 'classroomReady', 'startLesson'].map((key) => [key, { primary: '[data-qa="fixture"]', name: key }])),
+    lessonContract: { lessonIdAttribute: 'data-lesson-id', registryStatusAttribute: 'data-registry-status', approvedRegistryValue: 'approved', learningModeAttribute: 'data-learning-mode', expectedLearningModes: ['textbook', 'foundation_recovery', 'review'] },
     limits: { maxMinutes: 1, selectorTimeoutMs: 1_000, maxIssues: 10 },
   };
   assert.equal(authenticatedCatalogScenarioSchema.parse(base).version, 1);
@@ -27,5 +29,9 @@ test('requires data-qa as the primary selector and rejects malformed versions', 
   assert.throws(() => authenticatedCatalogScenarioSchema.parse({
     ...base,
     selectors: { ...base.selectors, grade: { primary: 'button.grade', name: 'Grade' } },
+  }));
+  assert.throws(() => authenticatedCatalogScenarioSchema.parse({
+    ...base,
+    lessonContract: { ...base.lessonContract, expectedLearningModes: ['textbook', 'review', 'foundation_recovery'] },
   }));
 });

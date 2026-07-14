@@ -23,7 +23,10 @@ function scenario(selectorTimeoutMs = 2_000) {
     viewports: ['mobile-common', 'laptop'],
     selectors: {
       authenticatedShell: contract('[data-qa="authenticated-shell"]', 'Shell'),
+      accountTrigger: contract('[data-qa="account-trigger"]', 'Account trigger'),
       accountIdentity: contract('[data-qa="account-email"]', 'Identity'),
+      switchAccount: contract('[data-qa="switch-account"]', 'Switch account'),
+      logout: contract('[data-qa="logout"]', 'Logout'),
       grade: contract('[data-qa="grade-option"]', 'Grade'),
       subject: contract('[data-qa="subject-option"]', 'Subject'),
       chapter: contract('[data-qa="chapter-option"]', 'Chapter'),
@@ -31,7 +34,7 @@ function scenario(selectorTimeoutMs = 2_000) {
       classroomReady: contract('[data-qa="lesson-ready"]', 'Classroom'),
       startLesson: contract('[data-qa="start-lesson"]', 'Start'),
     },
-    lessonContract: { lessonIdAttribute: 'data-lesson-id', registryStatusAttribute: 'data-registry-status', approvedRegistryValue: 'approved' },
+    lessonContract: { lessonIdAttribute: 'data-lesson-id', registryStatusAttribute: 'data-registry-status', approvedRegistryValue: 'approved', learningModeAttribute: 'data-learning-mode', expectedLearningModes: ['textbook', 'foundation_recovery', 'review'] },
     limits: { maxMinutes: 1, selectorTimeoutMs, maxIssues: 20 },
   });
 }
@@ -73,6 +76,8 @@ test('persistent authenticated profile completes catalog hierarchy in two viewpo
     assert.equal(result.status, 'PASSED');
     assert.deepEqual(result.selectedLessonIds, ['fixture-grade6-lesson1']);
     assert.equal(result.issues.length, 0);
+    assert.equal(result.checks.some((check) => check.check === 'account:explicit-switch-route' && check.passed), true);
+    assert.equal(result.checks.some((check) => check.check === 'mode:tutor-route-continuity' && check.passed), true);
     await access(path.join(result.artifactDirectory, 'mobile-common', 'checkpoint.png'));
     await access(path.join(result.artifactDirectory, 'laptop', 'checkpoint.png'));
     const report = await readFile(path.join(result.artifactDirectory, 'report.html'), 'utf8');

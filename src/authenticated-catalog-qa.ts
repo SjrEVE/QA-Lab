@@ -20,7 +20,7 @@ import { WEB_VIEWPORTS } from './web-scenario.js';
 const catalogIssueSchema = z.object({
   id: z.string(),
   severity: z.enum(['BLOCKER', 'HIGH', 'MEDIUM', 'LOW']),
-  category: z.enum(['prerequisite', 'selector', 'identity', 'registry', 'navigation', 'console', 'network', 'layout', 'fallback']),
+  category: z.enum(['prerequisite', 'selector', 'identity', 'registry', 'mode', 'navigation', 'console', 'network', 'layout', 'fallback']),
   viewport: z.string(),
   title: z.string(),
   expected: z.string(),
@@ -234,6 +234,8 @@ export async function runAuthenticatedCatalogQa(
         };
 
         await resolveAndCheck(options.scenario.selectors.authenticatedShell);
+        const accountTrigger = await resolveAndCheck(options.scenario.selectors.accountTrigger);
+        await accountTrigger.locator.click();
         const identity = await resolveAndCheck(options.scenario.selectors.accountIdentity);
         let rawIdentity = '';
         if (options.profile.auth.accountIdentitySource === 'value') rawIdentity = await identity.locator.inputValue();
@@ -249,6 +251,14 @@ export async function runAuthenticatedCatalogQa(
           throw new Error('Authenticated account identity hash did not match the verified profile.');
         }
         checks.push({ viewport, check: 'identity:verified-hash', passed: true, details: options.verifiedIdentityHash });
+        const switchAccount = await resolveAndCheck(options.scenario.selectors.switchAccount);
+        const switchHref = await switchAccount.locator.getAttribute('href');
+        if (switchHref !== '/login?switchAccount=1') throw new Error('Account switch control does not use the explicit safe switch route.');
+        checks.push({ viewport, check: 'account:explicit-switch-route', passed: true, details: switchHref });
+        const logout = await resolveAndCheck(options.scenario.selectors.logout);
+        if (!(await logout.locator.isEnabled())) throw new Error('Logout control is disabled.');
+        checks.push({ viewport, check: 'account:logout-ready', passed: true, details: 'enabled-without-click' });
+        await accountTrigger.locator.click();
 
         for (const contract of [options.scenario.selectors.grade, options.scenario.selectors.subject, options.scenario.selectors.chapter]) {
           const selection = await resolveAndCheck(contract);
@@ -261,6 +271,17 @@ export async function runAuthenticatedCatalogQa(
           }
         }
         const lesson = await resolveAndCheck(options.scenario.selectors.lesson);
+        const modeElements = page.locator(options.scenario.selectors.lesson.primary);
+        const modeCount = await modeElements.count();
+        const observedModes: string[] = [];
+        for (let index = 0; index < modeCount; index += 1) {
+          const mode = (await modeElements.nth(index).getAttribute(options.scenario.lessonContract.learningModeAttribute))?.trim() ?? '';
+          if (mode) observedModes.push(mode);
+        }
+        if (JSON.stringify(observedModes) !== JSON.stringify(options.scenario.lessonContract.expectedLearningModes)) {
+          throw new Error(`Learning mode contract mismatch: ${observedModes.join(',') || 'none'}.`);
+        }
+        checks.push({ viewport, check: 'mode:canonical-options', passed: true, details: observedModes.join(',') });
         const lessonId = (await lesson.locator.getAttribute(options.scenario.lessonContract.lessonIdAttribute))?.trim() ?? '';
         const registryStatus = await lesson.locator.getAttribute(options.scenario.lessonContract.registryStatusAttribute);
         if (!/^[A-Za-z0-9._-]{2,128}$/.test(lessonId) || registryStatus !== options.scenario.lessonContract.approvedRegistryValue) {
@@ -268,7 +289,11 @@ export async function runAuthenticatedCatalogQa(
         }
         if (!selectedLessonIds.includes(lessonId)) selectedLessonIds.push(lessonId);
         checks.push({ viewport, check: 'registry:approved-lesson-id', passed: true, details: lessonId });
+        const selectedMode = (await lesson.locator.getAttribute(options.scenario.lessonContract.learningModeAttribute))?.trim() ?? '';
         await lesson.locator.click();
+        const routedMode = new URL(page.url()).searchParams.get('mode');
+        if (routedMode !== selectedMode) throw new Error('Tutor route learning mode does not match the selected canonical mode.');
+        checks.push({ viewport, check: 'mode:tutor-route-continuity', passed: true, details: selectedMode });
 
         const classroom = await resolveAndCheck(options.scenario.selectors.classroomReady);
         const classroomLessonId = (await classroom.locator.getAttribute(options.scenario.lessonContract.lessonIdAttribute))?.trim();
@@ -286,7 +311,7 @@ export async function runAuthenticatedCatalogQa(
       } catch (error) {
         const actual = error instanceof Error ? error.message : String(error);
         await writeFile(path.join(viewportDirectory, 'failure.json'), `${JSON.stringify({ schemaVersion: 1, status: 'FAILED', reason: redactSecrets(actual) }, null, 2)}\n`, { flag: 'wx' });
-        addIssue({ severity: 'HIGH', category: /identity/i.test(actual) ? 'identity' : /registry|lesson ID/i.test(actual) ? 'registry' : 'selector', viewport, title: 'Authenticated catalog flow could not complete', expected: 'Authenticated shell, verified account, catalog hierarchy, approved lesson, classroom and start CTA', actual, evidence: [`${viewport}/failure.json`], limitations: 'Missing product selectors or registry observability are reported; the product is not modified to force a pass.' });
+        addIssue({ severity: 'HIGH', category: /identity|account|logout/i.test(actual) ? 'identity' : /registry|lesson ID/i.test(actual) ? 'registry' : /mode/i.test(actual) ? 'mode' : 'selector', viewport, title: 'Authenticated catalog flow could not complete', expected: 'Authenticated shell, verified account controls, catalog hierarchy, canonical mode, approved lesson, classroom and start CTA', actual, evidence: [`${viewport}/failure.json`], limitations: 'Missing product selectors or registry observability are reported; the product is not modified to force a pass.' });
         if (opened) {
           const page = controller.runtime().page;
           await page.screenshot({ path: path.join(viewportDirectory, 'failure.png'), fullPage: true, mask: [page.locator(options.profile.auth.accountIdentitySelector)] }).catch(() => undefined);
