@@ -1,5 +1,11 @@
 # QA Lab
 
+[![CI](https://github.com/SjrEVE/QA-Lab/actions/workflows/ci.yml/badge.svg)](https://github.com/SjrEVE/QA-Lab/actions/workflows/ci.yml)
+
+## Continuous integration
+
+[`ci.yml`](.github/workflows/ci.yml) chạy fixture-only trên `windows-latest`, Node.js 22 và locked `npm ci`: lint, full stable tests, build, offline doctor/status, toàn bộ fixture smoke, repository-owned tracked-file secret scan và `npm audit`. Recording là job riêng chấp nhận đúng hai contract trung thực: video thật `PASSED`, hoặc capability `BLOCKED` với exit `2` và không có `session.mp4`; trạng thái khác làm job fail. Workflow không nhận secret, không truy cập staging/production, không deploy và không upload artifact có screenshot/transcript. Remote run đầu tiên chỉ được xem là pending cho đến khi GitHub Actions xác nhận.
+
 ## Phase 10 Safety Lab + Cost–Quality–Latency Optimizer
 
 Safety Lab trong `src/safety-lab.ts` là policy-contract fixture dùng schema/version và deterministic policy-first evaluator cho child safety, PII, boundary/manipulation/distress escalation, injection từ student text/web/image-metadata placeholder, tool/domain/shell/cloud/payment denial, và data/artifact redaction. Đây không phải real tutor red-team implementation. Structured actions phải qua allowlist trước controller; fixture chỉ dùng scripted/mock agent và dữ liệu tổng hợp được diễn đạt an toàn, không gọi harmful/live provider, staging hay production.
@@ -61,12 +67,14 @@ npm.cmd run qa:browser:fixture
 npm.cmd run qa:web:fixture
 npm.cmd run qa:student:fixture
 npm.cmd run qa:recording:fixture
+npm.cmd run qa:recording:verify
 npm.cmd run qa:voice:fixture
 npm.cmd run qa:arena:fixture
 npm.cmd run qa:phase10:fixture
 npm.cmd run lint
 npm.cmd test
 npm.cmd run build
+npm.cmd run security:secrets
 npm.cmd run validate
 ```
 

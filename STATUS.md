@@ -7,6 +7,7 @@
 - Readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`; this is not product or staging readiness.
 - Phase 5 recording has fixture-validated screenshot fallback; real FFmpeg recording is **NOT IMPLEMENTED / NOT ACCEPTED** on this host because FFmpeg is unavailable, so no `session.mp4` is claimed.
 - Real Gia Su AI staging acceptance: **NOT STARTED / NOT READY**. Separate tasks are required for staging browser/auth/reset, real providers/evaluators, native Linux voice, and FFmpeg real recording.
+- Independent CI workflow is added at `.github/workflows/ci.yml` with least-privilege fixture-only Windows validation, local secret scanning, audit, and a separate truthful recording capability contract. The first remote run is **PENDING GITHUB ACTIONS CONFIRMATION**; local validation is not claimed as CI PASS.
 
 ## Phase 4 evidence
 

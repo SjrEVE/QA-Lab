@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  QA_ENABLE_RECORDING: "false"
+  QA_ENABLE_VOICE: "false"
+  QA_STAGING_URL: ""
+  QA_FIXTURE_ONLY: "true"
+
+jobs:
+  validate:
+    name: Windows deterministic validation
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+      - name: Lint
+        run: npm run lint
+      - name: Full stable test gate (71+ tests)
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Offline doctor
+        run: npm run qa:doctor
+      - name: Capability status
+        run: npm run qa:status
+      - name: Browser fixture smoke
+        timeout-minutes: 3
+        run: npm run qa:browser:fixture
+      - name: Web fixture smoke
+        run: npm run qa:web:fixture
+      - name: Student fixture smoke
+        run: npm run qa:student:fixture
+      - name: Voice fixture smoke
+        run: npm run qa:voice:fixture
+      - name: Education evaluation fixture smoke
+        run: npm run qa:evaluation:fixture
+      - name: Replay fixture smoke
+        run: npm run qa:replay:fixture
+      - name: Regression fixture smoke
+        run: npm run qa:regression:fixture
+      - name: Arena and cohorts fixture smoke
+        run: npm run qa:arena:fixture
+      - name: Phase 10 safety and optimizer fixture smoke
+        run: npm run qa:phase10:fixture
+      - name: Repository-owned tracked-file secret scan
+        run: npm run security:secrets
+      - name: Dependency vulnerability audit
+        run: npm audit --audit-level=high
+
+  recording-capability:
+    name: Recording capability (PASS or expected BLOCKED)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+      - name: Verify truthful recording exit and artifact contract
+        run: npm run qa:recording:verify
+
+# CI is fixture-only, receives no repository secrets, contacts no staging/production
+# target, performs no deployment, and uploads no run artifacts. Fixture evidence may
+# contain screenshots/transcripts, so it remains ephemeral on the runner by design.
