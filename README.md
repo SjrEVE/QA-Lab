@@ -72,6 +72,12 @@ npm.cmd run validate
 
 `qa:doctor` remains offline-friendly and does not contact staging or production. Fixture commands explicitly enable exact-port loopback mode and write ignored evidence under `runs/`.
 
+### Deterministic test gate
+
+`npm.cmd test` is the required full gate on Node.js 20+ (including audited Node.js 24 hosts). It runs every `*.test.ts` file exactly once in two sequential groups with `--test-concurrency=1`: `test:unit` contains pure/non-browser contract tests, then `test:browser` contains Playwright/browser fixture integration and E2E tests. Browser fixtures are therefore serial and bounded for Windows or resource-limited CI hosts; do not run full suites concurrently. Run the default gate twice sequentially when validating gate stability.
+
+`qa:recording:fixture` is a capability probe, not part of `npm test`: missing FFmpeg must report `BLOCKED` and exit non-zero. That expected host limitation is not a fake overall PASS and must be reported separately from the deterministic test gate.
+
 ## Security model
 
 Staging navigation, redirects, subresources, and WebSockets require exact normalized hostname membership and HTTPS/WSS. Fixture HTTP requires explicit loopback mode and exact ephemeral port. StudentBrain can propose only typed lesson input/click, bounded wait, issue report, or finish actions; it receives no shell, source, filesystem editing, Git, cloud console, arbitrary navigation, provider, voice, or deploy capability. Run artifacts are redacted and run paths are validated.
