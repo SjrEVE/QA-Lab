@@ -229,7 +229,13 @@ export async function runAuthenticatedCatalogQa(
 
         for (const contract of [options.scenario.selectors.grade, options.scenario.selectors.subject, options.scenario.selectors.chapter]) {
           const selection = await resolveAndCheck(contract);
-          await selection.locator.click();
+          const tagName = await selection.locator.evaluate((element) => element.tagName.toLowerCase());
+          if (tagName === 'select') {
+            if (!(await selection.locator.inputValue()).trim()) throw new Error(`${contract.name} select has no active catalog value.`);
+            checks.push({ viewport, check: `selected:${contract.name}`, passed: true, details: 'select-value' });
+          } else {
+            await selection.locator.click();
+          }
         }
         const lesson = await resolveAndCheck(options.scenario.selectors.lesson);
         const lessonId = (await lesson.locator.getAttribute(options.scenario.lessonContract.lessonIdAttribute))?.trim() ?? '';
