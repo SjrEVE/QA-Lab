@@ -28,6 +28,16 @@ export const guidedSelfStudyScenarioSchema = z.object({
     packageId: safeId,
     fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
   }).strict(),
+  entry: z.object({
+    grade: selector,
+    subject: selector,
+    chapter: selector,
+    lesson: selector,
+    mode: selector,
+    expectedGrade: z.literal('g12'),
+    expectedSubject: z.literal('math'),
+    expectedChapter: lessonId,
+  }).strict().optional(),
   viewports: z.array(z.enum(['mobile-common', 'tablet', 'desktop'])).length(3)
     .refine((items) => new Set(items).size === items.length, 'guided self-study viewports must be unique'),
   selectors: z.object({

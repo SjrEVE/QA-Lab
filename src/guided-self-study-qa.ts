@@ -116,7 +116,22 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
         checks.push({ viewport, check: 'identity:verified', passed: true, details: 'matched-private-verification' });
 
         const url = new URL(options.scenario.target.path, options.baseUrl); url.searchParams.set('lessonId', options.scenario.package.lessonId); url.searchParams.set('mode', options.scenario.package.learningMode);
-        await controller.navigate(url.href);
+        if (options.scenario.entry) {
+          const entry = options.scenario.entry;
+          await page.locator(entry.grade).selectOption(entry.expectedGrade);
+          await page.locator(entry.subject).selectOption(entry.expectedSubject);
+          await page.locator(entry.chapter).locator(`option[value="${entry.expectedChapter}"]`).waitFor({ state: 'attached' });
+          await page.locator(entry.chapter).selectOption(entry.expectedChapter);
+          await page.locator(entry.lesson).locator(`option[value="${options.scenario.package.lessonId}"]`).waitFor({ state: 'attached' });
+          await page.locator(entry.lesson).selectOption(options.scenario.package.lessonId);
+          const mode = page.locator(entry.mode).first();
+          await mode.waitFor({ state: 'visible' });
+          if (await mode.getAttribute('data-lesson-id') !== options.scenario.package.lessonId) throw new Error('App Home entry lesson continuity mismatch.');
+          await Promise.all([page.waitForURL((candidate) => candidate.pathname === options.scenario.target.path, { timeout: options.scenario.limits.transitionTimeoutMs }), mode.click()]);
+          const routed = new URL(page.url());
+          if (routed.searchParams.get('lessonId') !== options.scenario.package.lessonId || routed.searchParams.get('mode') !== options.scenario.package.learningMode) throw new Error('App Home self-study route continuity mismatch.');
+          checks.push({ viewport, check: 'entry:app-home-to-self-study', passed: true, details: options.scenario.package.lessonId });
+        } else await controller.navigate(url.href);
         let player = await waitState(page, options.scenario.selectors.player, 'READY', options.scenario.limits.transitionTimeoutMs);
         for (const [attribute, expected] of [['data-lesson-id', options.scenario.package.lessonId], ['data-package-id', options.scenario.package.packageId], ['data-package-fingerprint', options.scenario.package.fingerprint]] as const) if (await player.getAttribute(attribute) !== expected) throw new Error(`Pinned package contract mismatch: ${attribute}.`);
         checks.push({ viewport, check: 'package:pinned-release', passed: true, details: options.scenario.package.packageId });

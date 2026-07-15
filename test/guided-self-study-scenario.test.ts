@@ -7,6 +7,7 @@ test('loads the bounded integrals self-study scenario with three acceptance view
   const scenario = await loadGuidedSelfStudyScenario(path.resolve('scenarios/authenticated/gia-su-ai-guided-self-study-integrals.yaml'));
   assert.equal(scenario.reset.scope, 'gss-integrals-self-study');
   assert.deepEqual(scenario.viewports, ['mobile-common', 'tablet', 'desktop']);
+  assert.equal(scenario.entry?.expectedChapter, 'G12_MATH_KNTT_CH04');
   assert.equal(scenario.answers.length, 6);
   assert.equal(scenario.answers[0]?.incorrectValue, '3');
 });

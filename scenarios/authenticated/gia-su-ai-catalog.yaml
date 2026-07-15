@@ -37,12 +37,12 @@ selectors:
     primary: '[data-qa="lesson-option"][data-lesson-id][data-registry-status="approved"]'
     name: Approved runtime lesson
   classroomReady:
-    primary: '[data-qa="guided-self-study-player"][data-lesson-id]'
-    name: Guided self-study readiness
+    primary: '[data-qa="lesson-ready"][data-lesson-id]'
+    name: Classroom lesson readiness
   startLesson:
-    primary: '[data-qa="self-study-start"]'
+    primary: '[data-qa="start-lesson"]'
     fallback: 'main button[type="button"]'
-    name: Start guided self-study CTA
+    name: Start lesson CTA
 lessonContract:
   lessonIdAttribute: data-lesson-id
   registryStatusAttribute: data-registry-status
