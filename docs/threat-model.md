@@ -213,7 +213,7 @@ Self-judging and poisoning controls:
 | Strict config/version validation | Implemented | `src/config.ts` and contract loaders/tests |
 | Exact-host HTTPS/WSS and explicit fixture policy | Implemented | `src/security.ts`, `src/browser-policy.ts`, tests |
 | Redirect/subresource/WebSocket enforcement | Implemented and bounded-staging validated | `src/browser-policy.ts`, browser integration tests and approved staging runs; same-host response-size/service-worker/download risks remain |
-| Typed model action boundary | Implemented at scripted scope | `src/student-brain.ts`, `src/student-qa.ts`, Phase 10 policy fixture |
+| Typed model action boundary | Implemented locally for scripted and Gemini adapters | `src/student-brain.ts`, `src/gemini-student-brain.ts`, `src/student-qa.ts`; model output is strict, bounded, Vietnamese-validated and never executes directly; real-key/provider acceptance pending |
 | Safe artifact IDs/no-overwrite/root containment | Implemented | `src/run-store.ts`, replay selectors, tests |
 | Junction/reparse/symlink hostile-root defense | Partial | Lexical/resolved containment exists; component/handle-level defense absent |
 | Recursive secret redaction | Implemented, defense in depth | `src/redaction.ts`, logger/artifact tests |
@@ -222,7 +222,7 @@ Self-judging and poisoning controls:
 | Reset integration | Implemented for declared scopes | Exact-host, identity/lesson-bound, token-from-env, idempotent scopes exist for session-start and guided self-study; arbitrary reset scopes remain forbidden |
 | FFmpeg real recording | Not implemented on current host / blocked | Recorder foundation exists; FFmpeg absent; no fake video |
 | Native Linux voice/PulseAudio route | Partial / blocked on Windows | Contracts/setup/probe exist; Linux acceptance absent |
-| Real Brain/Voice/Evaluator providers | Not implemented | Scripted/mock/synthetic only; no keys/provider calls |
+| Real Brain/Voice/Evaluator providers | Brain adapter implemented; provider acceptance pending | Gemini StudentBrain transport, opt-in/secret/response-size/timeout guards and positive/negative tests exist. A real-key doctor run is still required; real voice and evaluator providers remain unimplemented/unaccepted. |
 | Real tutor multimodal red-team | Not implemented | Safety contract fixture only |
 | Timeline/replay/regression integrity validation | Implemented locally | No cryptographic signing/immutable store |
 | Arena/cohort/safety/optimizer policy foundations | Implemented as deterministic fixtures | Not provider benchmark, real red-team, or deployment optimization |

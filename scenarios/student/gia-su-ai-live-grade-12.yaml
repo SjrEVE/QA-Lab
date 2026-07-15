@@ -1,0 +1,37 @@
+version: 1
+id: gia-su-ai-live-grade-12
+name: Gia Sư AI Live — học sinh lớp 12 cần giải thích từng bước
+type: student-text
+persona: hesitant-grade-12-live
+target:
+  path: /app/tutor
+  tutor_turn_selector: '.activity-history article:has(span.ai) p'
+  text_input_selector: 'form.ai-input input'
+  send_selector: 'form.ai-input button[type="submit"]'
+  whiteboard_selector: '.lesson-board-scene'
+limits:
+  max_minutes: 20
+  max_turns: 10
+  max_brain_context_turns: 4
+  max_issues: 20
+  tutor_turn_timeout_ms: 30000
+goals:
+  - misconception_detected
+  - explanation_changes
+  - independent_check
+  - independent_success
+checks:
+  minimum_turns: 8
+  require_whiteboard_events: true
+  require_explanation_change: true
+  require_independent_check: true
+  require_independent_success: true
+scripted_responses:
+  - Con hơi quên phần này rồi, thầy giải thích chậm giúp con được không ạ?
+  - Con vẫn chưa hiểu vì sao lại dùng công thức đó ạ.
+  - Thầy cho con một ví dụ đơn giản hơn được không ạ?
+  - Nếu con làm bước này trước thì có đúng không ạ?
+  - Con nghĩ đáp án là như vậy nhưng chưa biết giải thích vì sao.
+  - À, con hiểu ý chính rồi ạ. Cho con thử một câu tương tự nhé.
+  - Con làm lại từng bước như thầy vừa hướng dẫn ạ.
+  - Con chọn cách này vì nó khớp với điều kiện của bài ạ.

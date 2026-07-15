@@ -22,6 +22,8 @@ export { assertAllowedBrowserUrl, decideBrowserRequest } from './browser-policy.
 export type { BrowserPolicyDecision, BrowserResourceKind, BrowserTargetPolicy } from './browser-policy.js';
 export { CONFIG_VERSION, loadConfig, qaConfigSchema } from './config.js';
 export type { LoadConfigOptions, QaConfig } from './config.js';
+export { executeFullWebModules, runConfiguredFullWebQa } from './full-web-qa.js';
+export type { ConfiguredFullWebQaOptions, FullWebModule, FullWebModulePhase, FullWebModuleResult, FullWebModuleStatus, FullWebQaResult, FullWebQaStatus } from './full-web-qa.js';
 export { runDoctor } from './doctor.js';
 export type { CheckStatus, DoctorCheck, DoctorReport } from './doctor.js';
 export { ARENA_CONFIG_VERSION, ARENA_REPORT_VERSION, arenaConfigSchema, arenaObservationSchema, configurationHash, evaluateArena, loadArenaConfig, measuredValueSchema, writeArenaReport } from './model-arena.js';
@@ -42,9 +44,11 @@ export { assertPrivatePath, loadStagingProfile, PRIVATE_ROOT, resolvePrivatePath
 export type { LoadStagingProfileOptions, StagingProfile } from './staging-profile.js';
 export { loadStagingResetConfig, runConfiguredStagingReset, stagingResetConfigSchema, StrictStagingResetAdapter } from './staging-reset.js';
 export type { ConfiguredStagingResetOptions, ResetHttpClient, StagingResetAdapterOptions, StagingResetConfig, StagingResetRequest, StagingResetResult } from './staging-reset.js';
-export { ScriptedStudentBrain, assertBoundedBrainContext, studentActionSchema } from './student-brain.js';
+export { GeminiFetchTransport, GeminiStudentBrain, createConfiguredGeminiStudentBrain } from './gemini-student-brain.js';
+export type { GeminiBrainDelivery, GeminiBrainProviderOutput, GeminiBrainRequest, GeminiBrainTransport, GeminiFetchTransportOptions } from './gemini-student-brain.js';
+export { ScriptedStudentBrain, assertBoundedBrainContext, assertStudentBrainDecision, studentActionSchema } from './student-brain.js';
 export type { BrainTurn, StudentAction, StudentBrain, StudentBrainContext, StudentBrainDecision } from './student-brain.js';
-export { PERSONA_SCHEMA_VERSION, STUDENT_SCENARIO_VERSION, findStudentPersona, findStudentScenario, listStudentPersonas, listStudentScenarios, loadStudentPersona, loadStudentScenario, studentPersonaSchema, studentScenarioSchema } from './student-contracts.js';
+export { PERSONA_SCHEMA_VERSION, STUDENT_BEHAVIORS, STUDENT_SCENARIO_GOALS, STUDENT_SCENARIO_VERSION, findStudentPersona, findStudentScenario, listStudentPersonas, listStudentScenarios, loadStudentPersona, loadStudentScenario, studentPersonaSchema, studentScenarioSchema } from './student-contracts.js';
 export type { StudentPersona, StudentScenario } from './student-contracts.js';
 export { COHORT_SCHEMA_VERSION, assertBaselineEligible, cohortConfigSchema, cohortManifest, cohortPersonaSchema, generateCohort, loadCohortConfig, selectCohortPersonas, toStudentPersona } from './synthetic-cohorts.js';
 export type { CohortConfig, CohortPersona } from './synthetic-cohorts.js';

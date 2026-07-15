@@ -38,7 +38,7 @@ Liệt kê cả Web QA và Student QA scenario bằng `npm.cmd run qa:list`. Ch�
 
 Phase 4 có persona/scenario YAML typed + versioned, vendor-neutral `StudentBrain`, deterministic `ScriptedStudentBrain`, context 3–5 lượt, structured browser-only actions, lifecycle/limits, manual/stub reset boundary, `/lesson-mock` tám lượt, transcript/whiteboard/screenshot artifacts, deterministic checks, UX diary và report. Observed metrics và estimated UX scores được gắn nhãn riêng.
 
-Không có provider thật, credential, Education Eval, replay, dashboard, deployment hay Phase 7+.
+Gemini StudentBrain là adapter opt-in: key chỉ đọc từ process environment, output JSON bị validate lại và model không có shell/Git/Firebase/deploy/navigation. Xem [`docs/GEMINI_STUDENT_BRAIN.md`](docs/GEMINI_STUDENT_BRAIN.md). Adapter local không tự chứng minh provider, voice, evaluator hoặc staging acceptance.
 
 ## Product authority
 
@@ -54,7 +54,7 @@ npm.cmd install
 Copy-Item .env.example .env
 ```
 
-Real staging execution is authorized only for the typed `giasu-c2165.web.app` profile and the explicitly requested flow. Public smoke, verified auth persistence, authenticated catalog, scoped reset, App Check enforce, and the Integral/Conditional Probability guided-self-study modules have bounded staging evidence. Realtime Gemini session-start remains blocked by depleted staging credits. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
+Real staging execution is authorized only for the typed `giasu-c2165.web.app` profile and the explicitly requested flow. Public smoke, verified auth persistence, authenticated catalog, scoped reset, App Check enforce, and the Integral/Conditional Probability guided-self-study modules have bounded staging evidence. Realtime Gemini now reaches `setupComplete` and accepts a synthetic Vietnamese turn, but full Live acceptance still fails on latency, missing whiteboard output and incomplete end-to-end learning evidence. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
 
 Use the repo-local `skills/tutorproof-targeted-qa` skill as the dispatcher for one requested QA capability at a time. It deliberately does not run the whole framework unless a full suite is explicitly requested.
 
@@ -63,6 +63,9 @@ Use the repo-local `skills/tutorproof-targeted-qa` skill as the dispatcher for o
 ```powershell
 npm.cmd run qa:status
 npm.cmd run qa:doctor
+npm.cmd run qa:brain:doctor
+npm.cmd run qa:full-web
+npm.cmd run qa:live:brain
 npm.cmd run qa:list
 npm.cmd run qa:auth
 npm.cmd run qa:catalog

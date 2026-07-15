@@ -5,18 +5,18 @@
 - Framework state: **Phase 0–10 implemented and validated at local deterministic-fixture scope only**.
 - `QA-STAGING-001` public smoke is accepted against the approved non-production host `https://giasu-c2165.web.app`: final enforce run `20260715T063728Z-caa7374a` passed 16/16 landing/login/unauthenticated-guard checks with zero issues.
 - Authenticated staging is bounded and accepted for account/catalog/reset/self-study only. Catalog run `20260715T063715Z-978f9b25` passed identity, account controls, hierarchy, canonical modes and lesson continuity. Integral run `20260715T065109Z-815e3991` and Conditional Probability run `20260715T070209Z-00358b7b` each passed 57/57 at 390×844, 768×1024 and 1440×900 with exact package/fingerprint, hint, reload/resume, remediation, six server verifier outcomes, VERIFY, summary, App Check enforce and no Gemini host.
-- The targeted G12 session-start runner is implemented and locally fixture-tested. Staging run `20260714T214415Z-fdd45d04` proved reset, verified identity, exact approved lesson `G12_MATH_KNTT_CH01_L01`, scoped client-pointer cleanup, classroom continuity, session creation, and cleanup, but is truthfully **BLOCKED** before realtime acceptance because Gemini returned `prepayment credits are depleted`. No student turn, transcript, mastery, verifier, OCR, or real-child audio was exercised.
+- The targeted G12 Live runner is implemented and locally fixture-tested. Visible staging run `20260715T081058Z-e7598a7c` proved reset, verified identity, exact lesson `G12_MATH_KNTT_CH01_L01`, Gemini `setupComplete`, Vietnamese synthetic speech detection, `lessonReady`, incorrect verifier and multiple tutor responses. It truthfully **FAILED** full acceptance: setup was ~10.5 s, onboarding ~57.7 s, tutor first response ~9.4 s/full turn ~20.6 s, and whiteboard object count remained zero. No recording, raw transcript, mastery, OCR or real-child audio was used.
 - Currently allowed evidence uses local deterministic fixtures, scripted brains, synthetic personas/WAV, and provider-free replay.
 - Framework readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`; product module readiness is reported separately as `GIA_SU_AI_GUIDED_SELF_STUDY_STAGING_ACCEPTED` and does not mean whole-product acceptance.
 - Phase 5 recording has fixture-validated screenshot fallback; real FFmpeg recording is **NOT IMPLEMENTED / NOT ACCEPTED** on this host because FFmpeg is unavailable, so no `session.mp4` is claimed.
-- Real Gia Su AI staging acceptance: **MODULE-BOUNDED / GUIDED SELF-STUDY READY**. Public UI, authenticated catalog, identity persistence, strict reset, Integral and Conditional Probability are accepted within their stated modules. Whole-product acceptance is not claimed; realtime provider connection remains blocked by depleted staging credits, while evaluator, physical/native voice, FFmpeg real recording, production, public commerce and real-child use remain separate gates.
+- Real Gia Su AI staging acceptance: **MODULE-BOUNDED / GUIDED SELF-STUDY READY**. Public UI, authenticated catalog, identity persistence, strict reset, Integral and Conditional Probability are accepted within their stated modules. Whole-product acceptance is not claimed; realtime provider connectivity works but Live latency, full student journey and whiteboard acceptance fail, while evaluator, physical/native voice, FFmpeg real recording, production, public commerce and real-child use remain separate gates.
 - Independent CI workflow is added at `.github/workflows/ci.yml` with least-privilege fixture-only Windows validation, local secret scanning, audit, and a separate truthful recording capability contract. The first remote run is **PENDING GITHUB ACTIONS CONFIRMATION**; local validation is not claimed as CI PASS.
 
 ## Phase 4 evidence
 
 - Versioned strict persona/scenario loaders: `src/student-contracts.ts`.
 - Persona/scenario: `personas/weak-fractions-grade-4.yaml`; `scenarios/student/weak-fractions-lesson.yaml`.
-- Vendor-neutral `StudentBrain` and deterministic `ScriptedStudentBrain`: `src/student-brain.ts`; no provider adapter or credentials.
+- Vendor-neutral `StudentBrain`, deterministic `ScriptedStudentBrain`, and opt-in structured Gemini adapter: `src/student-brain.ts`; `src/gemini-student-brain.ts`. The operator key remains process-only and untracked; real-key doctor/Live Brain acceptance is pending.
 - Browser-only structured action allowlist; no shell, source, Git, cloud, arbitrary navigation, voice, or provider action.
 - Bounded context retains only 3–5 recent turns plus understanding, misconception, used behaviors, and remaining goals.
 - Runner lifecycle and truthful limits: `src/student-qa.ts`; missing prerequisites/reset yield `BLOCKED`, never synthetic PASS.
@@ -35,7 +35,7 @@
 - Fixture mode is explicit and permits only exact-port loopback HTTP.
 - Real run remains `BLOCKED` without staging URL/account/reset; no production target is accessed.
 - UX scores are deterministic state-based estimates and are labeled estimated with limitations; turns, duration, and DOM whiteboard states are observed.
-- No real voice vendor, physical microphone claim, provider brain/evaluator, dashboard, deployment, or real-product acceptance exists. Education Eval, replay/regression, Model Arena, and cohorts are deterministic fixture foundations only.
+- No physical microphone claim, accepted provider Brain/evaluator, dashboard, deployment, or whole-product acceptance exists. Realtime tutor connectivity evidence is bounded and failed full Live acceptance; Education Eval, replay/regression, Model Arena, and cohorts remain deterministic fixture foundations only.
 
 ## Phase 5 recording evidence
 

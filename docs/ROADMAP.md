@@ -21,8 +21,8 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Real staging acceptance remains blocked without an approved target/account; a missing target yields `BLOCKED`, never synthetic PASS.
 
 4. **Student text — Phase 4 — Implemented; local fixture validated**
-   - Versioned persona/student scenario contracts, vendor-neutral bounded StudentBrain, deterministic scripted adapter, browser-only transcript loop, reset boundary, truthful lifecycle/limits, UX diary, turn/whiteboard/screenshot artifacts, deterministic checks, and independent report.
-   - Real staging execution is `BLOCKED` without approved exact host, dedicated account, and working reset integration. UX scores are explicitly estimated; no provider brain/evaluator is present.
+   - Versioned persona/student scenario contracts, vendor-neutral bounded StudentBrain, deterministic scripted adapter, opt-in Gemini structured-decision adapter, browser-only transcript loop, reset boundary, truthful lifecycle/limits, UX diary, turn/whiteboard/screenshot artifacts, deterministic checks, and independent report.
+   - Gemini output is untrusted data: Vietnamese text/voice projections remain allowlisted, bounded and revalidated; shell/Git/cloud/navigation/unknown fields fail closed. Real-key doctor and product-specific staging Student QA evidence are still pending, and UX scores remain explicitly estimated with no real evaluator acceptance.
 
 5. **Recording — Phase 5 — Implemented; video fixture capability-blocked on this machine**
    - Vendor-neutral Recorder interface, lifecycle, screenshot timeline, FFmpeg/browser-video adapter, synchronized checkpoint timestamps, report links, retention policy, disk guard, and partial cleanup are implemented.
