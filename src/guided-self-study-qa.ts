@@ -40,7 +40,8 @@ async function waitState(page: Page, playerSelector: string, state: string, time
 }
 
 async function submitAnswer(page: Page, scenario: GuidedSelfStudyScenario, exerciseId: string, answer: string, expectedResult: 'correct' | 'incorrect'): Promise<void> {
-  const player = page.locator(scenario.selectors.player).first();
+  const player = page.locator(`${scenario.selectors.player}[data-exercise-id="${exerciseId}"]`).first();
+  await player.waitFor({ state: 'visible', timeout: scenario.limits.transitionTimeoutMs });
   if (await player.getAttribute('data-exercise-id') !== exerciseId) throw new Error(`Exercise continuity mismatch for ${exerciseId}.`);
   await page.locator(scenario.selectors.answer).fill(answer);
   await page.locator(scenario.selectors.submit).click();

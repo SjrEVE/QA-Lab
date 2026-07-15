@@ -32,7 +32,7 @@ function learnPage() {
     document.querySelector('[data-qa=self-study-hint-request]')?.addEventListener('click',()=>{s.hint=true;s.verification=null;render()});
     document.querySelector('[data-qa=self-study-remediation-enter]')?.addEventListener('click',()=>{s.phase='REMEDIATE';render()});
     document.querySelector('[data-qa=self-study-remediation-return]')?.addEventListener('click',()=>{s.phase=phaseFor();s.verification=null;render()});
-    document.querySelector('[data-qa=self-study-next]')?.addEventListener('click',()=>{s.verification=null;s.correct=false;s.attempts=0;s.hint=false;if(s.index===0){s.phase='LEARN'}else if(s.index===ids.length-1){s.phase='VERIFY'}else{s.index++;s.phase=phaseFor()}render()});
+    document.querySelector('[data-qa=self-study-next]')?.addEventListener('click',()=>setTimeout(()=>{s.verification=null;s.correct=false;s.attempts=0;s.hint=false;if(s.index===0){s.phase='LEARN'}else if(s.index===ids.length-1){s.phase='VERIFY'}else{s.index++;s.phase=phaseFor()}render()},25));
     document.querySelector('[data-qa=self-study-learn-continue]')?.addEventListener('click',()=>{s.index=1;s.phase='GUIDED_PRACTICE';render()});
     document.querySelector('[data-qa=self-study-verify-complete]')?.addEventListener('click',()=>{s.phase='COMPLETE';render()});}
   render();</script>`;
