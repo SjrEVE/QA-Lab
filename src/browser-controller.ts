@@ -29,7 +29,12 @@ export interface BrowserControllerOptions {
   readonly headless?: boolean;
   readonly preserveProfile?: boolean;
   readonly recordVideoDirectory?: string;
-  readonly voice?: { readonly enabled: boolean; readonly permissions?: readonly ['microphone']; readonly args?: readonly string[] };
+  readonly voice?: {
+    readonly enabled: boolean;
+    readonly audible?: boolean;
+    readonly permissions?: readonly ['microphone'];
+    readonly args?: readonly string[];
+  };
 }
 
 export interface BrowserController {
@@ -74,6 +79,7 @@ export class GuardedBrowserController implements BrowserController {
       headless: this.#options.headless ?? true,
       acceptDownloads: false,
       serviceWorkers: 'block',
+      ...(this.#options.voice?.audible ? { ignoreDefaultArgs: ['--mute-audio'] } : {}),
       ...(this.#options.recordVideoDirectory ? { recordVideo: { dir: this.#options.recordVideoDirectory } } : {}),
       ...(this.#options.voice?.enabled && this.#options.voice.args ? { args: [...this.#options.voice.args] } : {}),
     });

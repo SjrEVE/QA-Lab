@@ -44,6 +44,7 @@
     "qa:catalog": "tsx src/cli.ts catalog",
     "qa:session:start": "tsx src/cli.ts session-start",
     "qa:self-study": "tsx src/cli.ts self-study",
+    "qa:live:visible": "tsx scripts/visible-live-session.ts",
     "security:secrets": "tsx scripts/secret-scan.ts",
     "validate": "npm run lint && npm test && npm run build && npm run qa:doctor"
   },
