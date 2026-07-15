@@ -28,7 +28,7 @@ npm.cmd run qa:brain:doctor
 
 The doctor makes one bounded provider request and prints only readiness, model/version, latency and action kinds. It does not print the key, student speech or raw provider response. The default request timeout is 30 seconds; `QA_BRAIN_TIMEOUT_MS` may override it only within the transport's validated 1–30 second range.
 
-The key must contain only its raw ASCII value (`A-Z`, `a-z`, `0-9`, `_`, `-`). Labels such as `GEMINI_API_KEY=`, quotes, spaces and invisible copy/paste characters are rejected locally before any network request.
+The key must be either a standard Gemini API key using ASCII letters, digits, `_` and `-`, or a newer authorization key with the `AQ.` prefix followed by that same safe character set. Labels such as `GEMINI_API_KEY=`, quotes, spaces and invisible copy/paste characters are rejected locally before any network request. Google AI Studio creates authorization keys by default as of 2026; both supported key types are sent only through `x-goog-api-key`.
 
 Remove the key after the test:
 

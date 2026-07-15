@@ -6,6 +6,8 @@ const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 const GEMINI_HOST = 'generativelanguage.googleapis.com';
 const MAX_PROVIDER_RESPONSE_BYTES = 64 * 1024;
 const DEFAULT_TIMEOUT_MS = 30_000;
+const standardApiKey = /^[A-Za-z0-9_-]{20,200}$/u;
+const authorizationApiKey = /^AQ\.[A-Za-z0-9_-]{20,197}$/u;
 
 const safeId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const providerOutputSchema = z.object({
@@ -66,7 +68,7 @@ export class GeminiFetchTransport implements GeminiBrainTransport {
   public constructor(options: GeminiFetchTransportOptions) {
     const apiKey = options.apiKey.trim();
     if (!apiKey) throw new Error('QA Brain Gemini API key is missing.');
-    if (!/^[A-Za-z0-9_-]{20,200}$/u.test(apiKey)) throw new Error('QA Brain Gemini API key format is invalid. Copy only the raw key value without labels, quotes, whitespace, or hidden characters.');
+    if (!standardApiKey.test(apiKey) && !authorizationApiKey.test(apiKey)) throw new Error('QA Brain Gemini API key format is invalid. Copy only the raw standard or AQ authorization key without labels, quotes, whitespace, or hidden characters.');
     this.model = options.model?.trim() || DEFAULT_MODEL;
     if (!/^[a-z0-9][a-z0-9.-]{2,79}$/.test(this.model)) throw new Error('Unsafe Gemini model identifier.');
     this.#apiKey = apiKey;
