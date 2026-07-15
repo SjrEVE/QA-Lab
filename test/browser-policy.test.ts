@@ -33,3 +33,14 @@ test('policy decision retains denied resource kind as evidence', () => {
   assert.equal(decision.kind, 'redirect');
   assert.match(decision.reason, /exact staging allowlist/);
 });
+
+test('suite-specific denylist overrides the shared staging allowlist', () => {
+  const policy = {
+    allowedHosts: ['staging.example.test', 'generativelanguage.googleapis.com'],
+    deniedHosts: ['generativelanguage.googleapis.com'],
+  };
+  assert.equal(assertAllowedBrowserUrl('https://staging.example.test/app/learn', policy).hostname, 'staging.example.test');
+  const decision = decideBrowserRequest('https://generativelanguage.googleapis.com/v1beta/models/test', 'subresource', policy);
+  assert.equal(decision.allowed, false);
+  assert.match(decision.reason, /explicitly denied/);
+});

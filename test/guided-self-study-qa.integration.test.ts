@@ -6,7 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { hashAccountIdentity } from '../src/auth-bootstrap.js';
 import type { QaConfig } from '../src/config.js';
-import { hasFirebaseAppCheckHeader, runGuidedSelfStudyQa } from '../src/guided-self-study-qa.js';
+import { appCheckCoverageFailures, hasFirebaseAppCheckHeader, runGuidedSelfStudyQa } from '../src/guided-self-study-qa.js';
 import { guidedSelfStudyScenarioSchema } from '../src/guided-self-study-scenario.js';
 import { stagingProfileSchema } from '../src/staging-profile.js';
 
@@ -84,4 +84,21 @@ test('App Check evidence records presence without retaining the token value', ()
   assert.equal(hasFirebaseAppCheckHeader({ 'x-firebase-appcheck': 'opaque-token' }), true);
   assert.equal(hasFirebaseAppCheckHeader({ 'x-firebase-appcheck': '   ' }), false);
   assert.equal(hasFirebaseAppCheckHeader({ authorization: 'Bearer unrelated' }), false);
+});
+
+test('App Check coverage requires every request to every critical endpoint', () => {
+  assert.deepEqual(appCheckCoverageFailures({
+    '/api/startOrResumeGuidedSelfStudy': { requests: 1, withHeader: 1 },
+    '/api/advanceGuidedSelfStudy': { requests: 7, withHeader: 7 },
+    '/api/submitLessonAnswer': { requests: 9, withHeader: 9 },
+  }), []);
+  assert.deepEqual(appCheckCoverageFailures({
+    '/api/startOrResumeGuidedSelfStudy': { requests: 1, withHeader: 0 },
+    '/api/advanceGuidedSelfStudy': { requests: 0, withHeader: 0 },
+    '/api/submitLessonAnswer': { requests: 3, withHeader: 2 },
+  }), [
+    '/api/startOrResumeGuidedSelfStudy:0/1',
+    '/api/advanceGuidedSelfStudy:not-observed',
+    '/api/submitLessonAnswer:2/3',
+  ]);
 });

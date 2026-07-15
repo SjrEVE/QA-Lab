@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "evidenceClass": "sanitized-staging-manifest",
+  "target": {
+    "environment": "staging",
+    "host": "giasu-c2165.web.app",
+    "productDeploymentVersion": null,
+    "deploymentVersionStatus": "not-recorded-by-runner"
+  },
+  "privacy": {
+    "containsAccountIdentity": false,
+    "containsCookieOrToken": false,
+    "containsScreenshot": false,
+    "containsTranscript": false,
+    "containsRawProviderOutput": false
+  },
+  "runs": [
+    {
+      "runId": "20260715T065109Z-815e3991",
+      "executedAt": "2026-07-15T06:51:09Z",
+      "qaCommitSha": "1c35ea7f958649ea5c697337b82ca6a43df082ce",
+      "scenarioId": "gia-su-ai-guided-self-study-integrals",
+      "packageId": "g12-guided-self-study-integrals-v1",
+      "packageFingerprint": "815f29952c86154b20050b2646466c3edb41b8b6b0633ff720982fe6e32bf0b6",
+      "viewports": ["390x844", "768x1024", "1440x900"],
+      "checks": { "passed": 57, "total": 57 },
+      "verdict": "PASSED",
+      "artifactIntegrity": {
+        "algorithm": "sha256",
+        "fileCount": 18,
+        "treeDigest": "877070cabac2332860ad07cade1911800cb4a44040f5be3fb11afc36e88bf1be",
+        "summaryDigest": "369e5e16f29664c30c51425b16869000c0ba9100195749b11fb9626f74a2b01b",
+        "checksDigest": "1f1c3cf598641aa1a6cf8c18148a38cc6595f7b816eac31292a6eba7ba43f655"
+      }
+    },
+    {
+      "runId": "20260715T070209Z-00358b7b",
+      "executedAt": "2026-07-15T07:02:09Z",
+      "qaCommitSha": "65dc9129512db02346203180ddf10faee7dcd1c1",
+      "scenarioId": "gia-su-ai-guided-self-study-conditional-probability",
+      "packageId": "g12-guided-self-study-conditional-probability-v1",
+      "packageFingerprint": "d3859c811d57f7cbecddfbb37410acf65ac2a25cf9222b52f58a038a033a87d3",
+      "viewports": ["390x844", "768x1024", "1440x900"],
+      "checks": { "passed": 57, "total": 57 },
+      "verdict": "PASSED",
+      "artifactIntegrity": {
+        "algorithm": "sha256",
+        "fileCount": 18,
+        "treeDigest": "affc2662c8eb4701a1a7914c5cbfad002afbff6114eb1394873ddf6240301238",
+        "summaryDigest": "369e5e16f29664c30c51425b16869000c0ba9100195749b11fb9626f74a2b01b",
+        "checksDigest": "f03736e0167e32fc712a27cdff5771076e969102ab1301191ae2959b0a43073e"
+      }
+    }
+  ],
+  "historicalPolicyBoundary": {
+    "gemini": "absence-detected-after-journey; request interception deny was not yet installed",
+    "appCheck": "one critical header or token-exchange host was sufficient in the historical runner",
+    "currentPolicyRevalidationRequired": true
+  },
+  "limitations": [
+    "The ignored local artifacts remain the evidence source; this committed manifest contains hashes and bounded metadata only.",
+    "The runner did not capture a product deployment ID, so no deployment version is invented.",
+    "These historical PASS results require a staging rerun under the hardened Gemini denylist and per-request App Check policy before those two security gates are re-accepted."
+  ]
+}

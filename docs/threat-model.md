@@ -37,7 +37,7 @@ This model covers build-time inputs and CI as well as runtime execution. A passi
 | CI runner | Ephemeral but not a secret boundary against malicious repository code; receives no staging/production secrets and uses read-only repository permission |
 | QA Controller/CLI | Trusted policy enforcement point only when built from reviewed source and lockfile; validates all external/model inputs |
 | Browser/page/service worker | Untrusted content, including redirects, popups, frames, subresources, downloads, and WebSockets |
-| StudentBrain/VoiceProvider/evaluator (future) | Untrusted probabilistic providers; output is data, never authority or executable instruction |
+| StudentBrain/VoiceProvider/evaluator | Scripted providers and an opt-in Gemini StudentBrain adapter exist; every provider remains untrusted data, never authority or executable instruction |
 | Scripted/mock adapters | Deterministic test components, not evidence of provider or real-tutor behavior |
 | Synthetic persona | Test input that may contain adversarial strings; never grants capabilities |
 | Local OS user/process | Same-user processes may alter readable artifacts/profile or bind ports; local machine is not assumed hostile-multi-tenant-safe |
@@ -227,7 +227,7 @@ Self-judging and poisoning controls:
 | Timeline/replay/regression integrity validation | Implemented locally | No cryptographic signing/immutable store |
 | Arena/cohort/safety/optimizer policy foundations | Implemented as deterministic fixtures | Not provider benchmark, real red-team, or deployment optimization |
 | Child-data privacy/retention program | Not implemented | Real child data prohibited |
-| CI independent validation | Not implemented at this threat-model revision | Separate QA-CI-002 task; remote evidence must be reported only after GitHub run |
+| CI independent validation | Workflow implemented; remote acceptance pending | `.github/workflows/ci.yml` is fixture-only and secret-free; a pull request or main push is still required before any run may be claimed green |
 | Production/deployment | Forbidden | No capability or authorization |
 
 ## 13. Future staging readiness security gates

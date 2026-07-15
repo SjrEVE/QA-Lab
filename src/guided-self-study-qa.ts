@@ -29,12 +29,34 @@ export interface GuidedSelfStudyQaOptions {
   readonly baseUrl?: string; readonly policy?: BrowserTargetPolicy;
 }
 
+export const GUIDED_SELF_STUDY_CRITICAL_API_PATHS = Object.freeze([
+  '/api/startOrResumeGuidedSelfStudy',
+  '/api/advanceGuidedSelfStudy',
+  '/api/submitLessonAnswer',
+] as const);
+const SELF_STUDY_DENIED_HOSTS = Object.freeze(['generativelanguage.googleapis.com'] as const);
+type CriticalApiPath = typeof GUIDED_SELF_STUDY_CRITICAL_API_PATHS[number];
+export type AppCheckRequestEvidence = Readonly<Record<CriticalApiPath, { readonly requests: number; readonly withHeader: number }>>;
+
 function safeRunId(value: string): string { if (!/^[A-Za-z0-9._-]+$/.test(value) || value === '.' || value === '..') throw new Error('Unsafe run id.'); return value; }
 function issueId(scenarioId: string, viewport: string, category: string, actual: string): string { return `GSS-${createHash('sha256').update(`${scenarioId}|${viewport}|${category}|${actual}`).digest('hex').slice(0, 12).toUpperCase()}`; }
 function escapeHtml(value: string): string { return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
 
 export function hasFirebaseAppCheckHeader(headers: Record<string, string>): boolean {
   return typeof headers['x-firebase-appcheck'] === 'string' && headers['x-firebase-appcheck'].trim().length > 0;
+}
+
+export function appCheckCoverageFailures(evidence: AppCheckRequestEvidence): readonly string[] {
+  return GUIDED_SELF_STUDY_CRITICAL_API_PATHS.flatMap((endpoint) => {
+    const observed = evidence[endpoint];
+    if (observed.requests === 0) return [`${endpoint}:not-observed`];
+    if (observed.withHeader !== observed.requests) return [`${endpoint}:${observed.withHeader}/${observed.requests}`];
+    return [];
+  });
+}
+
+function emptyAppCheckEvidence(): Record<CriticalApiPath, { requests: number; withHeader: number }> {
+  return Object.fromEntries(GUIDED_SELF_STUDY_CRITICAL_API_PATHS.map((endpoint) => [endpoint, { requests: 0, withHeader: 0 }])) as Record<CriticalApiPath, { requests: number; withHeader: number }>;
 }
 
 async function waitState(page: Page, playerSelector: string, state: string, timeout: number) {
@@ -74,6 +96,25 @@ async function layout(page: Page): Promise<{ horizontalOverflow: number; blockin
   });
 }
 
+async function productAssetFingerprint(page: Page, baseUrl: string): Promise<string> {
+  const origin = new URL(baseUrl).origin;
+  const assetPaths = await page.evaluate((expectedOrigin) => {
+    const urls = [
+      ...performance.getEntriesByType('resource').map((entry) => entry.name),
+      ...[...document.querySelectorAll<HTMLScriptElement>('script[src]')].map((element) => element.src),
+      ...[...document.querySelectorAll<HTMLLinkElement>('link[href]')].map((element) => element.href),
+    ];
+    return [...new Set(urls.flatMap((value) => {
+      try {
+        const url = new URL(value, location.href);
+        return url.origin === expectedOrigin && url.pathname.startsWith('/assets/') ? [`${url.pathname}${url.search}`] : [];
+      } catch { return []; }
+    }))].sort();
+  }, origin);
+  if (assetPaths.length === 0) throw new Error('Product deployment asset fingerprint is unavailable.');
+  return createHash('sha256').update(assetPaths.join('\n')).digest('hex');
+}
+
 async function writeReports(directory: string, result: Omit<GuidedSelfStudyQaResult, 'artifactDirectory'>, scenario: Pick<GuidedSelfStudyScenario, 'id' | 'name'>): Promise<void> {
   const passed = result.checks.filter((check) => check.passed).length;
   const summary = { schemaVersion: 1, status: result.status, checks: { total: result.checks.length, passed }, issues: result.issues.length, limitations: ['Synthetic staging account only; deterministic self-study journey; no Gemini, payment, real child data, or production.'] };
@@ -100,7 +141,11 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
   if (blocked) addIssue({ severity: 'BLOCKER', category: 'prerequisite', viewport: 'run', title: 'Guided self-study prerequisites are unavailable', expected: 'Typed staging target and safe verified profile', actual: 'No browser was launched.', evidence: ['run.json'], limitations: 'Fail-closed prerequisite result.' });
 
   if (!blocked && options.baseUrl) {
-    const policy = options.policy ?? { allowedHosts: [...new Set([...options.config.staging.allowedHosts, ...options.profile.auth.allowedHosts])] };
+    const basePolicy = options.policy ?? { allowedHosts: [...new Set([...options.config.staging.allowedHosts, ...options.profile.auth.allowedHosts])] };
+    const policy: BrowserTargetPolicy = {
+      ...basePolicy,
+      deniedHosts: [...new Set([...(basePolicy.deniedHosts ?? []), ...SELF_STUDY_DENIED_HOSTS])],
+    };
     const deadline = Date.now() + options.scenario.limits.maxMinutes * 60_000;
     for (const viewport of options.scenario.viewports) {
       const viewportDirectory = path.join(runDirectory, viewport); await mkdir(viewportDirectory);
@@ -109,14 +154,18 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
       await writeFile(path.join(viewportDirectory, 'reset.json'), `${JSON.stringify(redactSecrets(reset), null, 2)}\n`, { flag: 'wx' });
       checks.push({ viewport, check: 'reset:strict-ready', passed: true, details: reset.resetVersion ?? 'manual' });
       const controller = new GuardedBrowserController({ policy, artifactDirectory: viewportDirectory, profileDirectory, preserveProfile: true, timeoutMs: options.scenario.limits.selectorTimeoutMs });
-      let opened = false; const observedHosts = new Set<string>(); let observedAppCheckHeader = false;
+      let opened = false; const observedHosts = new Set<string>(); const appCheckEvidence = emptyAppCheckEvidence();
       try {
         if (Date.now() > deadline) throw new Error('Guided self-study run exceeded its bounded deadline.');
         await controller.open(); opened = true; const page = controller.runtime().page; page.on('request', (request) => {
           try {
             const requestUrl = new URL(request.url());
             observedHosts.add(requestUrl.hostname);
-            if (/^\/api\/(startOrResumeGuidedSelfStudy|advanceGuidedSelfStudy|submitLessonAnswer|advanceLessonExercise)$/.test(requestUrl.pathname) && hasFirebaseAppCheckHeader(request.headers())) observedAppCheckHeader = true;
+            if (GUIDED_SELF_STUDY_CRITICAL_API_PATHS.includes(requestUrl.pathname as CriticalApiPath)) {
+              const endpoint = requestUrl.pathname as CriticalApiPath;
+              appCheckEvidence[endpoint].requests += 1;
+              if (hasFirebaseAppCheckHeader(request.headers())) appCheckEvidence[endpoint].withHeader += 1;
+            }
           } catch { /* ignored */ }
         });
         await page.setViewportSize(GUIDED_SELF_STUDY_VIEWPORTS[viewport]);
@@ -172,12 +221,17 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
         await waitState(page, options.scenario.selectors.player, 'VERIFY', options.scenario.limits.transitionTimeoutMs); checks.push({ viewport, check: 'state:verify-before-complete', passed: true, details: 'reached' });
         await page.locator(options.scenario.selectors.verifyComplete).click(); await waitState(page, options.scenario.selectors.player, 'COMPLETE', options.scenario.limits.transitionTimeoutMs); await page.locator(options.scenario.selectors.summary).waitFor({ state: 'visible' });
         checks.push({ viewport, check: 'summary:complete', passed: true, details: 'memory-card-visible' });
-        if (observedHosts.has('generativelanguage.googleapis.com')) throw new Error('Self-study loaded Gemini network unexpectedly.');
-        checks.push({ viewport, check: 'network:no-gemini', passed: true, details: 'provider-host-absent' });
+        if (observedHosts.has('generativelanguage.googleapis.com')) throw new Error('Self-study attempted a policy-denied Gemini request.');
+        checks.push({ viewport, check: 'network:gemini-denied-and-absent', passed: true, details: 'request-interception-denylist' });
         if (policy.fixtureMode === true) checks.push({ viewport, check: 'app-check:exchange-observed', passed: true, details: 'fixture-excluded' });
         else {
-          if (!observedAppCheckHeader && !observedHosts.has('content-firebaseappcheck.googleapis.com')) throw new Error('Firebase App Check proof was not observed.');
-          checks.push({ viewport, check: 'app-check:proof-observed', passed: true, details: observedAppCheckHeader ? 'gss-request-header' : 'token-exchange-host' });
+          const failures = appCheckCoverageFailures(appCheckEvidence);
+          if (failures.length > 0) throw new Error(`Firebase App Check missing from critical request coverage: ${failures.join(', ')}.`);
+          for (const endpoint of GUIDED_SELF_STUDY_CRITICAL_API_PATHS) {
+            const evidence = appCheckEvidence[endpoint];
+            checks.push({ viewport, check: `app-check:all-requests:${endpoint.slice('/api/'.length)}`, passed: true, details: `${evidence.withHeader}/${evidence.requests}` });
+          }
+          checks.push({ viewport, check: 'deployment:asset-fingerprint', passed: true, details: await productAssetFingerprint(page, options.baseUrl) });
         }
         const geometry = await layout(page); checks.push({ viewport, check: 'layout:no-horizontal-overflow', passed: geometry.horizontalOverflow === 0, details: String(geometry.horizontalOverflow) }); checks.push({ viewport, check: 'layout:no-blocking-overlay', passed: geometry.blockingOverlay === 0, details: String(geometry.blockingOverlay) });
         if (geometry.horizontalOverflow || geometry.blockingOverlay) addIssue({ severity: 'MEDIUM', category: 'layout', viewport, title: 'Player layout heuristic found a risk', expected: 'No horizontal overflow or blocking overlay', actual: JSON.stringify(geometry), evidence: [`${viewport}/complete.png`], limitations: 'Geometry finding requires screenshot review.' });

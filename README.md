@@ -87,7 +87,7 @@ npm.cmd run security:secrets
 npm.cmd run validate
 ```
 
-`qa:doctor` remains offline-friendly and does not contact staging or production. Fixture commands explicitly enable exact-port loopback mode and write ignored evidence under `runs/`.
+`qa:doctor` remains offline-friendly and does not contact staging or production. Fixture commands explicitly enable exact-port loopback mode and write ignored evidence under `runs/`. Safe review metadata for accepted staging runs is committed separately under [`docs/evidence/`](docs/evidence/); raw screenshots, browser events, identity and tokens remain untracked.
 
 ### Deterministic test gate
 
