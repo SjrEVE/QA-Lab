@@ -8,7 +8,7 @@
 
 ## 1. Security objective and scope truth
 
-QA Lab is an independent, browser-oriented evaluation controller. Its accepted capability is local deterministic fixtures using scripted brains, synthetic personas/WAV, provider-free replay, and redacted local artifacts. Real Gia Su AI staging acceptance is **NOT STARTED / NOT READY**. Production access, deployment, real child data without an approved policy, autonomous repair, and model access to shell/source/Git/cloud are prohibited.
+QA Lab is an independent, browser-oriented evaluation controller. Its framework capability is local deterministic fixtures using scripted brains, synthetic personas/WAV, provider-free replay, and redacted local artifacts. Separately authorized Gia Su AI staging modules now have bounded public/auth/catalog/reset/guided-self-study evidence. This does not authorize production, deployment, real child data without completed policy gates, autonomous repair, or model access to shell/source/Git/cloud.
 
 This model covers build-time inputs and CI as well as runtime execution. A passing contract fixture proves that a policy/schema/algorithm behaves on synthetic inputs; it does **not** prove that a real tutor resisted red-team attacks, that a provider is safe, or that staging is accepted.
 
@@ -99,10 +99,10 @@ Boundary rules:
 
 | Threat | Existing control / source | Residual risk |
 |---|---|---|
-| Production or look-alike host presented as staging | HTTPS/WSS, default port, no URL credentials, normalized exact-host equality in `src/security.ts` and `src/browser-policy.ts`; negative tests in `test/security.test.ts` and `test/browser-policy.test.ts` | DNS/CA compromise and an incorrectly approved hostname remain; staging approval is absent |
+| Production or look-alike host presented as staging | HTTPS/WSS, default port, no URL credentials, normalized exact-host equality in `src/security.ts` and `src/browser-policy.ts`; negative tests in `test/security.test.ts` and `test/browser-policy.test.ts` | DNS/CA compromise and an incorrectly approved hostname remain; approval is limited to exact `giasu-c2165.web.app` modules |
 | Loopback fixture confused with staging | Explicit fixture mode and exact ephemeral loopback port in `src/browser-policy.ts`; browser policy tests | A compromised local process may race/bind a local port; fixture evidence remains non-staging evidence |
 | Provider/evaluator identity spoofed | Versioned identities/config hashes and provenance in `src/model-arena.ts`, `src/education-eval.ts`, and `src/quality-optimizer.ts` | Real provider attestation and signed responses are not implemented |
-| Auth/account confusion (future) | Governance requires dedicated test account/profile; login adapter boundary in `src/browser-controller.ts` | Auth-state lifecycle, account verification, MFA, and revocation are not implemented/accepted |
+| Auth/account confusion | Dedicated staging test account, verified identity hash, private untracked profile and explicit account controls | MFA/revocation automation and encrypted portable auth-state are not implemented; the profile remains host-local and operator-controlled |
 
 ### 6.2 Tampering
 
@@ -212,14 +212,14 @@ Self-judging and poisoning controls:
 |---|---|---|
 | Strict config/version validation | Implemented | `src/config.ts` and contract loaders/tests |
 | Exact-host HTTPS/WSS and explicit fixture policy | Implemented | `src/security.ts`, `src/browser-policy.ts`, tests |
-| Redirect/subresource/WebSocket enforcement | Implemented at fixture/controller scope | `src/browser-policy.ts`, browser integration tests; no staging acceptance |
+| Redirect/subresource/WebSocket enforcement | Implemented and bounded-staging validated | `src/browser-policy.ts`, browser integration tests and approved staging runs; same-host response-size/service-worker/download risks remain |
 | Typed model action boundary | Implemented at scripted scope | `src/student-brain.ts`, `src/student-qa.ts`, Phase 10 policy fixture |
 | Safe artifact IDs/no-overwrite/root containment | Implemented | `src/run-store.ts`, replay selectors, tests |
 | Junction/reparse/symlink hostile-root defense | Partial | Lexical/resolved containment exists; component/handle-level defense absent |
 | Recursive secret redaction | Implemented, defense in depth | `src/redaction.ts`, logger/artifact tests |
-| Dedicated browser profile | Implemented locally | `src/browser-controller.ts`; secret-bearing auth profile not accepted |
-| Auth-state and dedicated staging account lifecycle | Not implemented / not accepted | Requires separate task, account, storage and revocation policy |
-| Reset integration | Not implemented / blocked | Manual/stub boundary blocks; approved reset contract absent |
+| Dedicated browser profile | Implemented; bounded staging accepted | `src/browser-controller.ts`; private host-local profile is accepted for the synthetic staging account, but portable/encrypted profile distribution is not |
+| Auth-state and dedicated staging account lifecycle | Bounded staging accepted | Private host-local profile, verified identity and fresh-process persistence exist; portable encrypted storage/MFA/revocation automation remain absent |
+| Reset integration | Implemented for declared scopes | Exact-host, identity/lesson-bound, token-from-env, idempotent scopes exist for session-start and guided self-study; arbitrary reset scopes remain forbidden |
 | FFmpeg real recording | Not implemented on current host / blocked | Recorder foundation exists; FFmpeg absent; no fake video |
 | Native Linux voice/PulseAudio route | Partial / blocked on Windows | Contracts/setup/probe exist; Linux acceptance absent |
 | Real Brain/Voice/Evaluator providers | Not implemented | Scripted/mock/synthetic only; no keys/provider calls |
@@ -288,6 +288,6 @@ Accepted for the current local deterministic scope:
 - npm/Playwright/GitHub supply-chain compromise cannot be eliminated, only constrained and reviewed;
 - synthetic evaluators and Safety contract fixtures are not human-calibrated real-provider assurance;
 - resource limits are bounded in scenarios/tests but not OS-enforced globally;
-- no approved retention schedule, encrypted evidence service, staging auth/reset, or child-data program exists.
+- no approved organization-wide retention schedule, encrypted evidence service, portable auth-state service, or real-child data program exists; current staging auth/reset is host-local and limited to declared synthetic-account scopes.
 
-These risks are accepted only because execution is local, fixture-only, credential-free, synthetic, and prohibited from staging/production. Any expansion of target, provider, data class, host, recording, import source, or CI privilege reopens this threat model and requires explicit acceptance evidence.
+These risks are accepted for local credential-free fixtures and for the separately authorized, host-local synthetic-account staging modules recorded above. Production remains prohibited. Any expansion of target, provider, data class, host, reset scope, recording, import source, or CI privilege reopens this threat model and requires explicit acceptance evidence.

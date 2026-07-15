@@ -12,7 +12,7 @@ Safety Lab trong `src/safety-lab.ts` là policy-contract fixture dùng schema/ve
 
 Optimizer trong `src/quality-optimizer.ts` là fixture algorithm foundation, không phải real provider-configuration optimizer. Nó áp constraints quality/p95 latency/cost/critical failure, giữ provenance `observed`/`estimated`/`unknown`, đưa required unknown về `NEEDS_REVIEW` thay vì giả zero, tính Pareto quality/latency/cost và ranking/tie deterministic. Cost formula v1 cùng assumptions được ghi rõ; routing simple turn/repeated confusion/vision board/verifier final/degraded text chỉ là proposal có evidence/limitations, không mutate provider config và không deploy.
 
-Chạy `npm.cmd run qa:phase10:fixture`. Evidence JSON/Markdown nằm dưới ignored `runs/phase10-safety-optimizer-fixture-evidence/`. Framework Phase 0–10 đã được triển khai và kiểm chứng ở phạm vi local deterministic fixture, scripted brain, synthetic personas/WAV và provider-free replay. Real Gia Su AI staging acceptance là **NOT STARTED / NOT READY**. Staging browser/auth/reset, real providers/evaluators, native Linux voice và FFmpeg real recording đều cần task riêng. Production, real child data khi chưa có policy, auto-fix và deploy bị cấm.
+Chạy `npm.cmd run qa:phase10:fixture`. Evidence JSON/Markdown nằm dưới ignored `runs/phase10-safety-optimizer-fixture-evidence/`. Framework Phase 0–10 đã được triển khai và kiểm chứng ở phạm vi local deterministic fixture, scripted brain, synthetic personas/WAV và provider-free replay. Separately authorized Gia Su AI staging modules now have bounded browser evidence for public/auth/catalog/reset and guided self-study; this does not validate real providers/evaluators, native Linux voice, FFmpeg recording, production, public commerce, or real-child use. Production, real child data when policy gates are incomplete, auto-fix and deployment remain forbidden.
 
 ## Phase 9 Model Arena + Synthetic Student Cohorts
 
@@ -54,7 +54,7 @@ npm.cmd install
 Copy-Item .env.example .env
 ```
 
-Real staging execution is authorized only for the typed `giasu-c2165.web.app` profile and the explicitly requested flow. Public smoke, verified auth persistence, authenticated catalog, and the scoped G12 reset have bounded staging evidence. Realtime session-start remains blocked by depleted Gemini credits. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
+Real staging execution is authorized only for the typed `giasu-c2165.web.app` profile and the explicitly requested flow. Public smoke, verified auth persistence, authenticated catalog, scoped reset, App Check enforce, and the Integral/Conditional Probability guided-self-study modules have bounded staging evidence. Realtime Gemini session-start remains blocked by depleted staging credits. Never add production, wildcard hosts, credentials in source, or arbitrary ports.
 
 Use the repo-local `skills/tutorproof-targeted-qa` skill as the dispatcher for one requested QA capability at a time. It deliberately does not run the whole framework unless a full suite is explicitly requested.
 
