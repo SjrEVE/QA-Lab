@@ -22,6 +22,7 @@ auth:
     - lh3.googleusercontent.com
     - generativelanguage.googleapis.com
     - content-firebaseappcheck.googleapis.com
+    - csp.withgoogle.com
   bootstrapTimeoutMs: 600000
 suites:
   publicWebScenarioIds:

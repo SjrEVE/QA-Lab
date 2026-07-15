@@ -37,6 +37,14 @@ export function isExpectedHeadlessRecaptchaStorageWarning(event: BrowserEvent): 
     && /google\.com\/recaptcha\/enterprise/i.test(data);
 }
 
+export function isExpectedGoogleRecaptchaReportOnlyCspWarning(event: BrowserEvent): boolean {
+  const data = JSON.stringify(redactSecrets(event.data));
+  return event.event === 'console'
+    && /Framing 'https:\/\/www\.google\.com\/' violates the following report-only Content Security Policy directive/i.test(data)
+    && /frame-ancestors 'self'/i.test(data)
+    && /no further action has been taken/i.test(data);
+}
+
 export async function runWebQa(options: WebQaOptions): Promise<WebQaResult> {
   const runDirectory = path.resolve(options.artifactRoot, safeRunId(options.runId));
   await mkdir(runDirectory, { recursive: false });
@@ -109,7 +117,8 @@ function addEventIssues(events: readonly BrowserEvent[], viewport: string, url: 
   for (const event of events) {
     const data = JSON.stringify(redactSecrets(event.data));
     const expectedRecaptchaStorageWarning = isExpectedHeadlessRecaptchaStorageWarning(event);
-    if (event.event === 'console' && /"type":"(error|assert)"/.test(data) && !expectedRecaptchaStorageWarning) add({ viewport, category: 'console', severity: 'HIGH', title: 'Console blocker captured', url, expected: 'No console errors', actual: data, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'The exact headless Google reCAPTCHA storage-access warning is excluded; other browser console errors remain blockers.' });
+    const expectedRecaptchaCspReport = isExpectedGoogleRecaptchaReportOnlyCspWarning(event);
+    if (event.event === 'console' && /"type":"(error|assert)"/.test(data) && !expectedRecaptchaStorageWarning && !expectedRecaptchaCspReport) add({ viewport, category: 'console', severity: 'HIGH', title: 'Console blocker captured', url, expected: 'No console errors', actual: data, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Only exact headless Google reCAPTCHA storage-access and report-only CSP notices are excluded; other browser console errors remain blockers.' });
     if ((event.event === 'request-failed' && !/net::ERR_ABORTED/.test(data)) || event.event === 'page-error' || event.event === 'request-denied') add({ viewport, category: 'network', severity: 'HIGH', title: 'Runtime/network blocker captured', url, expected: 'No failed or denied runtime requests', actual: `${event.event}: ${data}`, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Failure may be non-critical; classified conservatively for MVP.' });
   }
 }

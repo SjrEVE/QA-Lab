@@ -57,7 +57,8 @@ function browserIssues(events: readonly BrowserEvent[], viewport: string, addIss
   for (const event of events) {
     const actual = JSON.stringify(redactSecrets(event.data));
     const expectedRecaptchaStorageWarning = event.event === 'console' && /requestStorageAccess: Permission denied/i.test(actual) && /google\.com\/recaptcha\/enterprise/i.test(actual);
-    if (expectedRecaptchaStorageWarning) continue;
+    const expectedRecaptchaCspReport = event.event === 'console' && /Framing 'https:\/\/www\.google\.com\/' violates the following report-only Content Security Policy directive/i.test(actual) && /frame-ancestors 'self'/i.test(actual) && /no further action has been taken/i.test(actual);
+    if (expectedRecaptchaStorageWarning || expectedRecaptchaCspReport) continue;
     if (event.event === 'console' && /"type":"(error|assert)"/.test(actual)) addIssue({ severity: 'HIGH', category: 'console', viewport, title: 'Console blocker captured', expected: 'No product console errors', actual, evidence: [`${viewport}/browser-events.jsonl`], limitations: 'The known headless reCAPTCHA storage-access warning is excluded; other console errors fail.' });
     if ((event.event === 'request-failed' && !/net::ERR_ABORTED/.test(actual)) || event.event === 'page-error' || event.event === 'request-denied') addIssue({ severity: 'HIGH', category: 'network', viewport, title: 'Runtime or network blocker captured', expected: 'No failed or denied request', actual: `${event.event}: ${actual}`, evidence: [`${viewport}/browser-events.jsonl`], limitations: 'Navigation aborts are excluded; all other failures are conservative blockers.' });
   }

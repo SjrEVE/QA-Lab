@@ -97,6 +97,7 @@ function addBrowserEventIssues(
   for (const event of events) {
     const actual = JSON.stringify(redactSecrets(event.data));
     if (event.event === 'console' && /requestStorageAccess: Permission denied/i.test(actual) && /google\.com\/recaptcha\/enterprise/i.test(actual)) continue;
+    if (event.event === 'console' && /Framing 'https:\/\/www\.google\.com\/' violates the following report-only Content Security Policy directive/i.test(actual) && /frame-ancestors 'self'/i.test(actual) && /no further action has been taken/i.test(actual)) continue;
     if (event.event === 'console' && /"type":"(error|assert)"/.test(actual)) {
       addIssue({ severity: 'HIGH', category: 'console', viewport, title: 'Console blocker captured', expected: 'No console errors', actual, evidence: [`${viewport}/browser-events.jsonl`], limitations: 'Console impact may require product triage.' });
     }
