@@ -64,9 +64,13 @@ test('Gemini fetch transport keeps the key in the header and validates structure
   const key = SYNTHETIC_KEY;
   let observedUrl = '';
   let observedHeader = '';
+  let observedBody: unknown;
   const fetchImpl = (input: string | URL | Request, init?: RequestInit) => {
     observedUrl = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     observedHeader = new Headers(init?.headers).get('x-goog-api-key') ?? '';
+    const requestBody = init?.body;
+    if (typeof requestBody !== 'string') throw new Error('Expected a JSON request body.');
+    observedBody = JSON.parse(requestBody) as unknown;
     const body = JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(valid) }] } }] });
     return Promise.resolve(new Response(body, { status: 200, headers: { 'content-type': 'application/json' } }));
   };
@@ -76,6 +80,12 @@ test('Gemini fetch transport keeps the key in the header and validates structure
   assert.equal(observedHeader, key);
   assert.equal(observedUrl.includes(key), false);
   assert.match(observedUrl, /^https:\/\/generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.5-flash-lite:generateContent$/);
+  assert.deepEqual((observedBody as { generationConfig: unknown }).generationConfig, {
+    temperature: 0.3,
+    maxOutputTokens: 512,
+    responseMimeType: 'application/json',
+    responseSchema: { type: 'object' },
+  });
 });
 
 test('Gemini fetch transport sanitizes provider failures and rejects oversized output', async () => {

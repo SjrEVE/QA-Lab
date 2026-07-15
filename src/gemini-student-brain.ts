@@ -92,7 +92,8 @@ export class GeminiFetchTransport implements GeminiBrainTransport {
           generationConfig: {
             temperature: 0.3,
             maxOutputTokens: 512,
-            responseFormat: { text: { mimeType: 'application/json', schema: request.responseJsonSchema } },
+            responseMimeType: 'application/json',
+            responseSchema: request.responseJsonSchema,
           },
         }),
       });
@@ -114,17 +115,16 @@ export class GeminiFetchTransport implements GeminiBrainTransport {
 }
 
 const responseJsonSchema = Object.freeze({
-  type: 'object',
-  additionalProperties: false,
+  type: 'OBJECT',
   properties: {
-    intent: { type: 'string', enum: ['answer', 'confused', 'ask_hint', 'ask_example', 'confirm_understanding', 'wait', 'finish'] },
-    speech: { type: ['string', 'null'], maxLength: 280 },
-    emotion: { type: 'string', enum: ['neutral', 'hesitant', 'confused', 'encouraged'] },
-    understanding: { type: 'integer', minimum: 0, maximum: 5 },
-    currentMisconception: { type: ['string', 'null'] },
-    usedBehavior: { type: ['string', 'null'] },
-    completedGoals: { type: 'array', maxItems: 8, items: { type: 'string' } },
-    reason: { type: ['string', 'null'], maxLength: 160 },
+    intent: { type: 'STRING', enum: ['answer', 'confused', 'ask_hint', 'ask_example', 'confirm_understanding', 'wait', 'finish'] },
+    speech: { type: 'STRING', nullable: true },
+    emotion: { type: 'STRING', enum: ['neutral', 'hesitant', 'confused', 'encouraged'] },
+    understanding: { type: 'INTEGER', minimum: 0, maximum: 5 },
+    currentMisconception: { type: 'STRING', nullable: true },
+    usedBehavior: { type: 'STRING', nullable: true },
+    completedGoals: { type: 'ARRAY', maxItems: 8, items: { type: 'STRING' } },
+    reason: { type: 'STRING', nullable: true },
   },
   required: ['intent', 'speech', 'emotion', 'understanding', 'currentMisconception', 'usedBehavior', 'completedGoals', 'reason'],
 });
