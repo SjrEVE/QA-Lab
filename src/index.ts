@@ -4,6 +4,10 @@ export { findAuthenticatedCatalogScenario, listAuthenticatedCatalogScenarios, lo
 export type { AuthenticatedCatalogScenario, CatalogSelectorContract } from './authenticated-catalog-scenario.js';
 export { runAuthenticatedCatalogQa, runConfiguredAuthenticatedCatalogQa } from './authenticated-catalog-qa.js';
 export type { AuthenticatedCatalogQaOptions, AuthenticatedCatalogQaResult, CatalogCheck, CatalogIssue } from './authenticated-catalog-qa.js';
+export { findGuidedSelfStudyScenario, listGuidedSelfStudyScenarios, loadGuidedSelfStudyScenario, guidedSelfStudyScenarioSchema, GUIDED_SELF_STUDY_SCENARIO_VERSION, GUIDED_SELF_STUDY_VIEWPORTS } from './guided-self-study-scenario.js';
+export type { GuidedSelfStudyScenario } from './guided-self-study-scenario.js';
+export { runConfiguredGuidedSelfStudyQa, runGuidedSelfStudyQa } from './guided-self-study-qa.js';
+export type { GuidedSelfStudyCheck, GuidedSelfStudyIssue, GuidedSelfStudyQaOptions, GuidedSelfStudyQaResult } from './guided-self-study-qa.js';
 export { AUTHENTICATED_SESSION_SCENARIO_VERSION, authenticatedSessionScenarioSchema, findAuthenticatedSessionScenario, listAuthenticatedSessionScenarios, loadAuthenticatedSessionScenario } from './authenticated-session-scenario.js';
 export type { AuthenticatedSessionScenario } from './authenticated-session-scenario.js';
 export { runAuthenticatedSessionStartQa, runConfiguredAuthenticatedSessionStartQa } from './authenticated-session-qa.js';

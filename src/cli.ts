@@ -2,6 +2,7 @@
 import path from 'node:path';
 import { runConfiguredAuthenticatedCatalogQa } from './authenticated-catalog-qa.js';
 import { runConfiguredAuthenticatedSessionStartQa } from './authenticated-session-qa.js';
+import { runConfiguredGuidedSelfStudyQa } from './guided-self-study-qa.js';
 import { runConfiguredAuthBootstrap } from './auth-bootstrap.js';
 import { startControlCenter } from './control-center.js';
 import { loadConfig } from './config.js';
@@ -43,6 +44,7 @@ async function main(args: readonly string[]): Promise<number> {
         authenticatedDashboardCatalog: { implemented: true, locallyTested: true, stagingValidated: true, accepted: false },
         strictReset: { implemented: true, locallyTested: true, stagingValidated: true, accepted: false },
         scriptedLessonJourney: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false, blocker: 'realtime-provider-credits-depleted' },
+        guidedSelfStudyJourney: { implemented: true, locallyTested: true, stagingValidated: false, accepted: false },
       },
       capabilities: { browser: true, stagingAccepted: false, webQa: true, studentTextQa: true, scriptedBrain: true, providerBrain: false, voiceBridge: true, nativeVoiceAccepted: false, voiceDefaultEnabled: voiceEnabled(), recording: true, recordingDefaultEnabled: false, screenshotTimeline: true, unifiedTimeline: true, educationEval: true, scriptedUxEvaluator: true, realUxEvaluator: false, replay: true, regressionComparison: true, providerReplayCalls: false, modelArena: true, cohorts: true, providerArenaCalls: false, safetyLab: true, scriptedSafetyOnly: true, optimizer: true, optimizerProposalOnly: true, providerConfigMutation: false, dashboard: false, deploy: false },
     });
@@ -89,6 +91,14 @@ async function main(args: readonly string[]): Promise<number> {
     print(result);
     return result.status === 'PASSED' ? 0 : 1;
   }
+  if (command === 'self-study') {
+    const scenarioIndex = args.indexOf('--scenario');
+    const scenarioId = scenarioIndex >= 0 ? args[scenarioIndex + 1] : 'gia-su-ai-guided-self-study-integrals';
+    if (!scenarioId) throw new Error('qa:self-study requires a valid scenario id.');
+    const result = await runConfiguredGuidedSelfStudyQa(scenarioId);
+    print(result);
+    return result.status === 'PASSED' ? 0 : 1;
+  }
   if (command === 'list') {
     const [web, student] = await Promise.all([listWebScenarios(), listStudentScenarios()]);
     print([...web.map(({ id, name, version, viewports }) => ({ id, name, version, type: 'web', viewports })), ...student.map(({ id, name, version, persona }) => ({ id, name, version, type: 'student-text', persona }))]);
@@ -125,7 +135,7 @@ async function main(args: readonly string[]): Promise<number> {
     const mode = replayModeSchema.parse(modeIndex >= 0 ? args[modeIndex + 1] : 'same-session-fixture');
     const config = await loadConfig(); print(await replayRun(config.artifacts.root, run, mode)); return 0;
   }
-  process.stderr.write('Usage: qa-lab <status|doctor|auth|serve|reset --scope <scenario-id>|catalog [--scenario <id>]|session-start [--scenario <id>]|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
+  process.stderr.write('Usage: qa-lab <status|doctor|auth|serve|reset --scope <scenario-id>|catalog [--scenario <id>]|session-start [--scenario <id>]|self-study [--scenario <id>]|list|run --scenario <id>|arena --config <yaml> --observations <json> --output <directory>|compare --baseline <run> --candidate <run>|replay --run <run> [--mode <mode>]>\n');
   return 2;
 }
 

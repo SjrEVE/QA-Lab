@@ -26,6 +26,7 @@ Map the request to exactly one command:
 | Authenticated catalog and lesson continuity | `npm.cmd run qa:catalog -- --scenario <catalog-scenario-id>` |
 | Scoped staging reset only | `npm.cmd run qa:reset -- --scope <allowlisted-scope>` |
 | Authenticated G12 session start and clean stop | `npm.cmd run qa:session:start -- --scenario <session-scenario-id>` |
+| Guided self-study package journey | `npm.cmd run qa:self-study -- --scenario <self-study-scenario-id>` |
 | Local capability diagnostics | `npm.cmd run qa:doctor` |
 
 Do not substitute `npm test` or `npm run validate` for a requested staging flow. Those commands validate QA-Lab itself; they do not prove the staging capability.

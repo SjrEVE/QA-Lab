@@ -18,6 +18,11 @@ test('redacts email identities from browser and report evidence', () => {
   assert.deepEqual(value, { console: `signed in as ${REDACTED_EMAIL}` });
 });
 
+test('redacts credential-like URL query values from browser evidence', () => {
+  const value = redactSecrets('https://example.test/exchange?key=public-looking-value&safe=visible');
+  assert.equal(value, `https://example.test/exchange?key=${REDACTED}&safe=visible`);
+});
+
 test('handles circular objects without leaking', () => {
   const value: Record<string, unknown> = { apiKey: 'sensitive' };
   value.self = value;
