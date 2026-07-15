@@ -47,6 +47,7 @@ answers:
     incorrectValue: "3"
   - exerciseId: G12_MATH_KNTT_CH04_L12_E02
     value: "1"
+    incorrectValue: "99"
   - exerciseId: G12_MATH_KNTT_CH04_L12_E03
     value: "-3"
   - exerciseId: G12_MATH_KNTT_CH04_L12_E04

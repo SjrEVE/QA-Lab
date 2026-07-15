@@ -77,13 +77,13 @@ function escapeHtml(value: string): string {
 }
 
 async function resolveSelector(page: Page, contract: CatalogSelectorContract): Promise<ResolvedSelector> {
-  const primary = page.locator(contract.primary).first();
+  const primary = page.locator(`${contract.primary}:visible`).first();
   try {
     await primary.waitFor({ state: 'visible' });
     return { locator: primary, mode: 'primary' };
   } catch {
     if (!contract.fallback) throw new Error(`${contract.name} primary data-qa selector was not visible.`);
-    const fallback = page.locator(contract.fallback).first();
+    const fallback = page.locator(`${contract.fallback}:visible`).first();
     await fallback.waitFor({ state: 'visible' });
     return { locator: fallback, mode: 'fallback' };
   }

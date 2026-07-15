@@ -146,13 +146,16 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
         await page.reload({ waitUntil: 'load' }); player = await waitState(page, options.scenario.selectors.player, 'DIAGNOSTIC', options.scenario.limits.transitionTimeoutMs);
         if (await player.getAttribute('data-exercise-id') !== diagnostic.exerciseId) throw new Error('Exact resume lost the diagnostic exercise.');
         await page.locator(options.scenario.selectors.hint).waitFor({ state: 'visible' }); checks.push({ viewport, check: 'resume:exact-state-and-hint', passed: true, details: diagnostic.exerciseId });
-        await submitAnswer(page, options.scenario, diagnostic.exerciseId, diagnostic.incorrectValue, 'incorrect');
-        await page.locator(options.scenario.selectors.remediationEnter).click(); await waitState(page, options.scenario.selectors.player, 'REMEDIATE', options.scenario.limits.transitionTimeoutMs);
-        checks.push({ viewport, check: 'remediation:entered', passed: true, details: 'after-two-incorrect-attempts' });
-        await page.locator(options.scenario.selectors.remediationReturn).click(); await waitState(page, options.scenario.selectors.player, 'DIAGNOSTIC', options.scenario.limits.transitionTimeoutMs);
         await submitAnswer(page, options.scenario, diagnostic.exerciseId, diagnostic.value, 'correct'); await page.locator(options.scenario.selectors.next).click();
         await waitState(page, options.scenario.selectors.player, 'LEARN', options.scenario.limits.transitionTimeoutMs); await page.locator(options.scenario.selectors.learnContinue).click();
         await waitState(page, options.scenario.selectors.player, 'GUIDED_PRACTICE', options.scenario.limits.transitionTimeoutMs);
+        const guidedRemediation = options.scenario.answers[1];
+        if (!guidedRemediation?.incorrectValue) throw new Error('Guided-practice remediation fixture is missing.');
+        await submitAnswer(page, options.scenario, guidedRemediation.exerciseId, guidedRemediation.incorrectValue, 'incorrect');
+        await submitAnswer(page, options.scenario, guidedRemediation.exerciseId, guidedRemediation.incorrectValue, 'incorrect');
+        await page.locator(options.scenario.selectors.remediationEnter).click(); await waitState(page, options.scenario.selectors.player, 'REMEDIATE', options.scenario.limits.transitionTimeoutMs);
+        checks.push({ viewport, check: 'remediation:entered', passed: true, details: 'guided-practice-after-two-incorrect-attempts' });
+        await page.locator(options.scenario.selectors.remediationReturn).click(); await waitState(page, options.scenario.selectors.player, 'GUIDED_PRACTICE', options.scenario.limits.transitionTimeoutMs);
         for (const item of options.scenario.answers.slice(1)) { await submitAnswer(page, options.scenario, item.exerciseId, item.value, 'correct'); checks.push({ viewport, check: `verifier:correct:${item.exerciseId}`, passed: true, details: 'server-verified' }); await page.locator(options.scenario.selectors.next).click(); }
         await waitState(page, options.scenario.selectors.player, 'VERIFY', options.scenario.limits.transitionTimeoutMs); checks.push({ viewport, check: 'state:verify-before-complete', passed: true, details: 'reached' });
         await page.locator(options.scenario.selectors.verifyComplete).click(); await waitState(page, options.scenario.selectors.player, 'COMPLETE', options.scenario.limits.transitionTimeoutMs); await page.locator(options.scenario.selectors.summary).waitFor({ state: 'visible' });
