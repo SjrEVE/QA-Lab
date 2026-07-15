@@ -18,6 +18,7 @@ import {
   StrictStagingResetAdapter,
 } from './staging-reset.js';
 import { WEB_VIEWPORTS } from './web-scenario.js';
+import { isExpectedHeadlessRecaptchaStorageWarning } from './web-qa.js';
 
 const sessionIssueSchema = z.object({
   id: z.string(),
@@ -81,8 +82,9 @@ function escapeHtml(value: string): string {
 function addBrowserEventIssues(events: readonly BrowserEvent[], addIssue: (draft: Omit<SessionIssue, 'id'>) => void): void {
   for (const event of events) {
     const actual = JSON.stringify(redactSecrets(event.data));
+    if (isExpectedHeadlessRecaptchaStorageWarning(event)) continue;
     if (event.event === 'console' && /"type":"(error|assert)"/.test(actual)) {
-      addIssue({ severity: 'HIGH', category: 'console', title: 'Console blocker captured', expected: 'No console errors during session start', actual, evidence: ['browser/browser-events.jsonl'], limitations: 'Console impact requires product triage.' });
+      addIssue({ severity: 'HIGH', category: 'console', title: 'Console blocker captured', expected: 'No console errors during session start', actual, evidence: ['browser/browser-events.jsonl'], limitations: 'Only the exact headless Google reCAPTCHA storage-access warning is excluded; other console errors remain blockers.' });
     }
     if ((event.event === 'request-failed' && !/net::ERR_ABORTED/.test(actual)) || event.event === 'page-error' || event.event === 'request-denied') {
       addIssue({ severity: 'HIGH', category: 'network', title: 'Runtime or network blocker captured', expected: 'No failed or denied session request', actual: `${event.event}: ${actual}`, evidence: ['browser/browser-events.jsonl'], limitations: 'Navigation net::ERR_ABORTED is ignored; all other failures are conservative blockers.' });
@@ -91,7 +93,7 @@ function addBrowserEventIssues(events: readonly BrowserEvent[], addIssue: (draft
 }
 
 async function observedIdentityHash(page: Page, profile: StagingProfile, selector: string): Promise<string> {
-  const identity = page.locator(selector).first();
+  const identity = page.locator(`${selector}:visible`).first();
   await identity.waitFor({ state: 'visible' });
   let raw = '';
   if (profile.auth.accountIdentitySource === 'value') raw = await identity.inputValue();
@@ -108,13 +110,25 @@ async function waitForSessionStatus(
 ): Promise<string> {
   await page.waitForFunction(
     ({ target, allowed }) => {
-      const status = document.querySelector(target)?.getAttribute('data-session-status') ?? '';
+      let element: Element | null = null;
+      const candidates = document.querySelectorAll(target);
+      for (let index = 0; index < candidates.length; index += 1) {
+        const candidate = candidates[index];
+        if (!candidate) continue;
+        const bounds = candidate.getBoundingClientRect();
+        const style = getComputedStyle(candidate);
+        if (bounds.width > 0 && bounds.height > 0 && style.display !== 'none' && style.visibility !== 'hidden') {
+          element = candidate;
+          break;
+        }
+      }
+      const status = element?.getAttribute('data-session-status') ?? '';
       return allowed.includes(status);
     },
     { target: selector, allowed: [...statuses] },
     { timeout },
   );
-  return (await page.locator(selector).first().getAttribute('data-session-status')) ?? '';
+  return (await page.locator(`${selector}:visible`).first().getAttribute('data-session-status')) ?? '';
 }
 
 class ProviderUnavailableError extends Error {
@@ -133,16 +147,40 @@ async function waitForSessionStartOutcome(
 ): Promise<string> {
   await page.waitForFunction(
     ({ statusTarget, errorTarget, allowed }) => {
-      const status = document.querySelector(statusTarget)?.getAttribute('data-session-status') ?? '';
-      const error = document.querySelector(errorTarget)?.textContent?.trim() ?? '';
+      let statusElement: Element | null = null;
+      const statusCandidates = document.querySelectorAll(statusTarget);
+      for (let index = 0; index < statusCandidates.length; index += 1) {
+        const candidate = statusCandidates[index];
+        if (!candidate) continue;
+        const bounds = candidate.getBoundingClientRect();
+        const style = getComputedStyle(candidate);
+        if (bounds.width > 0 && bounds.height > 0 && style.display !== 'none' && style.visibility !== 'hidden') {
+          statusElement = candidate;
+          break;
+        }
+      }
+      let errorElement: Element | null = null;
+      const errorCandidates = document.querySelectorAll(errorTarget);
+      for (let index = 0; index < errorCandidates.length; index += 1) {
+        const candidate = errorCandidates[index];
+        if (!candidate) continue;
+        const bounds = candidate.getBoundingClientRect();
+        const style = getComputedStyle(candidate);
+        if (bounds.width > 0 && bounds.height > 0 && style.display !== 'none' && style.visibility !== 'hidden') {
+          errorElement = candidate;
+          break;
+        }
+      }
+      const status = statusElement?.getAttribute('data-session-status') ?? '';
+      const error = errorElement?.textContent?.trim() ?? '';
       return allowed.includes(status) || error.length > 0;
     },
     { statusTarget: statusSelector, errorTarget: errorSelector, allowed: [...statuses] },
     { timeout },
   );
-  const error = (await page.locator(errorSelector).first().textContent().catch(() => null))?.trim();
+  const error = (await page.locator(`${errorSelector}:visible`).first().textContent().catch(() => null))?.trim();
   if (error) throw new ProviderUnavailableError(error.slice(0, 500));
-  return (await page.locator(statusSelector).first().getAttribute('data-session-status')) ?? '';
+  return (await page.locator(`${statusSelector}:visible`).first().getAttribute('data-session-status')) ?? '';
 }
 
 async function writeReports(
@@ -242,6 +280,9 @@ export async function runAuthenticatedSessionStartQa(
       await controller.navigate(new URL(options.scenario.target.path, options.baseUrl).href);
       await page.locator(options.scenario.selectors.authenticatedShell).first().waitFor({ state: 'visible' });
       checks.push({ check: 'auth:shell-visible', passed: true, details: 'data-qa' });
+      const accountTrigger = page.locator(`${options.scenario.selectors.accountTrigger}:visible`).first();
+      await accountTrigger.waitFor({ state: 'visible' });
+      await accountTrigger.click();
       if (await observedIdentityHash(page, options.profile, options.scenario.selectors.accountIdentity) !== options.verifiedIdentityHash) {
         throw new Error('Authenticated account identity hash did not match the verified profile.');
       }
@@ -268,7 +309,7 @@ export async function runAuthenticatedSessionStartQa(
       checks.push({ check: 'classroom:lesson-id-continuity', passed: true, details: options.scenario.lesson.id });
       if (Date.now() > deadline) throw new Error('Session-start smoke exceeded its bounded deadline.');
 
-      const start = page.locator(options.scenario.selectors.start).first();
+      const start = page.locator(`${options.scenario.selectors.start}:visible`).first();
       await start.waitFor({ state: 'visible' });
       const startedAt = Date.now();
       await start.click();
@@ -278,7 +319,7 @@ export async function runAuthenticatedSessionStartQa(
       checks.push({ check: 'session:real-staging-connected', passed: true, details: activeStatus });
       await page.screenshot({ path: path.join(browserDirectory, 'connected.png'), fullPage: true, mask: [page.locator(options.profile.auth.accountIdentitySelector)] });
 
-      const stop = page.locator(options.scenario.selectors.stop).first();
+      const stop = page.locator(`${options.scenario.selectors.stop}:visible`).first();
       await stop.waitFor({ state: 'visible' });
       await stop.click();
       await waitForSessionStatus(page, options.scenario.selectors.status, [options.scenario.expected.stoppedStatus], options.scenario.limits.selectorTimeoutMs);
@@ -298,7 +339,7 @@ export async function runAuthenticatedSessionStartQa(
       if (opened && sessionStarted && !sessionStopped) {
         const page = controller.runtime().page;
         try {
-          const stop = page.locator(options.scenario.selectors.stop).first();
+          const stop = page.locator(`${options.scenario.selectors.stop}:visible`).first();
           if (await stop.isVisible()) await stop.click();
           await waitForSessionStatus(page, options.scenario.selectors.status, [options.scenario.expected.stoppedStatus], options.scenario.limits.selectorTimeoutMs);
           sessionStopped = true;

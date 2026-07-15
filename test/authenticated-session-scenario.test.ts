@@ -26,6 +26,7 @@ test('rejects selectors that bypass the stable data-qa contract', () => {
     lesson: { id: 'G12_MATH_KNTT_CH01_L01', registryStatusAttribute: 'data-registry-status', approvedRegistryValue: 'approved' },
     selectors: {
       authenticatedShell: '[data-qa="authenticated-shell"]',
+      accountTrigger: '[data-qa="account-trigger"]',
       accountIdentity: '[data-qa="account-email"]',
       lesson: '[data-qa="lesson-option"]',
       classroomReady: '[data-qa="lesson-ready"]',

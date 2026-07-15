@@ -23,6 +23,7 @@ export const authenticatedSessionScenarioSchema = z.object({
   }).strict(),
   selectors: z.object({
     authenticatedShell: selector,
+    accountTrigger: selector,
     accountIdentity: selector,
     lesson: selector,
     classroomReady: selector,

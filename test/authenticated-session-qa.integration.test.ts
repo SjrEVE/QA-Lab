@@ -23,6 +23,7 @@ function scenario() {
     lesson: { id: 'G12_MATH_KNTT_CH01_L01', registryStatusAttribute: 'data-registry-status', approvedRegistryValue: 'approved' },
     selectors: {
       authenticatedShell: '[data-qa="authenticated-shell"]',
+      accountTrigger: '[data-qa="account-trigger"]',
       accountIdentity: '[data-qa="account-email"]',
       lesson: '[data-qa="lesson-option"][data-lesson-id="G12_MATH_KNTT_CH01_L01"]',
       classroomReady: '[data-qa="lesson-ready"][data-lesson-id="G12_MATH_KNTT_CH01_L01"]',
