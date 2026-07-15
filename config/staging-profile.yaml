@@ -32,3 +32,4 @@ suites:
   journeyIds:
     - gia-su-ai-session-start
     - gia-su-ai-guided-self-study-integrals
+    - gia-su-ai-guided-self-study-conditional-probability
