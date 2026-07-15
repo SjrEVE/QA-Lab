@@ -33,6 +33,10 @@ function safeRunId(value: string): string { if (!/^[A-Za-z0-9._-]+$/.test(value)
 function issueId(scenarioId: string, viewport: string, category: string, actual: string): string { return `GSS-${createHash('sha256').update(`${scenarioId}|${viewport}|${category}|${actual}`).digest('hex').slice(0, 12).toUpperCase()}`; }
 function escapeHtml(value: string): string { return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
 
+export function hasFirebaseAppCheckHeader(headers: Record<string, string>): boolean {
+  return typeof headers['x-firebase-appcheck'] === 'string' && headers['x-firebase-appcheck'].trim().length > 0;
+}
+
 async function waitState(page: Page, playerSelector: string, state: string, timeout: number) {
   const player = page.locator(`${playerSelector}[data-activity-state="${state}"]`).first();
   await player.waitFor({ state: 'visible', timeout });
@@ -104,10 +108,16 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
       await writeFile(path.join(viewportDirectory, 'reset.json'), `${JSON.stringify(redactSecrets(reset), null, 2)}\n`, { flag: 'wx' });
       checks.push({ viewport, check: 'reset:strict-ready', passed: true, details: reset.resetVersion ?? 'manual' });
       const controller = new GuardedBrowserController({ policy, artifactDirectory: viewportDirectory, profileDirectory, preserveProfile: true, timeoutMs: options.scenario.limits.selectorTimeoutMs });
-      let opened = false; const observedHosts = new Set<string>();
+      let opened = false; const observedHosts = new Set<string>(); let observedAppCheckHeader = false;
       try {
         if (Date.now() > deadline) throw new Error('Guided self-study run exceeded its bounded deadline.');
-        await controller.open(); opened = true; const page = controller.runtime().page; page.on('request', (request) => { try { observedHosts.add(new URL(request.url()).hostname); } catch { /* ignored */ } });
+        await controller.open(); opened = true; const page = controller.runtime().page; page.on('request', (request) => {
+          try {
+            const requestUrl = new URL(request.url());
+            observedHosts.add(requestUrl.hostname);
+            if (/^\/api\/(startOrResumeGuidedSelfStudy|advanceGuidedSelfStudy|submitLessonAnswer|advanceLessonExercise)$/.test(requestUrl.pathname) && hasFirebaseAppCheckHeader(request.headers())) observedAppCheckHeader = true;
+          } catch { /* ignored */ }
+        });
         await page.setViewportSize(GUIDED_SELF_STUDY_VIEWPORTS[viewport]);
         await controller.navigate(new URL(options.profile.target.authenticatedPath, options.baseUrl).href);
         await page.locator(options.scenario.selectors.authenticatedShell).waitFor({ state: 'visible' });
@@ -165,8 +175,8 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
         checks.push({ viewport, check: 'network:no-gemini', passed: true, details: 'provider-host-absent' });
         if (policy.fixtureMode === true) checks.push({ viewport, check: 'app-check:exchange-observed', passed: true, details: 'fixture-excluded' });
         else {
-          if (!observedHosts.has('content-firebaseappcheck.googleapis.com')) throw new Error('Firebase App Check exchange was not observed.');
-          checks.push({ viewport, check: 'app-check:exchange-observed', passed: true, details: 'exact-host' });
+          if (!observedAppCheckHeader && !observedHosts.has('content-firebaseappcheck.googleapis.com')) throw new Error('Firebase App Check proof was not observed.');
+          checks.push({ viewport, check: 'app-check:proof-observed', passed: true, details: observedAppCheckHeader ? 'gss-request-header' : 'token-exchange-host' });
         }
         const geometry = await layout(page); checks.push({ viewport, check: 'layout:no-horizontal-overflow', passed: geometry.horizontalOverflow === 0, details: String(geometry.horizontalOverflow) }); checks.push({ viewport, check: 'layout:no-blocking-overlay', passed: geometry.blockingOverlay === 0, details: String(geometry.blockingOverlay) });
         if (geometry.horizontalOverflow || geometry.blockingOverlay) addIssue({ severity: 'MEDIUM', category: 'layout', viewport, title: 'Player layout heuristic found a risk', expected: 'No horizontal overflow or blocking overlay', actual: JSON.stringify(geometry), evidence: [`${viewport}/complete.png`], limitations: 'Geometry finding requires screenshot review.' });

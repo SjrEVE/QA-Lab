@@ -6,7 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { hashAccountIdentity } from '../src/auth-bootstrap.js';
 import type { QaConfig } from '../src/config.js';
-import { runGuidedSelfStudyQa } from '../src/guided-self-study-qa.js';
+import { hasFirebaseAppCheckHeader, runGuidedSelfStudyQa } from '../src/guided-self-study-qa.js';
 import { guidedSelfStudyScenarioSchema } from '../src/guided-self-study-scenario.js';
 import { stagingProfileSchema } from '../src/staging-profile.js';
 
@@ -78,4 +78,10 @@ test('guided self-study fails closed before browser launch when strict reset blo
     const result = await runGuidedSelfStudyQa({ cwd, ...contracts, scenario: scenario(), verifiedIdentityHash: hashAccountIdentity(email), reset: { reset: () => Promise.resolve({ status: 'BLOCKED', reason: 'fixture reset refused' }) }, runId: 'gss-blocked', baseUrl: site.origin, policy: { allowedHosts: ['unused.invalid'], fixtureMode: true, fixturePort: site.port } });
     assert.equal(result.status, 'BLOCKED'); assert.equal(result.issues.every((issue) => issue.category === 'reset'), true);
   } finally { await site.close(); }
+});
+
+test('App Check evidence records presence without retaining the token value', () => {
+  assert.equal(hasFirebaseAppCheckHeader({ 'x-firebase-appcheck': 'opaque-token' }), true);
+  assert.equal(hasFirebaseAppCheckHeader({ 'x-firebase-appcheck': '   ' }), false);
+  assert.equal(hasFirebaseAppCheckHeader({ authorization: 'Bearer unrelated' }), false);
 });
