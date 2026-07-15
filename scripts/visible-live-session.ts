@@ -4,7 +4,7 @@ import { loadAuthVerification, hashAccountIdentity, normalizeAccountEmail } from
 import { GuardedBrowserController } from '../src/browser-controller.js';
 import { loadConfig } from '../src/config.js';
 import { createRunId } from '../src/run-store.js';
-import { assertPrivatePath, loadStagingProfile } from '../src/staging-profile.js';
+import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile } from '../src/staging-profile.js';
 import { loadStagingResetConfig, StrictStagingResetAdapter } from '../src/staging-reset.js';
 
 const LESSON_ID = 'G12_MATH_KNTT_CH01_L01';
@@ -28,6 +28,8 @@ async function waitUntil(check: () => Promise<boolean> | boolean, timeoutMs: num
 function extractProviderLatency(events: ReturnType<GuardedBrowserController['runtime']>['events']): LatencyMetrics {
   const metrics: LatencyMetrics = {};
   const firstAudioSamples: number[] = [];
+  let outputInterruptions = 0;
+  let tutorActionRejections = 0;
   for (const event of events) {
     if (event.event !== 'console') continue;
     const line = JSON.stringify(event.data);
@@ -35,18 +37,26 @@ function extractProviderLatency(events: ReturnType<GuardedBrowserController['run
     if (connected) metrics.provider_start_to_connected_ms = Number(connected[1]);
     const firstAudio = line.match(/speech_end_to_first_ai_audio_ms\s+(\d+)/);
     if (firstAudio) firstAudioSamples.push(Number(firstAudio[1]));
+    if (/stop_output_audio\s+(?:quick_tutor_message|gemini_interrupted)/.test(line)) outputInterruptions += 1;
+    if (/tutor_action_gate\s+rejected/.test(line)) tutorActionRejections += 1;
   }
   if (firstAudioSamples.length > 0) {
     metrics.provider_speech_end_to_first_ai_audio_last_ms = firstAudioSamples.at(-1)!;
     metrics.provider_speech_end_to_first_ai_audio_max_ms = Math.max(...firstAudioSamples);
     metrics.provider_speech_end_to_first_ai_audio_samples = firstAudioSamples.length;
   }
+  metrics.provider_output_interruptions = outputInterruptions;
+  metrics.tutor_action_rejections = tutorActionRejections;
   return metrics;
 }
 
 async function main(): Promise<void> {
   const cwd = process.cwd();
   const env = process.env;
+  const viewerHoldMs = env.QA_VISIBLE_HOLD_MS === undefined ? 5 * 60_000 : Number(env.QA_VISIBLE_HOLD_MS);
+  if (!Number.isInteger(viewerHoldMs) || viewerHoldMs < 0 || viewerHoldMs > 5 * 60_000) {
+    throw new Error('QA_VISIBLE_HOLD_MS must be an integer between 0 and 300000.');
+  }
   const config = await loadConfig({ cwd, env });
   const profile = await loadStagingProfile({ config, cwd, env });
   const [verification, resetConfig] = await Promise.all([
@@ -59,7 +69,10 @@ async function main(): Promise<void> {
 
   const audioPath = await assertPrivatePath(cwd, env.QA_FAKE_AUDIO_CAPTURE_PATH ?? '.qa-private/audio/live-checkin-vi-short.wav');
   const audioBase64 = (await readFile(audioPath)).toString('base64');
-  const profileDirectory = await assertPrivatePath(cwd, profile.privatePaths.browserProfileDirectory);
+  const [profileDirectory, appCheckDebugToken] = await Promise.all([
+    assertPrivatePath(cwd, profile.privatePaths.browserProfileDirectory),
+    loadStagingAppCheckDebugToken(cwd, profile),
+  ]);
   const reset = await new StrictStagingResetAdapter({ config, resetConfig, env }).reset({ accountIdentityHash: verification.identityHash, scope: RESET_SCOPE });
   if (reset.status !== 'READY') throw new Error(`Strict reset blocked: ${reset.reason}`);
   log('reset', 'READY');
@@ -75,6 +88,7 @@ async function main(): Promise<void> {
     preserveProfile: true,
     headless: false,
     timeoutMs: 30_000,
+    ...(appCheckDebugToken ? { appCheckDebugToken } : {}),
     voice: {
       enabled: true,
       audible: true,
@@ -144,6 +158,11 @@ async function main(): Promise<void> {
     const accountHash = hashAccountIdentity(normalizeAccountEmail((await account.textContent()) ?? ''));
     if (accountHash !== verification.identityHash) throw new Error('Visible account identity does not match the verified QA profile.');
     log('auth', verification.identityHash);
+    await page.keyboard.press('Escape');
+    await page.evaluate((lessonId) => {
+      const prefix = `k12.lessonSession.${lessonId}.`;
+      for (const key of Object.keys(localStorage)) if (key.startsWith(prefix)) localStorage.removeItem(key);
+    }, LESSON_ID);
 
     const lesson = page.locator(`[data-qa="lesson-option"][data-lesson-id="${LESSON_ID}"][data-registry-status="approved"]:visible`).first();
     await lesson.waitFor({ state: 'visible' });
@@ -173,6 +192,7 @@ async function main(): Promise<void> {
     latencyMs.setup_complete_to_lesson_ready_ms = Date.now() - setupCompletedAt;
     lessonReady = true;
     log('onboarding', `lesson_ready in ${latencyMs.setup_complete_to_lesson_ready_ms} ms after setupComplete`);
+    await page.locator('.ai-online.listening:visible').waitFor({ state: 'visible', timeout: 60_000 });
 
     const latestTutorActivity = page.locator('.activity-history article').filter({ has: page.locator('span.ai') }).last().locator('p');
     async function currentTutorActivity(): Promise<string> {
@@ -247,12 +267,13 @@ async function main(): Promise<void> {
     latencyMs.completion_to_memory_card_ms = Date.now() - completionRequestedAt;
     memoryCardVisible = true;
     log('session', `completed memory card visible in ${latencyMs.completion_to_memory_card_ms} ms`);
-    log('viewer', 'Browser remains open for up to 5 minutes; close it when inspection is finished.');
-
-    await Promise.race([
-      page.waitForEvent('close').catch(() => undefined),
-      new Promise((resolve) => setTimeout(resolve, 5 * 60_000)),
-    ]);
+    if (viewerHoldMs > 0) {
+      log('viewer', `Browser remains open for up to ${viewerHoldMs} ms; close it when inspection is finished.`);
+      await Promise.race([
+        page.waitForEvent('close').catch(() => undefined),
+        new Promise((resolve) => setTimeout(resolve, viewerHoldMs)),
+      ]);
+    }
   } finally {
     try { Object.assign(latencyMs, extractProviderLatency(controller.runtime().events)); } catch { /* browser did not open */ }
     latencyMs.received_tool_call_frames = receivedToolCallFrames;
@@ -261,7 +282,7 @@ async function main(): Promise<void> {
     const summary = {
       schemaVersion: 1,
       runId,
-      status: setupComplete && lessonReady && correctAnswer && boardObjectCount > 0 && memoryCardVisible ? 'PASSED' : 'FAILED',
+      status: setupComplete && lessonReady && correctAnswer && boardObjectCount > 0 && memoryCardVisible && latencyMs.provider_output_interruptions === 0 ? 'PASSED' : 'FAILED',
       lessonId: LESSON_ID,
       recording: false,
       setupComplete,

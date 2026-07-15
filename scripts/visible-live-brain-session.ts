@@ -2,13 +2,14 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Page } from 'playwright';
 import { loadAuthVerification, hashAccountIdentity, normalizeAccountEmail } from '../src/auth-bootstrap.js';
+import { speakVietnameseAudibly } from '../src/browser-speech.js';
 import { GuardedBrowserController } from '../src/browser-controller.js';
 import { loadConfig } from '../src/config.js';
 import { createConfiguredGeminiStudentBrain } from '../src/gemini-student-brain.js';
 import { createRunId } from '../src/run-store.js';
 import type { BrainTurn, StudentBrainDecision } from '../src/student-brain.js';
 import { findStudentPersona, findStudentScenario } from '../src/student-contracts.js';
-import { assertPrivatePath, loadStagingProfile } from '../src/staging-profile.js';
+import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile } from '../src/staging-profile.js';
 import { loadStagingResetConfig, StrictStagingResetAdapter } from '../src/staging-reset.js';
 
 const LESSON_ID = 'G12_MATH_KNTT_CH01_L01';
@@ -44,34 +45,6 @@ async function currentTutorText(page: Page): Promise<string> {
   return (await latest.textContent().catch(() => ''))?.trim() ?? '';
 }
 
-async function speakAudibly(page: Page, text: string): Promise<{ readonly durationMs: number; readonly locale: string }> {
-  return page.evaluate((speechText) => new Promise<{ durationMs: number; locale: string }>((resolve, reject) => {
-    if (!('speechSynthesis' in window)) {
-      reject(new Error('Browser speech synthesis is unavailable.'));
-      return;
-    }
-    const started = performance.now();
-    const utterance = new SpeechSynthesisUtterance(speechText);
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find((candidate) => candidate.lang.toLowerCase().startsWith('vi')) ?? voices[0];
-    if (voice) utterance.voice = voice;
-    utterance.lang = voice?.lang ?? 'vi-VN';
-    utterance.rate = 0.95;
-    utterance.pitch = 1.05;
-    const timeout = window.setTimeout(() => reject(new Error('Browser speech synthesis timed out.')), 20_000);
-    utterance.onend = () => {
-      window.clearTimeout(timeout);
-      resolve({ durationMs: Math.round(performance.now() - started), locale: utterance.lang });
-    };
-    utterance.onerror = () => {
-      window.clearTimeout(timeout);
-      reject(new Error('Browser speech synthesis failed.'));
-    };
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  }), text);
-}
-
 async function nextSpeakingDecision(decide: () => Promise<StudentBrainDecision>, page: Page): Promise<StudentBrainDecision> {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const decision = await decide();
@@ -104,7 +77,10 @@ async function main(): Promise<void> {
   const runDirectory = path.resolve(config.artifacts.root, runId);
   const browserDirectory = path.join(runDirectory, 'browser');
   await mkdir(browserDirectory, { recursive: true });
-  const profileDirectory = await assertPrivatePath(cwd, profile.privatePaths.browserProfileDirectory);
+  const [profileDirectory, appCheckDebugToken] = await Promise.all([
+    assertPrivatePath(cwd, profile.privatePaths.browserProfileDirectory),
+    loadStagingAppCheckDebugToken(cwd, profile),
+  ]);
   const controller = new GuardedBrowserController({
     policy: { allowedHosts: [...new Set([...config.staging.allowedHosts, ...profile.auth.allowedHosts])] },
     artifactDirectory: browserDirectory,
@@ -112,6 +88,7 @@ async function main(): Promise<void> {
     preserveProfile: true,
     headless: false,
     timeoutMs: 30_000,
+    ...(appCheckDebugToken ? { appCheckDebugToken } : {}),
     voice: { enabled: true, audible: true, permissions: ['microphone'] },
   });
 
@@ -153,6 +130,10 @@ async function main(): Promise<void> {
     await account.waitFor({ state: 'visible' });
     if (hashAccountIdentity(normalizeAccountEmail((await account.textContent()) ?? '')) !== verification.identityHash) throw new Error('Visible account identity does not match the verified QA profile.');
     await page.keyboard.press('Escape');
+    await page.evaluate((lessonId) => {
+      const prefix = `k12.lessonSession.${lessonId}.`;
+      for (const key of Object.keys(localStorage)) if (key.startsWith(prefix)) localStorage.removeItem(key);
+    }, LESSON_ID);
 
     const lesson = page.locator(`[data-qa="lesson-option"][data-lesson-id="${LESSON_ID}"][data-registry-status="approved"]:visible`).first();
     await lesson.waitFor({ state: 'visible' });
@@ -167,6 +148,7 @@ async function main(): Promise<void> {
     const textInput = page.locator('form.ai-input input:visible').first();
     await waitUntil(() => textInput.isEnabled(), 120_000, 'authoritative lesson readiness');
     await waitUntil(async () => (await currentTutorText(page)).length > 0, 30_000, 'first tutor turn');
+    await page.locator('.ai-online.listening:visible').waitFor({ state: 'visible', timeout: TUTOR_TIMEOUT_MS });
 
     for (let turn = 1; turn <= scenario.limits.max_turns; turn += 1) {
       const tutorText = await currentTutorText(page);
@@ -198,8 +180,8 @@ async function main(): Promise<void> {
       }
       const speech = decision.actions.find((action) => action.action === 'speak');
       if (!speech || speech.action !== 'speak') throw new Error('QA Brain did not produce a bounded Vietnamese speaking turn.');
-      const audible = await speakAudibly(page, speech.text);
-      if (!audible.locale.toLowerCase().startsWith('vi')) throw new Error('No Vietnamese browser speech voice is available.');
+      const audible = await speakVietnameseAudibly(page, speech.text);
+      if (!audible.locale.toLowerCase().startsWith('vi')) emit('voice_fallback', { turn, locale: audible.locale, reason: 'vi-VN system voice unavailable' });
       history.push({ role: 'student', turn, text: speech.text });
       const previousTutor = tutorText;
       await textInput.fill(speech.text);

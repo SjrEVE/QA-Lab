@@ -44,6 +44,7 @@ export const stagingProfileSchema = z.object({
     browserProfileDirectory: privateRelativePath,
     authStatePath: privateRelativePath,
     resetConfigPath: privateRelativePath,
+    appCheckDebugTokenPath: privateRelativePath.optional(),
   }).strict(),
   auth: z.object({
     authenticatedSelector: selector,
@@ -111,6 +112,24 @@ export async function loadStagingProfile(options: LoadStagingProfileOptions): Pr
   if (target.hostname.toLowerCase() !== profile.target.expectedHost) {
     throw new Error('Staging profile host does not match the exact typed staging target.');
   }
-  await Promise.all(Object.values(profile.privatePaths).map((privatePath) => assertPrivatePath(cwd, privatePath)));
+  await Promise.all(Object.values(profile.privatePaths)
+    .filter((privatePath): privatePath is string => typeof privatePath === 'string')
+    .map((privatePath) => assertPrivatePath(cwd, privatePath)));
   return profile;
+}
+
+const appCheckDebugTokenSchema = z.string().trim().regex(
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+  'must be a UUIDv4 Firebase App Check debug token',
+);
+
+export async function loadStagingAppCheckDebugToken(cwd: string, profile: StagingProfile): Promise<string | undefined> {
+  const relativePath = profile.privatePaths.appCheckDebugTokenPath;
+  if (!relativePath) return undefined;
+  const filename = await assertPrivatePath(cwd, relativePath);
+  const stats = await lstat(filename);
+  if (!stats.isFile() || stats.isSymbolicLink() || stats.size > 128) {
+    throw new Error('App Check debug token file is malformed or unsafe.');
+  }
+  return appCheckDebugTokenSchema.parse(await readFile(filename, 'utf8'));
 }

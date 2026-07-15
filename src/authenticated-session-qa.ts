@@ -10,7 +10,7 @@ import type { BrowserTargetPolicy } from './browser-policy.js';
 import { loadConfig, type QaConfig } from './config.js';
 import { redactSecrets } from './redaction.js';
 import { createRunId } from './run-store.js';
-import { assertPrivatePath, loadStagingProfile, type StagingProfile } from './staging-profile.js';
+import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile, type StagingProfile } from './staging-profile.js';
 import {
   loadStagingResetConfig,
   type StagingResetRequest,
@@ -230,6 +230,7 @@ export async function runAuthenticatedSessionStartQa(
   };
   let blocked = false;
   let profileDirectory = '';
+  let appCheckDebugToken: string | undefined;
   let activeStatus: string | undefined;
   let connectLatencyMs: number | undefined;
   let sessionStarted = false;
@@ -241,6 +242,7 @@ export async function runAuthenticatedSessionStartQa(
   } else {
     try {
       profileDirectory = await assertPrivatePath(cwd, options.profile.privatePaths.browserProfileDirectory);
+      appCheckDebugToken = await loadStagingAppCheckDebugToken(cwd, options.profile);
       const stats = await lstat(profileDirectory);
       if (!stats.isDirectory() || stats.isSymbolicLink()) throw new Error('unsafe profile');
     } catch {
@@ -268,6 +270,7 @@ export async function runAuthenticatedSessionStartQa(
       profileDirectory,
       preserveProfile: true,
       timeoutMs: options.scenario.limits.selectorTimeoutMs,
+      ...(appCheckDebugToken ? { appCheckDebugToken } : {}),
       voice: { enabled: true, permissions: ['microphone'], args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] },
     });
     let opened = false;

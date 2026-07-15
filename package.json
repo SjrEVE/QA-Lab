@@ -24,6 +24,7 @@
     "qa:recording:fixture": "tsx scripts/recording-fixture-e2e.ts --fixture-mode",
     "qa:recording:verify": "tsx scripts/verify-recording-capability.ts",
     "qa:voice:fixture": "tsx scripts/voice-fixture-e2e.ts --fixture-mode",
+    "qa:voice:browser-smoke": "tsx scripts/browser-speech-smoke.ts",
     "qa:evaluation:fixture": "tsx scripts/student-fixture-e2e.ts --fixture-mode",
     "qa:regression:fixture": "tsx scripts/regression-fixture-e2e.ts --fixture-mode",
     "qa:replay:fixture": "tsx scripts/regression-fixture-e2e.ts --fixture-mode",

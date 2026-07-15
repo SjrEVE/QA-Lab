@@ -33,7 +33,6 @@ test('policy decision retains denied resource kind as evidence', () => {
   assert.equal(decision.kind, 'redirect');
   assert.match(decision.reason, /exact staging allowlist/);
 });
-
 test('suite-specific denylist overrides the shared staging allowlist', () => {
   const policy = {
     allowedHosts: ['staging.example.test', 'generativelanguage.googleapis.com'],
@@ -43,4 +42,22 @@ test('suite-specific denylist overrides the shared staging allowlist', () => {
   const decision = decideBrowserRequest('https://generativelanguage.googleapis.com/v1beta/models/test', 'subresource', policy);
   assert.equal(decision.allowed, false);
   assert.match(decision.reason, /explicitly denied/);
+});
+
+test('App Check reCAPTCHA requests are allowed only for exact allowed hosts', () => {
+  const policy = {
+    allowedHosts: [
+      'staging.example.test',
+      'www.google.com',
+    ],
+  };
+  assert.equal(assertAllowedBrowserUrl('https://www.google.com/recaptcha/enterprise/clr', policy).hostname, 'www.google.com');
+
+  for (const url of [
+    'https://google.com/recaptcha/enterprise/clr',
+    'https://www.recaptcha.net/recaptcha/enterprise/clr',
+    'https://evil.google.com/recaptcha',
+  ]) {
+    assert.throws(() => assertAllowedBrowserUrl(url, policy), TargetDeniedError);
+  }
 });

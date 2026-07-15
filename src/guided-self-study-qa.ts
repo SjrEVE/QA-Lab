@@ -10,7 +10,7 @@ import { loadConfig, type QaConfig } from './config.js';
 import { findGuidedSelfStudyScenario, GUIDED_SELF_STUDY_VIEWPORTS, type GuidedSelfStudyScenario } from './guided-self-study-scenario.js';
 import { redactSecrets } from './redaction.js';
 import { createRunId } from './run-store.js';
-import { assertPrivatePath, loadStagingProfile, type StagingProfile } from './staging-profile.js';
+import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile, type StagingProfile } from './staging-profile.js';
 import { loadStagingResetConfig, StrictStagingResetAdapter, type StagingResetResult } from './staging-reset.js';
 
 const issueSchema = z.object({
@@ -135,9 +135,9 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
   const runDirectory = path.resolve(options.artifactRoot, safeRunId(options.runId)); await mkdir(runDirectory, { recursive: false });
   const issues: GuidedSelfStudyIssue[] = []; const checks: GuidedSelfStudyCheck[] = [];
   const addIssue = (draft: Omit<GuidedSelfStudyIssue, 'id'>) => { if (issues.length >= options.scenario.limits.maxIssues) return; const issue = issueSchema.parse({ ...draft, id: issueId(options.scenario.id, draft.viewport, draft.category, draft.actual) }); if (!issues.some((item) => item.id === issue.id)) issues.push(issue); };
-  let blocked = false; let profileDirectory = '';
+  let blocked = false; let profileDirectory = ''; let appCheckDebugToken: string | undefined;
   if (!options.baseUrl) blocked = true;
-  else try { profileDirectory = await assertPrivatePath(cwd, options.profile.privatePaths.browserProfileDirectory); const stats = await lstat(profileDirectory); if (!stats.isDirectory() || stats.isSymbolicLink()) throw new Error('unsafe profile'); } catch { blocked = true; }
+  else try { profileDirectory = await assertPrivatePath(cwd, options.profile.privatePaths.browserProfileDirectory); appCheckDebugToken = await loadStagingAppCheckDebugToken(cwd, options.profile); const stats = await lstat(profileDirectory); if (!stats.isDirectory() || stats.isSymbolicLink()) throw new Error('unsafe profile'); } catch { blocked = true; }
   if (blocked) addIssue({ severity: 'BLOCKER', category: 'prerequisite', viewport: 'run', title: 'Guided self-study prerequisites are unavailable', expected: 'Typed staging target and safe verified profile', actual: 'No browser was launched.', evidence: ['run.json'], limitations: 'Fail-closed prerequisite result.' });
 
   if (!blocked && options.baseUrl) {
@@ -153,7 +153,7 @@ export async function runGuidedSelfStudyQa(options: GuidedSelfStudyQaOptions): P
       if (reset.status !== 'READY') { blocked = true; addIssue({ severity: 'BLOCKER', category: 'reset', viewport, title: 'Strict staging reset was blocked', expected: 'Identity-bound scoped reset READY', actual: reset.reason, evidence: [`${viewport}/reset.json`], limitations: 'The journey is not executed after a failed reset.' }); await writeFile(path.join(viewportDirectory, 'reset.json'), `${JSON.stringify(redactSecrets(reset), null, 2)}\n`, { flag: 'wx' }); continue; }
       await writeFile(path.join(viewportDirectory, 'reset.json'), `${JSON.stringify(redactSecrets(reset), null, 2)}\n`, { flag: 'wx' });
       checks.push({ viewport, check: 'reset:strict-ready', passed: true, details: reset.resetVersion ?? 'manual' });
-      const controller = new GuardedBrowserController({ policy, artifactDirectory: viewportDirectory, profileDirectory, preserveProfile: true, timeoutMs: options.scenario.limits.selectorTimeoutMs });
+      const controller = new GuardedBrowserController({ policy, artifactDirectory: viewportDirectory, profileDirectory, preserveProfile: true, timeoutMs: options.scenario.limits.selectorTimeoutMs, ...(appCheckDebugToken ? { appCheckDebugToken } : {}) });
       let opened = false; const observedHosts = new Set<string>(); const appCheckEvidence = emptyAppCheckEvidence();
       try {
         if (Date.now() > deadline) throw new Error('Guided self-study run exceeded its bounded deadline.');

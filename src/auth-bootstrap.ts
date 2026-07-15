@@ -5,7 +5,7 @@ import { chromium, type BrowserContext, type Page, type Request } from 'playwrig
 import { z } from 'zod';
 import { assertAllowedBrowserUrl, decideBrowserRequest, type BrowserTargetPolicy } from './browser-policy.js';
 import { loadConfig, type QaConfig } from './config.js';
-import { assertPrivatePath, loadStagingProfile, type StagingProfile } from './staging-profile.js';
+import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile, type StagingProfile } from './staging-profile.js';
 
 const expectedEmailSchema = z.string().trim().email().max(254);
 export const authVerificationSchema = z.object({
@@ -23,6 +23,7 @@ export interface AuthBrowserLaunchOptions {
   readonly policy: BrowserTargetPolicy;
   readonly timeoutMs: number;
   readonly headed: boolean;
+  readonly appCheckDebugToken?: string;
 }
 
 export interface AuthBrowserSession {
@@ -124,6 +125,11 @@ export class PlaywrightAuthBrowserLauncher implements AuthBrowserLauncher {
     try {
       context.setDefaultTimeout(options.timeoutMs);
       context.setDefaultNavigationTimeout(options.timeoutMs);
+      if (options.appCheckDebugToken) {
+        await context.addInitScript((token: string) => {
+          (globalThis as typeof globalThis & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN = token;
+        }, options.appCheckDebugToken);
+      }
       await context.route('**/*', async (route) => {
         const request = route.request();
         const decision = decideBrowserRequest(request.url(), requestKind(request), options.policy);
@@ -211,16 +217,23 @@ export async function bootstrapStagingAuth(options: AuthBootstrapOptions): Promi
 
   let profileDirectory: string;
   let verificationPath: string;
+  let appCheckDebugToken: string | undefined;
   try {
     profileDirectory = await assertPrivatePath(cwd, options.profile.privatePaths.browserProfileDirectory);
     verificationPath = await assertPrivatePath(cwd, options.profile.privatePaths.authStatePath);
+    appCheckDebugToken = await loadStagingAppCheckDebugToken(cwd, options.profile);
     if (!(await existingDirectory(profileDirectory))) await mkdir(profileDirectory, { recursive: true });
   } catch {
     return blocked('Persistent browser profile is missing, malformed, or unsafe.');
   }
 
   const launcher = options.launcher ?? new PlaywrightAuthBrowserLauncher();
-  const common = { profileDirectory, policy, timeoutMs: options.profile.auth.bootstrapTimeoutMs };
+  const common = {
+    profileDirectory,
+    policy,
+    timeoutMs: options.profile.auth.bootstrapTimeoutMs,
+    ...(appCheckDebugToken ? { appCheckDebugToken } : {}),
+  };
   let identity: string;
   try {
     identity = await launchAndVerify(

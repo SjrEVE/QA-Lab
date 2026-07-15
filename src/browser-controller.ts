@@ -29,6 +29,7 @@ export interface BrowserControllerOptions {
   readonly headless?: boolean;
   readonly preserveProfile?: boolean;
   readonly recordVideoDirectory?: string;
+  readonly appCheckDebugToken?: string;
   readonly voice?: {
     readonly enabled: boolean;
     readonly audible?: boolean;
@@ -88,6 +89,11 @@ export class GuardedBrowserController implements BrowserController {
     }
     this.#context.setDefaultTimeout(this.#options.timeoutMs ?? 10_000);
     this.#context.setDefaultNavigationTimeout(this.#options.timeoutMs ?? 10_000);
+    if (this.#options.appCheckDebugToken) {
+      await this.#context.addInitScript((token: string) => {
+        (globalThis as typeof globalThis & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN = token;
+      }, this.#options.appCheckDebugToken);
+    }
     await this.#context.route('**/*', async (route) => {
       const request = route.request();
       const decision = decideBrowserRequest(request.url(), requestKind(request), this.#options.policy);

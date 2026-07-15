@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { parse as parseYaml } from 'yaml';
 import type { QaConfig } from '../src/config.js';
-import { assertPrivatePath, loadStagingProfile, stagingProfileSchema } from '../src/staging-profile.js';
+import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile, stagingProfileSchema } from '../src/staging-profile.js';
 
 const valid = {
   version: 1,
@@ -42,6 +43,29 @@ test('parses a strict authenticated staging profile', () => {
   assert.throws(() => stagingProfileSchema.parse({ ...valid, unexpected: true }));
   assert.throws(() => stagingProfileSchema.parse({ ...valid, version: 2 }));
   assert.throws(() => stagingProfileSchema.parse({ ...valid, auth: { ...valid.auth, bootstrapTimeoutMs: 'forever' } }));
+});
+
+test('Gia Su AI staging profile allows the exact App Check host without broad Google wildcards', async () => {
+  const profile = stagingProfileSchema.parse(parseYaml(await readFile('config/staging-profile.yaml', 'utf8')));
+  assert.ok(profile.auth.allowedHosts.includes('www.google.com'));
+  assert.ok(!profile.auth.allowedHosts.some((host) => host.includes('*')));
+  assert.ok(!profile.auth.allowedHosts.includes('google.com'));
+  assert.equal(new Set(profile.auth.allowedHosts).size, profile.auth.allowedHosts.length);
+  assert.equal(profile.privatePaths.appCheckDebugTokenPath, '.qa-private/app-check/giasu-c2165.debug-token');
+});
+
+test('loads only a private UUIDv4 App Check debug token and rejects malformed content', async () => {
+  const cwd = await mkdtemp(path.join(tmpdir(), 'qa-staging-profile-'));
+  const profile = stagingProfileSchema.parse({
+    ...valid,
+    privatePaths: { ...valid.privatePaths, appCheckDebugTokenPath: '.qa-private/app-check/staging.token' },
+  });
+  await mkdir(path.join(cwd, '.qa-private', 'app-check'), { recursive: true });
+  const tokenPath = path.join(cwd, '.qa-private', 'app-check', 'staging.token');
+  await writeFile(tokenPath, 'd9428888-122b-4a8b-a75a-9acb8b6b7312\n');
+  assert.equal(await loadStagingAppCheckDebugToken(cwd, profile), 'd9428888-122b-4a8b-a75a-9acb8b6b7312');
+  await writeFile(tokenPath, 'not-a-token');
+  await assert.rejects(loadStagingAppCheckDebugToken(cwd, profile), /UUIDv4/);
 });
 
 test('rejects absolute paths, traversal, and private paths outside .qa-private', () => {

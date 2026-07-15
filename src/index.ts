@@ -40,7 +40,7 @@ export type { RunRecord, RunStatus } from './run-store.js';
 export { SAFETY_REPORT_VERSION, SAFETY_SCENARIO_VERSION, evaluateSafetySuite, loadSafetyScenario, redactSafetyEvidence, safetyActionSchema, safetyCategorySchema, safetyScenarioSchema, safetySeveritySchema, validateSafetyAction, writeSafetyReport } from './safety-lab.js';
 export type { SafetyAction, SafetyScenario } from './safety-lab.js';
 export { assertAllowedStagingUrl, TargetDeniedError } from './security.js';
-export { assertPrivatePath, loadStagingProfile, PRIVATE_ROOT, resolvePrivatePath, STAGING_PROFILE_VERSION, stagingProfileSchema } from './staging-profile.js';
+export { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile, PRIVATE_ROOT, resolvePrivatePath, STAGING_PROFILE_VERSION, stagingProfileSchema } from './staging-profile.js';
 export type { LoadStagingProfileOptions, StagingProfile } from './staging-profile.js';
 export { loadStagingResetConfig, runConfiguredStagingReset, stagingResetConfigSchema, StrictStagingResetAdapter } from './staging-reset.js';
 export type { ConfiguredStagingResetOptions, ResetHttpClient, StagingResetAdapterOptions, StagingResetConfig, StagingResetRequest, StagingResetResult } from './staging-reset.js';

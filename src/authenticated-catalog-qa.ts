@@ -14,7 +14,7 @@ import type { BrowserTargetPolicy } from './browser-policy.js';
 import { loadConfig, type QaConfig } from './config.js';
 import { redactSecrets } from './redaction.js';
 import { createRunId } from './run-store.js';
-import { assertPrivatePath, loadStagingProfile, type StagingProfile } from './staging-profile.js';
+import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile, type StagingProfile } from './staging-profile.js';
 import { WEB_VIEWPORTS } from './web-scenario.js';
 
 const catalogIssueSchema = z.object({
@@ -193,12 +193,14 @@ export async function runAuthenticatedCatalogQa(
   };
   let blocked = false;
   let profileDirectory = '';
+  let appCheckDebugToken: string | undefined;
   if (!options.baseUrl) {
     blocked = true;
     addIssue({ severity: 'BLOCKER', category: 'prerequisite', viewport: 'run', title: 'Typed staging target is missing', expected: 'Approved exact HTTPS staging target', actual: 'No browser was launched.', evidence: ['run.json'], limitations: 'Prerequisite failure only.' });
   } else {
     try {
       profileDirectory = await assertPrivatePath(cwd, options.profile.privatePaths.browserProfileDirectory);
+      appCheckDebugToken = await loadStagingAppCheckDebugToken(cwd, options.profile);
       const stats = await lstat(profileDirectory);
       if (!stats.isDirectory() || stats.isSymbolicLink()) throw new Error('unsafe profile');
     } catch {
@@ -219,6 +221,7 @@ export async function runAuthenticatedCatalogQa(
         profileDirectory,
         preserveProfile: true,
         timeoutMs: options.scenario.limits.selectorTimeoutMs,
+        ...(appCheckDebugToken ? { appCheckDebugToken } : {}),
       });
       let opened = false;
       try {

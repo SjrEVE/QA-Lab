@@ -9,6 +9,7 @@ privatePaths:
   browserProfileDirectory: .qa-private/browser/gia-su-ai
   authStatePath: .qa-private/auth/gia-su-ai.json
   resetConfigPath: .qa-private/reset/gia-su-ai.json
+  appCheckDebugTokenPath: .qa-private/app-check/giasu-c2165.debug-token
 auth:
   authenticatedSelector: '[data-qa="authenticated-shell"]'
   accountIdentitySelector: '[data-qa="account-email"]'
@@ -16,6 +17,7 @@ auth:
   allowedHosts:
     - accounts.google.com
     - apis.google.com
+    - www.google.com
     - ssl.gstatic.com
     - www.gstatic.com
     - www.googleapis.com
