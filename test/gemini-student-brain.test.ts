@@ -17,6 +17,7 @@ async function context() {
 }
 
 const valid = { intent: 'confused', speech: 'Con vẫn chưa hiểu tử số ạ.', emotion: 'confused', understanding: 1, currentMisconception: 'numerator-denominator', usedBehavior: null, completedGoals: [], reason: null };
+const SYNTHETIC_KEY = 'synthetic-test-key-never-real';
 
 test('Gemini StudentBrain emits one bounded Vietnamese speak action', async () => {
   const decision = await new GeminiStudentBrain(new StubTransport(valid)).decide(await context());
@@ -59,7 +60,7 @@ test('configured Gemini StudentBrain is opt-in and requires a key without exposi
 });
 
 test('Gemini fetch transport keeps the key in the header and validates structured provider response', async () => {
-  const key = 'synthetic-test-key-never-real';
+  const key = SYNTHETIC_KEY;
   let observedUrl = '';
   let observedHeader = '';
   const fetchImpl = (input: string | URL | Request, init?: RequestInit) => {
@@ -77,18 +78,18 @@ test('Gemini fetch transport keeps the key in the header and validates structure
 });
 
 test('Gemini fetch transport sanitizes provider failures and rejects oversized output', async () => {
-  const failed = new GeminiFetchTransport({ apiKey: 'synthetic-key', fetchImpl: () => Promise.resolve(new Response('sensitive provider body', { status: 429 })) });
+  const failed = new GeminiFetchTransport({ apiKey: SYNTHETIC_KEY, fetchImpl: () => Promise.resolve(new Response('sensitive provider body', { status: 429 })) });
   await assert.rejects(failed.generate({ systemInstruction: 's', prompt: 'p', responseJsonSchema: {} }), (error: unknown) => error instanceof Error && error.message === 'Gemini Brain provider returned HTTP 429.' && !error.message.includes('sensitive'));
 
-  const oversized = new GeminiFetchTransport({ apiKey: 'synthetic-key', fetchImpl: () => Promise.resolve(new Response('x', { status: 200, headers: { 'content-length': String(65 * 1024) } })) });
+  const oversized = new GeminiFetchTransport({ apiKey: SYNTHETIC_KEY, fetchImpl: () => Promise.resolve(new Response('x', { status: 200, headers: { 'content-length': String(65 * 1024) } })) });
   await assert.rejects(oversized.generate({ systemInstruction: 's', prompt: 'p', responseJsonSchema: {} }), /size limit/);
 });
 
 test('Gemini fetch transport distinguishes timeout and network failures without exposing raw causes', async () => {
-  const timeout = new GeminiFetchTransport({ apiKey: 'synthetic-key', timeoutMs: 1_000, fetchImpl: () => Promise.reject(new DOMException('raw timeout detail', 'TimeoutError')) });
+  const timeout = new GeminiFetchTransport({ apiKey: SYNTHETIC_KEY, timeoutMs: 1_000, fetchImpl: () => Promise.reject(new DOMException('raw timeout detail', 'TimeoutError')) });
   await assert.rejects(timeout.generate({ systemInstruction: 's', prompt: 'p', responseJsonSchema: {} }), (error: unknown) => error instanceof Error && error.message === 'Gemini Brain provider timed out after 1000 ms.' && !error.message.includes('raw'));
 
   const networkError = new TypeError('raw fetch failure', { cause: Object.assign(new Error('raw DNS detail'), { code: 'ENOTFOUND' }) });
-  const network = new GeminiFetchTransport({ apiKey: 'synthetic-key', fetchImpl: () => Promise.reject(networkError) });
+  const network = new GeminiFetchTransport({ apiKey: SYNTHETIC_KEY, fetchImpl: () => Promise.reject(networkError) });
   await assert.rejects(network.generate({ systemInstruction: 's', prompt: 'p', responseJsonSchema: {} }), (error: unknown) => error instanceof Error && error.message === 'Gemini Brain network/TLS request failed (ENOTFOUND).' && !error.message.includes('raw'));
 });
