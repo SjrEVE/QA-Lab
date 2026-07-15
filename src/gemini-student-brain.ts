@@ -64,10 +64,12 @@ export class GeminiFetchTransport implements GeminiBrainTransport {
   readonly #fetch: FetchLike;
 
   public constructor(options: GeminiFetchTransportOptions) {
-    if (!options.apiKey.trim()) throw new Error('QA Brain Gemini API key is missing.');
+    const apiKey = options.apiKey.trim();
+    if (!apiKey) throw new Error('QA Brain Gemini API key is missing.');
+    if (!/^[A-Za-z0-9_-]{20,200}$/u.test(apiKey)) throw new Error('QA Brain Gemini API key format is invalid. Copy only the raw key value without labels, quotes, whitespace, or hidden characters.');
     this.model = options.model?.trim() || DEFAULT_MODEL;
     if (!/^[a-z0-9][a-z0-9.-]{2,79}$/.test(this.model)) throw new Error('Unsafe Gemini model identifier.');
-    this.#apiKey = options.apiKey;
+    this.#apiKey = apiKey;
     this.#timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     if (!Number.isInteger(this.#timeoutMs) || this.#timeoutMs < 1_000 || this.#timeoutMs > 30_000) throw new Error('Gemini Brain timeout must be between 1000 and 30000 ms.');
     this.#fetch = options.fetchImpl ?? fetch;

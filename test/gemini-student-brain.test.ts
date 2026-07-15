@@ -55,6 +55,7 @@ test('Gemini StudentBrain rejects already-used behavior and completed goal witho
 test('configured Gemini StudentBrain is opt-in and requires a key without exposing it', () => {
   assert.throws(() => createConfiguredGeminiStudentBrain({}), /disabled/);
   assert.throws(() => createConfiguredGeminiStudentBrain({ QA_ENABLE_REAL_BRAIN: 'true' }), /QA_BRAIN_GEMINI_API_KEY/);
+  assert.throws(() => createConfiguredGeminiStudentBrain({ QA_ENABLE_REAL_BRAIN: 'true', QA_BRAIN_GEMINI_API_KEY: 'AIza-valid-looking\u200bhidden-character-value' }), /format is invalid/);
 });
 
 test('Gemini fetch transport keeps the key in the header and validates structured provider response', async () => {

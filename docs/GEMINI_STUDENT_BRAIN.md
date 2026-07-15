@@ -28,6 +28,8 @@ npm.cmd run qa:brain:doctor
 
 The doctor makes one bounded provider request and prints only readiness, model/version, latency and action kinds. It does not print the key, student speech or raw provider response. The default request timeout is 30 seconds; `QA_BRAIN_TIMEOUT_MS` may override it only within the transport's validated 1–30 second range.
 
+The key must contain only its raw ASCII value (`A-Z`, `a-z`, `0-9`, `_`, `-`). Labels such as `GEMINI_API_KEY=`, quotes, spaces and invisible copy/paste characters are rejected locally before any network request.
+
 Remove the key after the test:
 
 ```powershell
