@@ -26,7 +26,7 @@ $env:QA_ENABLE_REAL_BRAIN = "true"
 npm.cmd run qa:brain:doctor
 ```
 
-The doctor makes one bounded provider request and prints only readiness, model/version, latency and action kinds. It does not print the key, student speech or raw provider response.
+The doctor makes one bounded provider request and prints only readiness, model/version, latency and action kinds. It does not print the key, student speech or raw provider response. The default request timeout is 30 seconds; `QA_BRAIN_TIMEOUT_MS` may override it only within the transport's validated 1–30 second range.
 
 Remove the key after the test:
 

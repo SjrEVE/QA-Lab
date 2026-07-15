@@ -5,7 +5,7 @@ import { STUDENT_BEHAVIORS, STUDENT_SCENARIO_GOALS } from './student-contracts.j
 const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 const GEMINI_HOST = 'generativelanguage.googleapis.com';
 const MAX_PROVIDER_RESPONSE_BYTES = 64 * 1024;
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = 30_000;
 
 const safeId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const providerOutputSchema = z.object({
@@ -41,6 +41,19 @@ export interface GeminiFetchTransportOptions {
   readonly model?: string;
   readonly timeoutMs?: number;
   readonly fetchImpl?: FetchLike;
+}
+
+function safeRequestFailure(error: unknown, timeoutMs: number): Error {
+  if (error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+    return new Error(`Gemini Brain provider timed out after ${timeoutMs} ms.`);
+  }
+  const causeCode = error instanceof Error && 'cause' in error && error.cause && typeof error.cause === 'object' && 'code' in error.cause
+    ? String(error.cause.code)
+    : '';
+  const allowedCode = /^(?:ENOTFOUND|EAI_AGAIN|ECONNRESET|ECONNREFUSED|ETIMEDOUT|CERT_[A-Z0-9_]+|ERR_TLS_[A-Z0-9_]+|UND_ERR_[A-Z0-9_]+)$/u.test(causeCode)
+    ? causeCode
+    : null;
+  return new Error(allowedCode ? `Gemini Brain network/TLS request failed (${allowedCode}).` : 'Gemini Brain request failed before an HTTP response.');
 }
 
 export class GeminiFetchTransport implements GeminiBrainTransport {
@@ -79,8 +92,8 @@ export class GeminiFetchTransport implements GeminiBrainTransport {
           },
         }),
       });
-    } catch {
-      throw new Error('Gemini Brain provider request failed.');
+    } catch (error) {
+      throw safeRequestFailure(error, this.#timeoutMs);
     }
     if (!response.ok) throw new Error(`Gemini Brain provider returned HTTP ${response.status}.`);
     const declaredLength = Number(response.headers.get('content-length') ?? '0');
@@ -199,5 +212,7 @@ export function createConfiguredGeminiStudentBrain(env: NodeJS.ProcessEnv = proc
   const apiKey = env.QA_BRAIN_GEMINI_API_KEY?.trim() ?? '';
   if (!apiKey) throw new Error('QA_BRAIN_GEMINI_API_KEY is required for the real StudentBrain.');
   const model = env.QA_BRAIN_GEMINI_MODEL?.trim() || DEFAULT_MODEL;
-  return new GeminiStudentBrain(new GeminiFetchTransport({ apiKey, model, ...(fetchImpl ? { fetchImpl } : {}) }), delivery);
+  const rawTimeout = env.QA_BRAIN_TIMEOUT_MS?.trim();
+  const timeoutMs = rawTimeout === undefined || rawTimeout === '' ? DEFAULT_TIMEOUT_MS : Number(rawTimeout);
+  return new GeminiStudentBrain(new GeminiFetchTransport({ apiKey, model, timeoutMs, ...(fetchImpl ? { fetchImpl } : {}) }), delivery);
 }
