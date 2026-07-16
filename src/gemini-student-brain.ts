@@ -6,6 +6,7 @@ const DEFAULT_MODEL = 'gemini-3.1-flash-lite';
 const GEMINI_HOST = 'generativelanguage.googleapis.com';
 const MAX_PROVIDER_RESPONSE_BYTES = 64 * 1024;
 const DEFAULT_TIMEOUT_MS = 30_000;
+const MAX_DECISION_ATTEMPTS = 3;
 const standardApiKey = /^[A-Za-z0-9_-]{20,200}$/u;
 const authorizationApiKey = /^AQ\.[A-Za-z0-9_-]{20,197}$/u;
 
@@ -201,13 +202,27 @@ export class GeminiStudentBrain implements StudentBrain {
   public constructor(private readonly transport: GeminiBrainTransport, private readonly delivery: GeminiBrainDelivery = 'voice') { this.version = `1.0.0:${transport.model}:${delivery}`; }
   public async decide(context: StudentBrainContext): Promise<StudentBrainDecision> {
     assertBoundedBrainContext(context);
-    const raw = await this.transport.generate({ systemInstruction: buildSystemInstruction(), prompt: buildPrompt(context), responseJsonSchema });
-    let output: unknown;
-    try { output = JSON.parse(raw) as unknown; }
-    catch { throw new Error('Gemini StudentBrain returned invalid decision JSON.'); }
-    const parsed = providerOutputSchema.safeParse(output);
-    if (!parsed.success) throw new Error('Gemini StudentBrain returned a decision outside the approved schema.');
-    return toDecision(context, parsed.data, this.delivery);
+    const failures: string[] = [];
+    for (let attempt = 1; attempt <= MAX_DECISION_ATTEMPTS; attempt += 1) {
+      const raw = await this.transport.generate({ systemInstruction: buildSystemInstruction(), prompt: buildPrompt(context), responseJsonSchema });
+      let output: unknown;
+      try { output = JSON.parse(raw) as unknown; }
+      catch {
+        failures.push('invalid-json');
+        continue;
+      }
+      const parsed = providerOutputSchema.safeParse(output);
+      if (!parsed.success) {
+        const issues = [...new Set(parsed.error.issues.map((issue) => `${issue.path.join('.') || 'root'}:${issue.code}`))].sort();
+        failures.push(`schema:${issues.join('|')}`);
+        continue;
+      }
+      try { return toDecision(context, parsed.data, this.delivery); }
+      catch (error) {
+        failures.push(error instanceof Error ? `decision:${error.message}` : 'decision:contract-violation');
+      }
+    }
+    throw new Error(`Gemini StudentBrain could not produce a decision inside the approved schema after ${MAX_DECISION_ATTEMPTS} attempts (${failures.join(', ')}).`);
   }
 }
 

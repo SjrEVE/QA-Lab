@@ -10,6 +10,18 @@ class StubTransport implements GeminiBrainTransport {
   public generate(): Promise<string> { return Promise.resolve(JSON.stringify(this.output)); }
 }
 
+class SequenceTransport implements GeminiBrainTransport {
+  public readonly name = 'sequence-stub';
+  public readonly model = 'gemini-test';
+  public calls = 0;
+  public constructor(private readonly outputs: readonly unknown[]) {}
+  public generate(): Promise<string> {
+    const output = this.outputs[Math.min(this.calls, this.outputs.length - 1)];
+    this.calls += 1;
+    return Promise.resolve(typeof output === 'string' ? output : JSON.stringify(output));
+  }
+}
+
 async function context() {
   const persona = await findStudentPersona('weak-fractions-grade-4');
   const scenario = await findStudentScenario('weak-fractions-lesson');
@@ -30,6 +42,26 @@ test('Gemini StudentBrain maps Vietnamese speech to bounded text controls for te
     { action: 'type', target: 'lesson-text-input', text: valid.speech },
     { action: 'click', target: 'lesson-send' },
   ]);
+});
+
+test('Gemini StudentBrain retries bounded provider contract drift without persisting raw output', async () => {
+  const transport = new SequenceTransport([
+    'not-json-sensitive-provider-output',
+    { ...valid, speech: 'x' },
+    valid,
+  ]);
+  const decision = await new GeminiStudentBrain(transport, 'text').decide(await context());
+  assert.equal(transport.calls, 3);
+  assert.equal(decision.actions[0]?.action, 'type');
+
+  const rejected = new SequenceTransport([{ ...valid, speech: 'raw-sensitive-invalid-output' }]);
+  await assert.rejects(
+    new GeminiStudentBrain(rejected).decide(await context()),
+    (error: unknown) => error instanceof Error
+      && /approved schema after 3 attempts/.test(error.message)
+      && !error.message.includes('raw-sensitive-invalid-output'),
+  );
+  assert.equal(rejected.calls, 3);
 });
 
 test('Gemini StudentBrain rejects English speech, privilege fields, and unsupported state jumps', async () => {
