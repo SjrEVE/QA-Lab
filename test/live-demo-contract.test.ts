@@ -157,13 +157,16 @@ test('board is requested only on the profile turn that asks for a visual', () =>
   assert.equal(applyProfileVisualRequest(LIVE_DEMO_PROFILES.stuck, 3, 'Gia sư vẽ trên bảng giúp con nhé.'), 'Gia sư vẽ trên bảng giúp con nhé.');
 });
 
-test('runner locks real Brain, audible identical text, two-click stop and media acceptance', async () => {
+test('runner locks real Brain, voice-aware identical input, two-click stop and media acceptance', async () => {
   const source = await readFile('scripts/live-soak-record.ts', 'utf8');
   assert.match(source, /createConfiguredGeminiStudentBrain\(env, undefined, 'voice'\)/);
   assert.match(source, /playEncodedAudioAudibly/);
   assert.doesNotMatch(source, /scheduleEncodedAudioAudibly/);
   assert.match(source, /ended before its decoded audio duration/);
   assert.match(source, /inputValue\(\) !== studentText/);
+  assert.match(source, /inputTranscriptionStarted\(controller\.runtime\(\)\.events, voiceEventIndex\)/);
+  assert.match(source, /deliveryMode: TurnMetric\['deliveryMode'\]/);
+  assert.match(source, /without microphone transcription evidence/);
   assert.match(source, /endButton\.click\(\)[\s\S]+endButton\.click\(\)/);
   assert.match(source, /\/api\/endLessonSession/);
   assert.match(source, /response\.status\(\) !== 200/);

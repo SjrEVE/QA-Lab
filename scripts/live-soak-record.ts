@@ -39,6 +39,7 @@ const FULL_HD = Object.freeze({ width: 1_920, height: 1_080 });
 
 interface TurnMetric {
   readonly turn: number;
+  readonly deliveryMode: 'microphone' | 'text-fallback';
   readonly studentIntent: string;
   readonly studentCharacters: number;
   readonly brainDecisionMs: number;
@@ -68,8 +69,8 @@ interface DemoResult {
   readonly targetHost: string;
   readonly syntheticOnly: true;
   readonly brain: { readonly name: string; readonly version: string };
-  readonly studentInputMode: 'visible-audible-edge-tts-plus-identical-text-submit';
-  readonly microphoneRecognitionTested: false;
+  readonly studentInputMode: 'visible-audible-edge-tts-with-microphone-or-identical-text-fallback';
+  readonly microphoneRecognitionTested: boolean;
   readonly rawAudioPersisted: false;
   readonly rawTranscriptPersisted: false;
   readonly providerOutputPersisted: false;
@@ -138,6 +139,10 @@ function playbackResults(events: readonly BrowserEvent[], startIndex: number): R
     const result = parseResponsePlaybackResult(line);
     return result ? [result] : [];
   });
+}
+
+function inputTranscriptionStarted(events: readonly BrowserEvent[], startIndex: number): boolean {
+  return consoleLines(events, startIndex).some((line) => line.includes('[realtime-demo] input_transcription_started'));
 }
 
 async function waitForPlaybackResult(controller: GuardedBrowserController, startIndex: number, label: string): Promise<ResponsePlaybackResult> {
@@ -400,6 +405,8 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
       await textInput.fill(studentText);
       if (await textInput.inputValue() !== studentText) throw new Error(`Turn ${turn} visible input did not match the QA Brain speech exactly.`);
 
+      const previousTutorText = await currentTutorText(page);
+      const voiceEventIndex = controller.runtime().events.length;
       const synthesisStartedAt = Date.now();
       const synthesized = await withTimeout(edgeTts.synthesize(studentText), 210_000, `turn ${turn} Edge TTS`);
       const ttsSynthesisMs = Date.now() - synthesisStartedAt;
@@ -407,19 +414,38 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
       if (playback.durationMs + 200 < playback.decodedDurationMs) throw new Error(`Turn ${turn} Edge TTS ended before its decoded audio duration.`);
       if (await textInput.inputValue() !== studentText) throw new Error(`Turn ${turn} text changed while the identical Edge TTS audio was playing.`);
 
-      const previousTutorText = await currentTutorText(page);
-      const responseEventIndex = controller.runtime().events.length;
-      const submittedAt = Date.now();
-      await page.locator('form.ai-input button[type="submit"]:visible').click();
+      const microphoneDelivery = inputTranscriptionStarted(controller.runtime().events, voiceEventIndex);
+      const deliveryMode: TurnMetric['deliveryMode'] = microphoneDelivery ? 'microphone' : 'text-fallback';
+      const responseEventIndex = microphoneDelivery ? voiceEventIndex : controller.runtime().events.length;
+      const deliveredAt = Date.now();
+      if (!microphoneDelivery) {
+        const submit = page.locator('form.ai-input button[type="submit"]:visible').first();
+        await submit.waitFor({ state: 'visible', timeout: 10_000 });
+        if (!await submit.isEnabled()) {
+          const phase = await page.locator('[data-qa="lesson-ready"]:visible').getAttribute('data-onboarding-phase');
+          throw new Error(`Turn ${turn} text fallback is disabled in onboarding phase ${phase ?? 'unknown'} without microphone transcription evidence.`);
+        }
+        await submit.click();
+      }
+      await stage('student_turn_delivered', {
+        turn,
+        deliveryMode,
+        brainDecisionMs,
+        ttsSynthesisMs,
+        studentAudioMs: playback.decodedDurationMs,
+      });
       history.push({ role: 'student', turn, text: studentText });
       await waitUntil(async () => {
         const next = await currentTutorText(page);
         return next.length > 0 && next !== previousTutorText;
       }, TUTOR_TIMEOUT_MS, `turn ${turn} tutor transcript`);
-      const submitToTutorTextMs = Date.now() - submittedAt;
+      const submitToTutorTextMs = Date.now() - deliveredAt;
       const tutorPlayback = await waitForPlaybackResult(controller, responseEventIndex, `tutor turn ${turn}`);
-      const submitToPlaybackCompleteMs = Date.now() - submittedAt;
+      const submitToPlaybackCompleteMs = Date.now() - deliveredAt;
       await page.locator('.ai-online.listening:visible').waitFor({ state: 'visible', timeout: TUTOR_TIMEOUT_MS });
+      if (turn === 1) {
+        await page.locator('[data-qa="lesson-ready"][data-onboarding-phase="lesson_ready"]:visible').waitFor({ state: 'visible', timeout: TUTOR_TIMEOUT_MS });
+      }
       history.push({ role: 'tutor', turn, text: await currentTutorText(page) });
 
       if (visualRequested) {
@@ -433,6 +459,7 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
       const productLatency = collectProductLatencyTelemetry(consoleLines(controller.runtime().events, responseEventIndex));
       turns.push({
         turn,
+        deliveryMode,
         studentIntent: speech.intent,
         studentCharacters: studentText.length,
         brainDecisionMs,
@@ -521,8 +548,8 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
     targetHost: shared.staging.target.expectedHost,
     syntheticOnly: true,
     brain: { name: shared.brain.name, version: shared.brain.version },
-    studentInputMode: 'visible-audible-edge-tts-plus-identical-text-submit',
-    microphoneRecognitionTested: false,
+    studentInputMode: 'visible-audible-edge-tts-with-microphone-or-identical-text-fallback',
+    microphoneRecognitionTested: turns.some((turn) => turn.deliveryMode === 'microphone'),
     rawAudioPersisted: false,
     rawTranscriptPersisted: false,
     providerOutputPersisted: false,
