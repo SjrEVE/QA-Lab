@@ -181,6 +181,28 @@ async function boardAudit(page: Page): Promise<{ entries: number; visible: boole
   };
 }
 
+async function selectCatalogLesson(page: Page, lessonId: string): Promise<void> {
+  await page.locator('[data-qa="grade-option"]').selectOption('g12');
+  await page.locator('[data-qa="subject-option"]').selectOption('math');
+  const chapterSelect = page.locator('[data-qa="chapter-option"]');
+  const lessonSelect = page.locator('[data-qa="lesson-select"]');
+  const chapterValues = await chapterSelect.locator('option').evaluateAll(options => options
+    .map(option => (option as HTMLOptionElement).value)
+    .filter(Boolean));
+  for (const chapterId of chapterValues) {
+    await chapterSelect.selectOption(chapterId);
+    const found = await lessonSelect.locator('option').evaluateAll(
+      (options, expected) => options.some(option => (option as HTMLOptionElement).value === expected),
+      lessonId,
+    );
+    if (!found) continue;
+    await lessonSelect.selectOption(lessonId);
+    await page.locator(`[data-qa="lesson-option"][data-lesson-id="${lessonId}"][data-registry-status="approved"]`).first().waitFor({ state: 'attached' });
+    return;
+  }
+  throw new Error(`Approved catalog lesson ${lessonId} is unavailable.`);
+}
+
 async function endSessionWithTwoClicks(page: Page): Promise<number> {
   const endButton = page.locator('[data-qa="start-lesson"][data-session-control="stop"]:visible').first();
   await endButton.waitFor({ state: 'visible', timeout: 10_000 });
@@ -308,7 +330,7 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
     const account = (await page.locator('[data-qa="account-email"]:visible').first().textContent()) ?? '';
     if (hashAccountIdentity(normalizeAccountEmail(account)) !== shared.verification.identityHash) throw new Error('Visible QA account does not match the verified synthetic identity.');
     await page.keyboard.press('Escape');
-    await page.locator(`[data-qa="lesson-option"][data-lesson-id="${profile.lessonId}"][data-registry-status="approved"]`).first().waitFor({ state: 'attached', timeout: 15_000 });
+    await selectCatalogLesson(page, profile.lessonId);
     await page.evaluate((lessonId) => {
       const prefix = `k12.lessonSession.${lessonId}.`;
       for (const key of Object.keys(localStorage)) if (key.startsWith(prefix)) localStorage.removeItem(key);

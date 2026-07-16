@@ -65,6 +65,7 @@ export interface ResponsePlaybackResult {
   readonly outputEndsWithSentenceBoundary: boolean;
   readonly outputHardTruncated: boolean;
   readonly outputTranscriptionFinished: boolean;
+  readonly transcriptionCompletionInferred: boolean;
   readonly scheduledChunks: number;
   readonly naturallyEndedChunks: number;
   readonly stoppedChunks: number;
@@ -156,6 +157,7 @@ export function parseResponsePlaybackResult(line: string): ResponsePlaybackResul
     outputEndsWithSentenceBoundary: requiredBoolean(source, 'outputEndsWithSentenceBoundary'),
     outputHardTruncated: requiredBoolean(source, 'outputHardTruncated'),
     outputTranscriptionFinished: requiredBoolean(source, 'outputTranscriptionFinished'),
+    transcriptionCompletionInferred: requiredBoolean(source, 'transcriptionCompletionInferred'),
     scheduledChunks: requiredNumber(source, 'scheduledChunks'),
     naturallyEndedChunks: requiredNumber(source, 'naturallyEndedChunks'),
     stoppedChunks: requiredNumber(source, 'stoppedChunks'),
@@ -188,7 +190,8 @@ export function assertCompleteResponsePlayback(result: ResponsePlaybackResult, l
   if (result.outputTextCharacters < 1 || result.outputWordCount < 1 || result.outputSentenceCount < 1) failures.push('missing-output-transcription');
   if (!result.outputEndsWithSentenceBoundary) failures.push('missing-sentence-boundary');
   if (result.outputHardTruncated) failures.push('hard-truncation');
-  if (!result.outputTranscriptionFinished) failures.push('transcription-unfinished');
+  if (!result.outputTranscriptionFinished && !result.transcriptionCompletionInferred) failures.push('transcription-unfinished');
+  if (result.transcriptionCompletionInferred && (!result.transcriptionTimedOut || result.outputTranscriptionFinished)) failures.push('invalid-transcription-inference');
   if (result.scheduledChunks < 1 || result.scheduledAudioMs < 1) failures.push('missing-scheduled-audio');
   if (result.naturallyEndedChunks !== result.scheduledChunks) failures.push(`natural-chunks=${result.naturallyEndedChunks}/${result.scheduledChunks}`);
   if (result.stoppedChunks > 0) failures.push(`stopped-chunks=${result.stoppedChunks}`);
@@ -207,7 +210,7 @@ export function assertCompleteResponsePlayback(result: ResponsePlaybackResult, l
   if (!result.turnComplete) failures.push('turn-incomplete');
   if (result.interrupted) failures.push('interrupted');
   if (result.explicitlyStopped) failures.push('explicitly-stopped');
-  if (result.transcriptionTimedOut) failures.push('transcription-timeout');
+  if (result.transcriptionTimedOut && !result.transcriptionCompletionInferred) failures.push('transcription-timeout');
   if (result.audioCoverageSuspicious) failures.push('suspicious-audio-coverage');
   const minimumPlausibleAudioMs = result.outputWordCount > 0 ? (result.outputWordCount / 5) * 1_000 : 0;
   if (result.naturallyEndedAudioMs < minimumPlausibleAudioMs) failures.push(`implausible-speech-rate=${result.outputWordCount}/${result.naturallyEndedAudioMs}ms`);

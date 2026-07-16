@@ -27,6 +27,7 @@ const completePlayback: ResponsePlaybackResult = {
   outputEndsWithSentenceBoundary: true,
   outputHardTruncated: false,
   outputTranscriptionFinished: true,
+  transcriptionCompletionInferred: false,
   scheduledChunks: 18,
   naturallyEndedChunks: 18,
   stoppedChunks: 0,
@@ -81,6 +82,7 @@ test('audio acceptance rejects missing endings, stop, interruption, decode failu
     [{ outcome: 'incomplete' }, /outcome=incomplete/],
     [{ outputEndsWithSentenceBoundary: false }, /missing-sentence-boundary/],
     [{ outputHardTruncated: true }, /hard-truncation/],
+    [{ outputTranscriptionFinished: false }, /transcription-unfinished/],
     [{ naturallyEndedChunks: 17 }, /natural-chunks=17\/18/],
     [{ stoppedChunks: 1 }, /stopped-chunks=1/],
     [{ interrupted: true }, /interrupted/],
@@ -105,6 +107,30 @@ test('audio acceptance rejects missing endings, stop, interruption, decode failu
   }
   assert.doesNotThrow(() => assertNoAudioPlaybackWatchdog(['[realtime-demo] response_playback_result {}'], 'session'));
   assert.throws(() => assertNoAudioPlaybackWatchdog(['[realtime-demo] audio_playback_watchdog {"epoch":3}'], 'session'), /audio_playback_watchdog/);
+});
+
+test('audio acceptance permits only bounded server-side transcription inference', () => {
+  const inferredCompletion: ResponsePlaybackResult = {
+    ...completePlayback,
+    outputTranscriptionFinished: false,
+    transcriptionCompletionInferred: true,
+    transcriptionTimedOut: true,
+  };
+  assert.doesNotThrow(() => assertCompleteResponsePlayback(inferredCompletion, 'inferred turn'));
+  assert.throws(
+    () => assertCompleteResponsePlayback({
+      ...inferredCompletion,
+      transcriptionCompletionInferred: false,
+    }, 'uninferred turn'),
+    /transcription-unfinished.*transcription-timeout/,
+  );
+  assert.throws(
+    () => assertCompleteResponsePlayback({
+      ...inferredCompletion,
+      transcriptionTimedOut: false,
+    }, 'contradictory turn'),
+    /invalid-transcription-inference/,
+  );
 });
 
 test('latency telemetry separates startup scalars and per-turn provider breakdown', () => {
@@ -144,6 +170,8 @@ test('runner locks real Brain, audible identical text, two-click stop and media 
   assert.match(source, /assertVideoArtifact\(runDirectory, recording/);
   assert.match(source, /minimumAudioCoverageRatio: LIVE_DEMO_MINIMUM_AUDIO_COVERAGE_RATIO/);
   assert.match(source, /assertNoAudioPlaybackWatchdog\(completeSessionConsole/);
+  assert.match(source, /selectCatalogLesson\(page, profile\.lessonId\)/);
+  assert.match(source, /\[data-qa="lesson-select"\]/);
   assert.match(source, /rawTranscriptPersisted: false/);
   assert.match(source, /providerOutputPersisted: false/);
   assert.doesNotMatch(source, /QA_BRAIN_GEMINI_API_KEY\s*=/);
