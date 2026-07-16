@@ -1,0 +1,63 @@
+version: 1
+id: gia-su-ai-guided-self-study-integrals
+name: Gia Su AI guided self-study integrals staging journey
+type: authenticated-guided-self-study
+target:
+  path: /app/learn
+reset:
+  scope: gss-integrals-self-study
+package:
+  lessonId: G12_MATH_KNTT_CH04_L12
+  learningMode: foundation_recovery
+  packageId: g12-guided-self-study-integrals-v1
+  fingerprint: 815f29952c86154b20050b2646466c3edb41b8b6b0633ff720982fe6e32bf0b6
+entry:
+  grade: '[data-qa="grade-option"]'
+  subject: '[data-qa="subject-option"]'
+  chapter: '[data-qa="chapter-option"]'
+  lesson: '[data-qa="lesson-select"]'
+  mode: '[data-qa="lesson-option"][data-learning-mode="foundation_recovery"]'
+  expectedGrade: g12
+  expectedSubject: math
+  expectedChapter: G12_MATH_KNTT_CH04
+viewports:
+  - mobile-common
+  - tablet
+  - desktop
+selectors:
+  authenticatedShell: '[data-qa="authenticated-shell"]'
+  accountTrigger: '[data-qa="account-trigger"]'
+  accountIdentity: '[data-qa="account-email"]'
+  player: '[data-qa="guided-self-study-player"]'
+  start: '[data-qa="self-study-start"]'
+  answer: '[data-qa="self-study-answer"]'
+  submit: '[data-qa="self-study-answer-submit"]'
+  verification: '[data-qa="self-study-verification"]'
+  hintRequest: '[data-qa="self-study-hint-request"]'
+  hint: '[data-qa="self-study-hint"]'
+  remediationEnter: '[data-qa="self-study-remediation-enter"]'
+  remediationReturn: '[data-qa="self-study-remediation-return"]'
+  next: '[data-qa="self-study-next"]'
+  learnContinue: '[data-qa="self-study-learn-continue"]'
+  verifyComplete: '[data-qa="self-study-verify-complete"]'
+  summary: '[data-qa="self-study-summary"]'
+answers:
+  - exerciseId: G12_MATH_KNTT_CH04_L12_E01
+    value: "2"
+    incorrectValue: "3"
+  - exerciseId: G12_MATH_KNTT_CH04_L12_E02
+    value: "1"
+    incorrectValue: "99"
+  - exerciseId: G12_MATH_KNTT_CH04_L12_E03
+    value: "-3"
+  - exerciseId: G12_MATH_KNTT_CH04_L12_E04
+    value: "4"
+  - exerciseId: G12_MATH_KNTT_CH04_L12_E05
+    value: "2"
+  - exerciseId: G12_MATH_KNTT_CH04_L12_E06
+    value: "0"
+limits:
+  maxMinutes: 15
+  selectorTimeoutMs: 15000
+  transitionTimeoutMs: 15000
+  maxIssues: 30

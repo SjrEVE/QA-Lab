@@ -6,7 +6,7 @@ The Founder/Product Owner controls product intent. Technical agents own safe imp
 
 Read `docs/QA_LAB_PRODUCT_STRATEGY.md` as the authoritative product strategy, `docs/ROADMAP.md` as the authoritative delivery order, `docs/CAPABILITY_GAP_MAP.md` as capability truth, and `docs/threat-model.md` as the authoritative Phase 0–10 system threat model and future staging security gate. `docs/planning/FUTURE_ARCHITECTURE_DECISIONS.md` is supporting context only and cannot override those documents.
 
-The Phase 0–10 framework is implemented and validated only through local deterministic fixtures. This means local fixture/scripted-brain/synthetic-persona/synthetic-WAV/provider-free replay capability; it does not mean Gia Su AI staging acceptance or production readiness. Real Gia Su AI staging acceptance is **NOT STARTED / NOT READY**. Inspect before editing and keep commits focused.
+The Phase 0–10 framework is implemented and validated at local deterministic-fixture scope. Separately authorized Gia Su AI staging modules now have bounded evidence for public smoke, Google Auth persistence, account/catalog/mode, strict reset, and guided self-study Integral/Conditional Probability journeys with App Check enforcement. This is not whole-product, realtime voice/provider, production, public-commerce, or real-child acceptance. Inspect before editing and keep commits focused.
 
 Separate, explicit tasks and acceptance evidence are required for each of: staging browser/auth/reset execution; real brain, voice, and evaluator providers; native Linux voice routing; and FFmpeg-backed real recording. None may be inferred from deterministic fixture success.
 

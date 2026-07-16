@@ -4,6 +4,7 @@ import { chromium, type BrowserContext, type ConsoleMessage, type Page, type Req
 import { decideBrowserRequest, type BrowserPolicyDecision, type BrowserTargetPolicy } from './browser-policy.js';
 import { redactSecrets } from './redaction.js';
 import { TargetDeniedError } from './security.js';
+import { TAB_AUDIO_CAPTURE_INIT_SCRIPT } from './tab-audio-capture.js';
 
 export interface LoginAdapter {
   readonly name: string;
@@ -29,7 +30,15 @@ export interface BrowserControllerOptions {
   readonly headless?: boolean;
   readonly preserveProfile?: boolean;
   readonly recordVideoDirectory?: string;
-  readonly voice?: { readonly enabled: boolean; readonly permissions?: readonly ['microphone']; readonly args?: readonly string[] };
+  readonly recordVideoSize?: { readonly width: number; readonly height: number };
+  readonly captureTabAudio?: boolean;
+  readonly appCheckDebugToken?: string;
+  readonly voice?: {
+    readonly enabled: boolean;
+    readonly audible?: boolean;
+    readonly permissions?: readonly ['microphone'];
+    readonly args?: readonly string[];
+  };
 }
 
 export interface BrowserController {
@@ -74,14 +83,21 @@ export class GuardedBrowserController implements BrowserController {
       headless: this.#options.headless ?? true,
       acceptDownloads: false,
       serviceWorkers: 'block',
-      ...(this.#options.recordVideoDirectory ? { recordVideo: { dir: this.#options.recordVideoDirectory } } : {}),
+      ...(this.#options.voice?.audible ? { ignoreDefaultArgs: ['--mute-audio'] } : {}),
+      ...(this.#options.recordVideoDirectory ? { recordVideo: { dir: this.#options.recordVideoDirectory, ...(this.#options.recordVideoSize ? { size: this.#options.recordVideoSize } : {}) } } : {}),
       ...(this.#options.voice?.enabled && this.#options.voice.args ? { args: [...this.#options.voice.args] } : {}),
     });
+    if (this.#options.captureTabAudio) await this.#context.addInitScript({ content: TAB_AUDIO_CAPTURE_INIT_SCRIPT });
     if (this.#options.voice?.enabled && this.#options.voice.permissions) {
       await this.#context.grantPermissions([...this.#options.voice.permissions]);
     }
     this.#context.setDefaultTimeout(this.#options.timeoutMs ?? 10_000);
     this.#context.setDefaultNavigationTimeout(this.#options.timeoutMs ?? 10_000);
+    if (this.#options.appCheckDebugToken) {
+      await this.#context.addInitScript((token: string) => {
+        (globalThis as typeof globalThis & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN = token;
+      }, this.#options.appCheckDebugToken);
+    }
     await this.#context.route('**/*', async (route) => {
       const request = route.request();
       const decision = decideBrowserRequest(request.url(), requestKind(request), this.#options.policy);

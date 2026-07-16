@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createLogger } from '../src/logger.js';
-import { REDACTED, redactSecrets } from '../src/redaction.js';
+import { REDACTED, REDACTED_EMAIL, redactSecrets } from '../src/redaction.js';
 
 test('recursively redacts sensitive keys and inline tokens', () => {
   const input = { password: 'hunter2', nested: [{ authorization: 'Bearer abc.def' }, 'token=plain'], safe: 'visible' };
@@ -11,6 +11,16 @@ test('recursively redacts sensitive keys and inline tokens', () => {
   assert.equal(JSON.stringify(output).includes('hunter2'), false);
   assert.equal(JSON.stringify(output).includes('abc.def'), false);
   assert.equal(JSON.stringify(output).includes('plain'), false);
+});
+
+test('redacts email identities from browser and report evidence', () => {
+  const value = redactSecrets({ console: 'signed in as qa-student@example.test' });
+  assert.deepEqual(value, { console: `signed in as ${REDACTED_EMAIL}` });
+});
+
+test('redacts credential-like URL query values from browser evidence', () => {
+  const value = redactSecrets('https://example.test/exchange?key=public-looking-value&safe=visible');
+  assert.equal(value, `https://example.test/exchange?key=${REDACTED}&safe=visible`);
 });
 
 test('handles circular objects without leaking', () => {

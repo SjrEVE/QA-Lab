@@ -1,0 +1,37 @@
+version: 1
+id: gia-su-ai
+name: Gia Su AI staging
+target:
+  expectedHost: giasu-c2165.web.app
+  loginPath: /login
+  authenticatedPath: /app
+privatePaths:
+  browserProfileDirectory: .qa-private/browser/gia-su-ai
+  authStatePath: .qa-private/auth/gia-su-ai.json
+  resetConfigPath: .qa-private/reset/gia-su-ai.json
+  appCheckDebugTokenPath: .qa-private/app-check/giasu-c2165.debug-token
+auth:
+  authenticatedSelector: '[data-qa="authenticated-shell"]'
+  accountIdentitySelector: '[data-qa="account-email"]'
+  accountIdentitySource: textContent
+  allowedHosts:
+    - accounts.google.com
+    - apis.google.com
+    - www.google.com
+    - ssl.gstatic.com
+    - www.gstatic.com
+    - www.googleapis.com
+    - lh3.googleusercontent.com
+    - generativelanguage.googleapis.com
+    - content-firebaseappcheck.googleapis.com
+    - csp.withgoogle.com
+  bootstrapTimeoutMs: 600000
+suites:
+  publicWebScenarioIds:
+    - gia-su-ai-public-smoke
+  authenticatedWebScenarioIds:
+    - gia-su-ai-authenticated-catalog
+  journeyIds:
+    - gia-su-ai-session-start
+    - gia-su-ai-guided-self-study-integrals
+    - gia-su-ai-guided-self-study-conditional-probability

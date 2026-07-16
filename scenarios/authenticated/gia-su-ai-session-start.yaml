@@ -1,0 +1,33 @@
+version: 1
+id: gia-su-ai-session-start
+name: Gia Su AI authenticated G12 session start smoke
+type: authenticated-session-start
+target:
+  path: /app
+reset:
+  scope: g12-session-start-smoke
+lesson:
+  id: G12_MATH_KNTT_CH01_L01
+  registryStatusAttribute: data-registry-status
+  approvedRegistryValue: approved
+selectors:
+  authenticatedShell: '[data-qa="authenticated-shell"]'
+  accountTrigger: '[data-qa="account-trigger"]'
+  accountIdentity: '[data-qa="account-email"]'
+  lesson: '[data-qa="lesson-option"][data-lesson-id="G12_MATH_KNTT_CH01_L01"][data-registry-status="approved"]'
+  classroomReady: '[data-qa="lesson-ready"][data-lesson-id="G12_MATH_KNTT_CH01_L01"]'
+  start: '[data-qa="start-lesson"][data-session-control="start"]'
+  status: '[data-qa="session-status"][data-session-status]'
+  error: '[data-qa="session-error"]'
+  stop: '[data-qa="start-lesson"][data-session-control="stop"]'
+expected:
+  activeStatuses:
+    - listening
+    - user speaking
+    - AI speaking
+  stoppedStatus: disconnected
+limits:
+  maxMinutes: 3
+  selectorTimeoutMs: 15000
+  activeTimeoutMs: 45000
+  maxIssues: 20

@@ -5,6 +5,7 @@ export type BrowserResourceKind = 'navigation' | 'redirect' | 'subresource' | 'w
 
 export interface BrowserTargetPolicy {
   readonly allowedHosts: readonly string[];
+  readonly deniedHosts?: readonly string[];
   readonly fixtureMode?: boolean;
   readonly fixturePort?: number;
 }
@@ -29,6 +30,11 @@ export function assertAllowedBrowserUrl(input: string, policy: BrowserTargetPoli
     url = new URL(input);
   } catch {
     throw new TargetDeniedError('Browser target must be an absolute URL.');
+  }
+
+  const deniedHosts = new Set((policy.deniedHosts ?? []).map((host) => host.trim().toLowerCase()));
+  if (deniedHosts.has(url.hostname.toLowerCase())) {
+    throw new TargetDeniedError(`Host is explicitly denied for this browser run: ${url.hostname}`);
   }
 
   if (policy.fixtureMode === true) {

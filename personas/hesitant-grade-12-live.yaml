@@ -1,0 +1,15 @@
+version: 1
+id: hesitant-grade-12-live
+name: Học sinh lớp 12 hơi mất gốc và ngại hỏi
+grade: 12
+locale: vi-VN
+starting_understanding: 1
+misconception: formula-without-meaning
+communication:
+  confidence: low
+  vocabulary: age-appropriate
+  response_style: hesitant
+behaviors:
+  - ask_for_example_once
+  - repeat_mistake_once
+  - silence_once

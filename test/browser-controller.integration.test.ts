@@ -92,3 +92,29 @@ test('profiles are isolated and runtime rejects direct external navigation befor
   assert.equal(await missing(first.profileDirectory), true);
   assert.equal(await missing(second.profileDirectory), true);
 });
+
+test('injects an App Check debug token before navigation without persisting it to browser events', async () => {
+  const site = await startFixtureSite();
+  const root = await mkdtemp(path.join(os.tmpdir(), 'qa-browser-'));
+  const token = 'd9428888-122b-4a8b-a75a-9acb8b6b7312';
+  const artifactDirectory = path.join(root, 'artifacts-app-check');
+  const controller = new GuardedBrowserController({
+    policy: { allowedHosts: ['unused.invalid'], fixtureMode: true, fixturePort: site.port },
+    artifactDirectory,
+    profileDirectory: path.join(root, 'profile-app-check'),
+    timeoutMs: 5_000,
+    appCheckDebugToken: token,
+  });
+  try {
+    await controller.open();
+    await controller.navigate(`${site.origin}/ok`);
+    assert.equal(await controller.runtime().page.evaluate(() => (
+      globalThis as typeof globalThis & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }
+    ).FIREBASE_APPCHECK_DEBUG_TOKEN), token);
+  } finally {
+    await controller.close();
+    await site.close();
+  }
+  const events = await readFile(path.join(artifactDirectory, 'browser-events.jsonl'), 'utf8');
+  assert.equal(events.includes(token), false);
+});

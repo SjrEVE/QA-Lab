@@ -21,16 +21,16 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
    - Real staging acceptance remains blocked without an approved target/account; a missing target yields `BLOCKED`, never synthetic PASS.
 
 4. **Student text — Phase 4 — Implemented; local fixture validated**
-   - Versioned persona/student scenario contracts, vendor-neutral bounded StudentBrain, deterministic scripted adapter, browser-only transcript loop, reset boundary, truthful lifecycle/limits, UX diary, turn/whiteboard/screenshot artifacts, deterministic checks, and independent report.
-   - Real staging execution is `BLOCKED` without approved exact host, dedicated account, and working reset integration. UX scores are explicitly estimated; no provider brain/evaluator is present.
+   - Versioned persona/student scenario contracts, vendor-neutral bounded StudentBrain, deterministic scripted adapter, opt-in Gemini structured-decision adapter, browser-only transcript loop, reset boundary, truthful lifecycle/limits, UX diary, turn/whiteboard/screenshot artifacts, deterministic checks, and independent report.
+   - Gemini output is untrusted data: Vietnamese text/voice projections remain allowlisted, bounded and revalidated; shell/Git/cloud/navigation/unknown fields fail closed. `ScriptedStudentBrain` remains the deterministic regression adapter; Real Gemini StudentBrain is a distinct opt-in provider adapter and visible staging runner. Full-flow provider acceptance remains pending until a real-key run writes its required `live-brain-summary.json`; UX scores remain explicitly estimated with no real evaluator acceptance.
 
-5. **Recording — Phase 5 — Implemented; video fixture capability-blocked on this machine**
-   - Vendor-neutral Recorder interface, lifecycle, screenshot timeline, FFmpeg/browser-video adapter, synchronized checkpoint timestamps, report links, retention policy, disk guard, and partial cleanup are implemented.
-   - The Windows recording fixture emits explicit `BLOCKED` evidence because FFmpeg is unavailable; no `session.mp4` success is claimed. Web/Student fixture recording fallback is locally validated.
+5. **Recording — Phase 5 — Implemented; local Full-HD audio/video fixture validated**
+   - Vendor-neutral Recorder interface, lifecycle, screenshot timeline, FFmpeg/browser-video adapter, synchronized checkpoint timestamps, report links, retention policy, disk guard, and partial cleanup are implemented. The Live demo path captures every in-tab `AudioContext`, preserves each stream offset, mixes them into AAC and validates geometry, duration, audio coverage and complete stream decoding.
+   - A private FFmpeg binary supplied through `QA_FFMPEG_PATH` produced a valid 1920×1080 H264/AAC fixture on this Windows host. The three 5-minute staging recordings remain pending; the short fixture is not long-form acceptance.
 
-6. **Voice — Phase 6 — Implemented; deterministic fixture validated, native host blocked**
+6. **Voice — Phase 6 — Implemented; deterministic and external-TTS fixtures validated, native host blocked**
    - Provider-neutral voice adapter, silent/text/WAV implementations, optional external TTS boundary, isolated student/tutor route plan, Linux capability probe/setup, Chromium microphone permission/selection config, one/multi-turn deterministic validation, echo isolation, safe-off flag, text fallback, and audio metadata are implemented.
-   - This Windows host cannot validate native PulseAudio/PipeWire routing and lacks FFmpeg. Native voice E2E is truthfully `BLOCKED`; synthetic WAV evidence does not claim a physical microphone.
+   - This Windows host cannot validate native PulseAudio/PipeWire routing or install a usable `vi-VN` system TTS voice. Native voice E2E remains truthfully `BLOCKED`; synthetic WAV evidence does not claim a physical microphone. Vietnamese QA speech is now fixture-validated through Edge TTS at the existing external-provider boundary and is captured through in-tab Web Audio; combined long-form staging acceptance remains pending.
 
 7. **Education Eval — Phase 7 — Implemented; deterministic fixture validated**
    - Versioned evaluation/rubric contracts, fractions rubric, deterministic checks/metrics, hard-failure precedence, vendor-neutral UX evaluator boundary with scripted mock only, confidence/evidence/limitations, human-calibration marker, and integrated Student evaluation artifact/report.
@@ -52,4 +52,4 @@ This roadmap preserves the Founder-approved sequence. A later capability must no
 
 ## Current execution gate
 
-The complete Phase 0–10 authority roadmap is implemented at deterministic local-fixture scope. Phase 10 uses scripted/mock agents, safely phrased synthetic data, and zero harmful/live provider calls. Native PulseAudio/PipeWire voice E2E remains `BLOCKED` on this Windows host; FFmpeg is unavailable. Real staging remains blocked pending approved host/account/reset. Real providers/evaluators, native Linux voice/recording acceptance, physical microphone, staging/production execution, dashboard, auto-fix, provider configuration mutation, and deployment are unaccepted or out of scope.
+The complete Phase 0–10 authority roadmap is implemented at deterministic local-fixture scope. Separately authorized public/auth/catalog/reset, two guided-self-study modules and one scripted-student Live flow have bounded staging evidence. The combined Real Gemini StudentBrain + Edge TTS + Full-HD runner now exists, but its three long-form staging artifacts remain pending. Native Linux voice routing, physical microphone evidence, an independent provider evaluator, production, public commerce, real-child use, auto-fix, provider mutation and deployment remain unaccepted, blocked or forbidden by their existing gates.

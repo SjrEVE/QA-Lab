@@ -1,0 +1,58 @@
+version: 1
+id: gia-su-ai-authenticated-catalog
+name: Gia Su AI authenticated catalog journey
+type: authenticated-catalog
+target:
+  path: /app
+viewports:
+  - mobile-common
+  - laptop
+selectors:
+  authenticatedShell:
+    primary: '[data-qa="authenticated-shell"]'
+    fallback: 'main'
+    name: Authenticated app shell
+  accountTrigger:
+    primary: '[data-qa="account-trigger"]'
+    name: Account menu trigger
+  accountIdentity:
+    primary: '[data-qa="account-email"]'
+    name: Verified test account identity
+  switchAccount:
+    primary: '[data-qa="switch-account"]'
+    name: Explicit account switch control
+  logout:
+    primary: '[data-qa="logout"]'
+    name: Explicit logout control
+  grade:
+    primary: '[data-qa="grade-option"]'
+    name: Registry-backed grade option
+  subject:
+    primary: '[data-qa="subject-option"]'
+    name: Registry-backed subject option
+  chapter:
+    primary: '[data-qa="chapter-option"]'
+    name: Registry-backed chapter option
+  lesson:
+    primary: '[data-qa="lesson-option"][data-lesson-id][data-registry-status="approved"]'
+    name: Approved runtime lesson
+  classroomReady:
+    primary: '[data-qa="lesson-ready"][data-lesson-id]'
+    name: Classroom lesson readiness
+  startLesson:
+    primary: '[data-qa="start-lesson"]'
+    fallback: 'main button[type="button"]'
+    name: Start lesson CTA
+lessonContract:
+  lessonIdAttribute: data-lesson-id
+  registryStatusAttribute: data-registry-status
+  approvedRegistryValue: approved
+  learningModeAttribute: data-learning-mode
+  expectedLearningModes:
+    - textbook
+    - foundation_recovery
+    - review
+limits:
+  maxMinutes: 5
+  selectorTimeoutMs: 10000
+  maxIssues: 30

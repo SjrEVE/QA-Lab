@@ -30,6 +30,21 @@ function issueId(scenario: string, viewport: string, category: string, actual: s
 function safeRunId(value: string): string { if (!/^[A-Za-z0-9._-]+$/.test(value) || value === '.' || value === '..') throw new Error('Unsafe run id.'); return value; }
 function joinUrl(base: string, route: string): string { return new URL(route, base).href; }
 
+export function isExpectedHeadlessRecaptchaStorageWarning(event: BrowserEvent): boolean {
+  const data = JSON.stringify(redactSecrets(event.data));
+  return event.event === 'console'
+    && /requestStorageAccess: Permission denied/i.test(data)
+    && /google\.com\/recaptcha\/enterprise/i.test(data);
+}
+
+export function isExpectedGoogleRecaptchaReportOnlyCspWarning(event: BrowserEvent): boolean {
+  const data = JSON.stringify(redactSecrets(event.data));
+  return event.event === 'console'
+    && /Framing 'https:\/\/www\.google\.com\/' violates the following report-only Content Security Policy directive/i.test(data)
+    && /frame-ancestors 'self'/i.test(data)
+    && /no further action has been taken/i.test(data);
+}
+
 export async function runWebQa(options: WebQaOptions): Promise<WebQaResult> {
   const runDirectory = path.resolve(options.artifactRoot, safeRunId(options.runId));
   await mkdir(runDirectory, { recursive: false });
@@ -101,7 +116,9 @@ async function detectGeometry(page: Page, overflow: boolean, overlap: boolean): 
 function addEventIssues(events: readonly BrowserEvent[], viewport: string, url: string, add: (issue: Omit<WebIssue, 'schemaVersion' | 'id' | 'runner' | 'scenarioId' | 'timestampMs' | 'status'>) => void): void {
   for (const event of events) {
     const data = JSON.stringify(redactSecrets(event.data));
-    if (event.event === 'console' && /"type":"(error|assert)"/.test(data)) add({ viewport, category: 'console', severity: 'HIGH', title: 'Console blocker captured', url, expected: 'No console errors', actual: data, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Browser console event; application impact may require triage.' });
+    const expectedRecaptchaStorageWarning = isExpectedHeadlessRecaptchaStorageWarning(event);
+    const expectedRecaptchaCspReport = isExpectedGoogleRecaptchaReportOnlyCspWarning(event);
+    if (event.event === 'console' && /"type":"(error|assert)"/.test(data) && !expectedRecaptchaStorageWarning && !expectedRecaptchaCspReport) add({ viewport, category: 'console', severity: 'HIGH', title: 'Console blocker captured', url, expected: 'No console errors', actual: data, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Only exact headless Google reCAPTCHA storage-access and report-only CSP notices are excluded; other browser console errors remain blockers.' });
     if ((event.event === 'request-failed' && !/net::ERR_ABORTED/.test(data)) || event.event === 'page-error' || event.event === 'request-denied') add({ viewport, category: 'network', severity: 'HIGH', title: 'Runtime/network blocker captured', url, expected: 'No failed or denied runtime requests', actual: `${event.event}: ${data}`, evidence: [`${viewport}/browser-events.jsonl`], confidence: 1, limitations: 'Failure may be non-critical; classified conservatively for MVP.' });
   }
 }

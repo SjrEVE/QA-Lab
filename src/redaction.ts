@@ -1,10 +1,17 @@
 const SENSITIVE_KEY = /(?:authorization|cookie|password|passwd|secret|token|api[-_]?key|private[-_]?key|credential)/i;
 const BEARER = /\bBearer\s+[A-Za-z0-9._~+/=-]+/gi;
 const ASSIGNMENT = /\b(api[-_]?key|password|secret|token)\s*[:=]\s*([^\s,;]+)/gi;
+const URL_SECRET_QUERY = /([?&](?:key|api[-_]?key|token|access[-_]?token|authorization|secret)=)[^&#\s"']+/gi;
+const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 export const REDACTED = '[REDACTED]';
+export const REDACTED_EMAIL = '[REDACTED_EMAIL]';
 
 function redactString(value: string): string {
-  return value.replace(BEARER, `Bearer ${REDACTED}`).replace(ASSIGNMENT, (_match, key: string) => `${key}=${REDACTED}`);
+  return value
+    .replace(BEARER, `Bearer ${REDACTED}`)
+    .replace(URL_SECRET_QUERY, (_match, prefix: string) => `${prefix}${REDACTED}`)
+    .replace(ASSIGNMENT, (_match, key: string) => `${key}=${REDACTED}`)
+    .replace(EMAIL, REDACTED_EMAIL);
 }
 
 export function redactSecrets(value: unknown, seen = new WeakSet<object>()): unknown {

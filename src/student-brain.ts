@@ -2,6 +2,13 @@ import { z } from 'zod';
 import type { StudentPersona, StudentScenario } from './student-contracts.js';
 
 export const studentActionSchema = z.discriminatedUnion('action', [
+  z.object({
+    action: z.literal('speak'),
+    intent: z.enum(['answer', 'confused', 'ask_hint', 'ask_example', 'confirm_understanding']),
+    text: z.string().trim().min(1).max(280),
+    locale: z.literal('vi-VN'),
+    emotion: z.enum(['neutral', 'hesitant', 'confused', 'encouraged']),
+  }).strict(),
   z.object({ action: z.literal('type'), target: z.literal('lesson-text-input'), text: z.string().trim().min(1).max(500) }).strict(),
   z.object({ action: z.literal('click'), target: z.literal('lesson-send') }).strict(),
   z.object({ action: z.literal('wait'), durationMs: z.number().int().min(0).max(5_000) }).strict(),
@@ -26,6 +33,19 @@ export interface StudentBrain { readonly name: string; readonly version: string;
 export function assertBoundedBrainContext(context: StudentBrainContext): void {
   if (context.recentTurns.length < 1 || context.recentTurns.length > context.scenario.limits.max_brain_context_turns) throw new Error('StudentBrain context is outside the configured bounded turn window.');
   if (context.scenario.limits.max_brain_context_turns < 3 || context.scenario.limits.max_brain_context_turns > 5) throw new Error('StudentBrain context limit must remain between 3 and 5 turns.');
+}
+
+export function assertStudentBrainDecision(context: StudentBrainContext, decision: StudentBrainDecision): StudentBrainDecision {
+  if (!Number.isInteger(decision.understanding) || decision.understanding < 0 || decision.understanding > 5) throw new Error('StudentBrain understanding is outside 0-5.');
+  if (Math.abs(decision.understanding - context.understanding) > 1) throw new Error('StudentBrain understanding changed by more than one level in one turn.');
+  if (decision.actions.length < 1 || decision.actions.length > 3) throw new Error('StudentBrain must emit between one and three bounded actions.');
+  for (const action of decision.actions) studentActionSchema.parse(action);
+  const speech = decision.actions.filter((action) => action.action === 'speak');
+  if (speech.length > 1) throw new Error('StudentBrain may speak at most once per decision.');
+  const completed = decision.completedGoals ?? [];
+  if (new Set(completed).size !== completed.length || completed.some((goal) => !context.remainingGoals.includes(goal))) throw new Error('StudentBrain completed goals must be unique remaining scenario goals.');
+  if (decision.usedBehavior && (!context.persona.behaviors.includes(decision.usedBehavior as StudentPersona['behaviors'][number]) || context.alreadyUsed.includes(decision.usedBehavior))) throw new Error('StudentBrain usedBehavior is not an unused persona behavior.');
+  return decision;
 }
 
 export class ScriptedStudentBrain implements StudentBrain {

@@ -10,6 +10,26 @@ export async function startFixtureSite(): Promise<FixtureSite> {
   const server = createServer((request, response) => {
     const pathname = new URL(request.url ?? '/', 'http://fixture.invalid').pathname;
     switch (pathname) {
+      case '/auth/bootstrap':
+        response.writeHead(302, { location: '/auth/app', 'set-cookie': 'qa_session=verified; Path=/; Max-Age=3600; HttpOnly; SameSite=Lax' });
+        response.end();
+        return;
+      case '/auth/session': {
+        const authenticated = request.headers.cookie?.includes('qa_session=verified') ?? false;
+        response.writeHead(authenticated ? 200 : 401, { 'content-type': 'text/html; charset=utf-8' });
+        response.end(authenticated
+          ? `<!doctype html><main data-qa="authenticated-shell"><span hidden data-qa="account-email">hidden-responsive-duplicate@example.test</span><details><summary data-qa="account-trigger">Account</summary><span data-qa="account-email">qa-student@example.test</span></details><button data-qa="lesson-option" data-lesson-id="G12_MATH_KNTT_CH01_L01" data-registry-status="approved">G12 fixture</button><div id="classroom"></div></main><script>document.querySelector('[data-qa=lesson-option]').onclick=()=>{history.pushState({},'', '/app/tutor?lessonId=G12_MATH_KNTT_CH01_L01');classroom.innerHTML='<section data-qa="lesson-ready" data-lesson-id="G12_MATH_KNTT_CH01_L01"><span data-qa="session-status" data-session-status="disconnected">Disconnected</span><button data-qa="start-lesson" data-session-control="start">Start</button></section>';const control=document.querySelector('[data-qa=start-lesson]');const status=document.querySelector('[data-qa=session-status]');control.onclick=()=>{if(control.dataset.sessionControl==='start'){status.dataset.sessionStatus='listening';control.dataset.sessionControl='stop';control.textContent='Stop';}else{status.dataset.sessionStatus='disconnected';control.dataset.sessionControl='start';control.textContent='Start';}};};</script>`
+          : '<main data-qa="login-required">Login required</main>');
+        return;
+      }
+      case '/auth/app': {
+        const authenticated = request.headers.cookie?.includes('qa_session=verified') ?? false;
+        response.writeHead(authenticated ? 200 : 401, { 'content-type': 'text/html; charset=utf-8' });
+        response.end(authenticated
+          ? `<main data-qa="authenticated-shell"><details><summary data-qa="account-trigger">Tài khoản</summary><span data-qa="account-email" data-email="qa-student@example.test">qa-student@example.test</span><a data-qa="switch-account" href="/login?switchAccount=1">Đổi tài khoản</a><button data-qa="logout">Đăng xuất</button></details><div id="catalog"><button data-qa="grade-option">Khối 6</button><section id="subjects" hidden><button data-qa="subject-option">Toán</button></section><section id="chapters" hidden><button data-qa="chapter-option">Chương fixture</button></section><section id="lessons" hidden><button data-qa="lesson-option" data-lesson-id="fixture-grade6-lesson1" data-registry-status="approved" data-learning-mode="textbook">Học theo SGK</button><button data-qa="lesson-option" data-lesson-id="fixture-grade6-lesson1" data-registry-status="approved" data-learning-mode="foundation_recovery">Học lại từ gốc</button><button data-qa="lesson-option" data-lesson-id="fixture-grade6-lesson1" data-registry-status="approved" data-learning-mode="review">Ôn tập</button></section></div></main><script>document.querySelector('[data-qa=grade-option]').onclick=()=>subjects.hidden=false;document.querySelector('[data-qa=subject-option]').onclick=()=>chapters.hidden=false;document.querySelector('[data-qa=chapter-option]').onclick=()=>lessons.hidden=false;document.querySelectorAll('[data-qa=lesson-option]').forEach(button=>button.onclick=()=>{history.pushState({},'', '/auth/classroom/fixture-grade6-lesson1?mode='+button.dataset.learningMode);catalog.innerHTML='<section data-qa="lesson-ready" data-lesson-id="fixture-grade6-lesson1"><button data-qa="start-lesson">Bắt đầu học</button></section>'});</script>`
+          : '<main data-qa="login-required">Login required</main>');
+        return;
+      }
       case '/':
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
         response.end('<!doctype html><meta name="viewport" content="width=device-width"><title>QA Home</title><style>body{font:16px sans-serif;margin:24px}button,a,input{font:inherit;padding:12px}</style><h1>QA Fixture Home</h1><a data-qa="primary-cta" href="/login">Đăng nhập</a>');

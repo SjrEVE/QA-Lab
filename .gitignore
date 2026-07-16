@@ -1,6 +1,7 @@
 node_modules/
 dist/
 runs/
+.qa-private/
 .env
 .env.*
 !.env.example
@@ -8,3 +9,8 @@ runs/
 coverage/
 .DS_Store
 Thumbs.db
+*.mp3
+*.mp4
+*.m4a
+*.wav
+*.webm

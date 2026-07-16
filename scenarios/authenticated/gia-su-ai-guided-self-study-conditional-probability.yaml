@@ -1,0 +1,63 @@
+version: 1
+id: gia-su-ai-guided-self-study-conditional-probability
+name: Gia Su AI guided self-study conditional probability staging journey
+type: authenticated-guided-self-study
+target:
+  path: /app/learn
+reset:
+  scope: gss-conditional-probability-self-study
+package:
+  lessonId: G12_MATH_KNTT_CH06_L18
+  learningMode: foundation_recovery
+  packageId: g12-guided-self-study-conditional-probability-v1
+  fingerprint: d3859c811d57f7cbecddfbb37410acf65ac2a25cf9222b52f58a038a033a87d3
+entry:
+  grade: '[data-qa="grade-option"]'
+  subject: '[data-qa="subject-option"]'
+  chapter: '[data-qa="chapter-option"]'
+  lesson: '[data-qa="lesson-select"]'
+  mode: '[data-qa="lesson-option"][data-learning-mode="foundation_recovery"]'
+  expectedGrade: g12
+  expectedSubject: math
+  expectedChapter: G12_MATH_KNTT_CH06
+viewports:
+  - mobile-common
+  - tablet
+  - desktop
+selectors:
+  authenticatedShell: '[data-qa="authenticated-shell"]'
+  accountTrigger: '[data-qa="account-trigger"]'
+  accountIdentity: '[data-qa="account-email"]'
+  player: '[data-qa="guided-self-study-player"]'
+  start: '[data-qa="self-study-start"]'
+  answer: '[data-qa="self-study-answer"]'
+  submit: '[data-qa="self-study-answer-submit"]'
+  verification: '[data-qa="self-study-verification"]'
+  hintRequest: '[data-qa="self-study-hint-request"]'
+  hint: '[data-qa="self-study-hint"]'
+  remediationEnter: '[data-qa="self-study-remediation-enter"]'
+  remediationReturn: '[data-qa="self-study-remediation-return"]'
+  next: '[data-qa="self-study-next"]'
+  learnContinue: '[data-qa="self-study-learn-continue"]'
+  verifyComplete: '[data-qa="self-study-verify-complete"]'
+  summary: '[data-qa="self-study-summary"]'
+answers:
+  - exerciseId: G12_MATH_KNTT_CH06_L18_E01
+    value: "0.4"
+    incorrectValue: "0.5"
+  - exerciseId: G12_MATH_KNTT_CH06_L18_E02
+    value: "0.3"
+    incorrectValue: "0.9"
+  - exerciseId: G12_MATH_KNTT_CH06_L18_E03
+    value: "0.2"
+  - exerciseId: G12_MATH_KNTT_CH06_L18_E04
+    value: "1/2"
+  - exerciseId: G12_MATH_KNTT_CH06_L18_P01
+    value: "0.3"
+  - exerciseId: G12_MATH_KNTT_CH06_L18_P04
+    value: "0.3"
+limits:
+  maxMinutes: 15
+  selectorTimeoutMs: 15000
+  transitionTimeoutMs: 15000
+  maxIssues: 30

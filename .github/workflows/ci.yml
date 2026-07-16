@@ -38,7 +38,7 @@ jobs:
         run: npx playwright install chromium
       - name: Lint
         run: npm run lint
-      - name: Full stable test gate (71+ tests)
+      - name: Full stable test gate
         run: npm test
       - name: Build
         run: npm run build
