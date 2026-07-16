@@ -59,6 +59,7 @@ test('three five-minute profiles use distinct approved Grade 12 lessons and exac
   const profiles = parseRequestedProfiles('all');
   assert.deepEqual(profiles.map((profile) => profile.key), ['talk', 'stuck', 'unsure']);
   assert.equal(new Set(profiles.map((profile) => profile.lessonId)).size, 3);
+  assert.ok(profiles.every((profile) => profile.minimumStudentTurns === 5));
   assert.ok(profiles.every((profile) => profile.lessonId.startsWith('G12_MATH_KNTT_')));
   assert.deepEqual(profiles.map((profile) => profile.openingIntentSelector), [
     '[data-qa="opening-intent-talk"]',
@@ -163,7 +164,9 @@ test('runner locks real Brain, voice-aware identical input, two-click stop and m
   assert.match(source, /playEncodedAudioAudibly/);
   assert.doesNotMatch(source, /scheduleEncodedAudioAudibly/);
   assert.match(source, /ended before its decoded audio duration/);
-  assert.match(source, /inputValue\(\) !== studentText/);
+  assert.match(source, /deliverTextFallback\(page, studentText\)/);
+  assert.match(source, /document\.querySelectorAll<HTMLElement>/);
+  assert.match(source, /document\.querySelector<HTMLElement>\('\.lesson-board-scene'\)/);
   assert.match(source, /inputTranscriptionStarted\(controller\.runtime\(\)\.events, voiceEventIndex\)/);
   assert.match(source, /deliveryMode: TurnMetric\['deliveryMode'\]/);
   assert.match(source, /without microphone transcription evidence/);

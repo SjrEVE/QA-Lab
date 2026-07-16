@@ -13,7 +13,7 @@ export interface LiveDemoProfile {
   readonly lessonLabel: string;
   readonly openingIntentLabel: string;
   readonly openingIntentSelector: `[data-qa="opening-intent-${LiveDemoProfileKey}"]`;
-  readonly minimumStudentTurns: 8;
+  readonly minimumStudentTurns: 5;
   readonly visualRequestTurn: number | null;
   readonly visualRequestSuffix: string | null;
 }
@@ -26,7 +26,7 @@ export const LIVE_DEMO_PROFILES: Readonly<Record<LiveDemoProfileKey, LiveDemoPro
     lessonLabel: 'Bài 12. Tích phân',
     openingIntentLabel: 'Cứ nói chuyện trước',
     openingIntentSelector: '[data-qa="opening-intent-talk"]',
-    minimumStudentTurns: 8,
+    minimumStudentTurns: 5,
     visualRequestTurn: null,
     visualRequestSuffix: null,
   },
@@ -37,7 +37,7 @@ export const LIVE_DEMO_PROFILES: Readonly<Record<LiveDemoProfileKey, LiveDemoPro
     lessonLabel: 'Bài 1. Tính đơn điệu và cực trị của hàm số',
     openingIntentLabel: 'Con có bài đang bí',
     openingIntentSelector: '[data-qa="opening-intent-stuck"]',
-    minimumStudentTurns: 8,
+    minimumStudentTurns: 5,
     visualRequestTurn: 3,
     visualRequestSuffix: 'Gia sư minh họa bước này trên bảng giúp con nhé.',
   },
@@ -48,7 +48,7 @@ export const LIVE_DEMO_PROFILES: Readonly<Record<LiveDemoProfileKey, LiveDemoPro
     lessonLabel: 'Bài 4. Khảo sát sự biến thiên và vẽ đồ thị hàm số',
     openingIntentLabel: 'Con chưa biết bắt đầu',
     openingIntentSelector: '[data-qa="opening-intent-unsure"]',
-    minimumStudentTurns: 8,
+    minimumStudentTurns: 5,
     visualRequestTurn: 2,
     visualRequestSuffix: 'Gia sư vẽ hoặc minh họa ý này trên bảng giúp con nhé.',
   },

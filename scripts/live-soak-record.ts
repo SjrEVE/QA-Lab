@@ -154,17 +154,22 @@ async function waitForPlaybackResult(controller: GuardedBrowserController, start
 }
 
 async function currentTutorText(page: Page): Promise<string> {
-  const selectors = [
-    '[data-qa="tutor-message"]:visible',
-    '.activity-history article:has(span.ai) p',
-    '[data-speaker="tutor"]:visible',
-  ];
-  for (const selector of selectors) {
-    const locator = page.locator(selector).last();
-    const value = (await locator.textContent().catch(() => ''))?.trim() ?? '';
-    if (value) return value;
-  }
-  return '';
+  return page.evaluate(() => {
+    const visibleText = (selector: string): string => {
+      const elements = [...document.querySelectorAll<HTMLElement>(selector)];
+      for (const element of elements.reverse()) {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        if (style.display === 'none' || style.visibility === 'hidden' || rect.width === 0 || rect.height === 0) continue;
+        const value = element.textContent?.trim() ?? '';
+        if (value) return value;
+      }
+      return '';
+    };
+    return visibleText('[data-qa="tutor-message"]')
+      || visibleText('.activity-history article:has(span.ai) p')
+      || visibleText('[data-speaker="tutor"]');
+  });
 }
 
 async function nextSpeakingDecision(decide: () => Promise<StudentBrainDecision>, page: Page): Promise<StudentBrainDecision> {
@@ -178,12 +183,35 @@ async function nextSpeakingDecision(decide: () => Promise<StudentBrainDecision>,
 }
 
 async function boardAudit(page: Page): Promise<{ entries: number; visible: boolean; focusedZones: number }> {
-  const board = page.locator('.lesson-board-scene').first();
-  return {
-    entries: await board.locator('[data-stage-entry]').count(),
-    visible: await board.isVisible().catch(() => false),
-    focusedZones: await board.locator('.learning-stage-zone.is-focused').count(),
-  };
+  return page.evaluate(() => {
+    const board = document.querySelector<HTMLElement>('.lesson-board-scene');
+    if (!board) return { entries: 0, visible: false, focusedZones: 0 };
+    const style = getComputedStyle(board);
+    const rect = board.getBoundingClientRect();
+    return {
+      entries: board.querySelectorAll('[data-stage-entry]').length,
+      visible: style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0,
+      focusedZones: board.querySelectorAll('.learning-stage-zone.is-focused').length,
+    };
+  });
+}
+
+async function deliverTextFallback(page: Page, expectedText: string): Promise<void> {
+  const state = await page.evaluate((expected) => {
+    const input = document.querySelector<HTMLInputElement>('form.ai-input input');
+    const submit = document.querySelector<HTMLButtonElement>('form.ai-input button[type="submit"]');
+    const room = document.querySelector<HTMLElement>('[data-qa="lesson-ready"]');
+    const inputMatches = input?.value === expected;
+    const enabled = Boolean(submit && !submit.disabled);
+    if (inputMatches && enabled) submit?.click();
+    return {
+      inputMatches,
+      enabled,
+      phase: room?.dataset.onboardingPhase ?? 'unknown',
+    };
+  }, expectedText);
+  if (!state.inputMatches) throw new Error('Visible text changed before identical text fallback delivery.');
+  if (!state.enabled) throw new Error(`Text fallback is disabled in onboarding phase ${state.phase} without microphone transcription evidence.`);
 }
 
 async function selectCatalogLesson(page: Page, lessonId: string): Promise<void> {
@@ -412,20 +440,13 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
       const ttsSynthesisMs = Date.now() - synthesisStartedAt;
       const playback = await withTimeout(playEncodedAudioAudibly(page, synthesized.bytes, synthesized.mediaType), 210_000, `turn ${turn} Edge TTS playback`);
       if (playback.durationMs + 200 < playback.decodedDurationMs) throw new Error(`Turn ${turn} Edge TTS ended before its decoded audio duration.`);
-      if (await textInput.inputValue() !== studentText) throw new Error(`Turn ${turn} text changed while the identical Edge TTS audio was playing.`);
 
       const microphoneDelivery = inputTranscriptionStarted(controller.runtime().events, voiceEventIndex);
       const deliveryMode: TurnMetric['deliveryMode'] = microphoneDelivery ? 'microphone' : 'text-fallback';
       const responseEventIndex = microphoneDelivery ? voiceEventIndex : controller.runtime().events.length;
       const deliveredAt = Date.now();
       if (!microphoneDelivery) {
-        const submit = page.locator('form.ai-input button[type="submit"]:visible').first();
-        await submit.waitFor({ state: 'visible', timeout: 10_000 });
-        if (!await submit.isEnabled()) {
-          const phase = await page.locator('[data-qa="lesson-ready"]:visible').getAttribute('data-onboarding-phase');
-          throw new Error(`Turn ${turn} text fallback is disabled in onboarding phase ${phase ?? 'unknown'} without microphone transcription evidence.`);
-        }
-        await submit.click();
+        await deliverTextFallback(page, studentText);
       }
       await stage('student_turn_delivered', {
         turn,
@@ -435,13 +456,13 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
         studentAudioMs: playback.decodedDurationMs,
       });
       history.push({ role: 'student', turn, text: studentText });
+      const tutorPlayback = await waitForPlaybackResult(controller, responseEventIndex, `tutor turn ${turn}`);
+      const submitToPlaybackCompleteMs = Date.now() - deliveredAt;
       await waitUntil(async () => {
         const next = await currentTutorText(page);
         return next.length > 0 && next !== previousTutorText;
       }, TUTOR_TIMEOUT_MS, `turn ${turn} tutor transcript`);
       const submitToTutorTextMs = Date.now() - deliveredAt;
-      const tutorPlayback = await waitForPlaybackResult(controller, responseEventIndex, `tutor turn ${turn}`);
-      const submitToPlaybackCompleteMs = Date.now() - deliveredAt;
       await page.locator('.ai-online.listening:visible').waitFor({ state: 'visible', timeout: TUTOR_TIMEOUT_MS });
       if (turn === 1) {
         await page.locator('[data-qa="lesson-ready"][data-onboarding-phase="lesson_ready"]:visible').waitFor({ state: 'visible', timeout: TUTOR_TIMEOUT_MS });
