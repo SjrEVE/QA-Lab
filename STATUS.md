@@ -5,18 +5,18 @@
 - Framework state: **Phase 0–10 implemented and validated at local deterministic-fixture scope only**.
 - `QA-STAGING-001` public smoke is accepted against the approved non-production host `https://giasu-c2165.web.app`: final enforce run `20260715T063728Z-caa7374a` passed 16/16 landing/login/unauthenticated-guard checks with zero issues.
 - Authenticated staging is bounded and functionally accepted for account/catalog/reset and two self-study packages. Integral run `20260715T065109Z-815e3991` and Conditional Probability run `20260715T070209Z-00358b7b` each passed 57/57 at three viewports. A later audit found their Gemini/App Check evidence policy too permissive; request-interception deny and per-critical-request App Check coverage are now implemented locally and require a fresh staging rerun. Sanitized provenance is committed under `docs/evidence/`.
-- The targeted G12 Live runner is implemented and locally fixture-tested. Run `20260715T081058Z-e7598a7c` truthfully failed latency/whiteboard acceptance. Run `20260715T100536Z-cceeee98` then reached Gemini `setupComplete` in 7.441 s but staging returned `404` for `/api/resumeLessonSession`; `lessonReady` stayed false and QA Brain/TTS was never called. This is current deployment-drift evidence, not a credit-depletion claim.
-- Currently allowed evidence uses local deterministic fixtures, scripted brains, synthetic personas/WAV, provider-free replay, and an opt-in bounded Gemini StudentBrain adapter. The real adapter is implemented but real-key doctor and complete Live acceptance remain pending.
+- The targeted G12 Live runner is staging-accepted for its bounded synthetic/scripted-student flow. Session-start runs `20260715T122032Z-071ffc03` and `20260715T122124Z-e0edddbe` passed consecutively. Full-flow runs `20260715T123218Z-725f8720` and `20260715T123733Z-b998f2bb` passed check-in, incorrect/correct deterministic verification, guided response, two persisted whiteboard objects, memory card and clean stop. The final event stream had no App Check/Auth/revision/state-violation error and no `quick_tutor_message`/`gemini_interrupted` self-interruption.
+- QA Lab has two distinct StudentBrain modes: deterministic `ScriptedStudentBrain` for regression and an opt-in bounded Real Gemini StudentBrain for provider-backed student decisions. The real adapter and visible staging runner are implemented and locally tested, but repository acceptance remains pending until a real-key run writes the required `live-brain-summary.json`; the two accepted Live runs above used synthetic/scripted student input and must not be relabeled as Real Brain evidence.
 - Framework readiness label: `PHASE10_SAFETY_OPTIMIZER_FIXTURE_READY`; product module readiness is reported separately as `GIA_SU_AI_GUIDED_SELF_STUDY_STAGING_ACCEPTED` and does not mean whole-product acceptance.
-- Phase 5 recording has fixture-validated screenshot fallback; real FFmpeg recording is **NOT IMPLEMENTED / NOT ACCEPTED** on this host because FFmpeg is unavailable, so no `session.mp4` is claimed.
-- Real Gia Su AI staging acceptance: **MODULE-BOUNDED / GUIDED SELF-STUDY READY**. Public UI, authenticated catalog, identity persistence, strict reset, Integral and Conditional Probability are accepted within their stated modules. Whole-product acceptance is not claimed; realtime provider connectivity works but Live latency, full student journey and whiteboard acceptance fail, while evaluator, physical/native voice, FFmpeg real recording, production, public commerce and real-child use remain separate gates.
+- Phase 5 Full-HD recording is implemented and fixture-validated with a private FFmpeg binary, multi-AudioContext tab capture, AAC mux and complete stream decode. The short fixture produced a valid 1920×1080 H264/AAC `session.mp4`; three 5-minute staging recordings are still pending and no long-form video is claimed yet.
+- Real Gia Su AI staging acceptance: **MODULE-BOUNDED / GUIDED SELF-STUDY + SYNTHETIC LIVE FLOW READY**. Public UI, authenticated catalog, identity persistence, strict reset, Integral, Conditional Probability and the bounded scripted-student Live flow are accepted within their stated modules. Whole-product acceptance is not claimed; first-audio latency remains about 5–8 seconds and the Real Brain + Edge TTS three-video gate from commit `a6b94b4` has not run yet. Evaluator, physical/native voice, production, public commerce and real-child use remain separate gates.
 - Independent CI workflow is added at `.github/workflows/ci.yml` with least-privilege fixture-only Windows validation, local secret scanning, audit, and a separate truthful recording capability contract. The first remote run is **PENDING GITHUB ACTIONS CONFIRMATION**; local validation is not claimed as CI PASS.
 
 ## Phase 4 evidence
 
 - Versioned strict persona/scenario loaders: `src/student-contracts.ts`.
 - Persona/scenario: `personas/weak-fractions-grade-4.yaml`; `scenarios/student/weak-fractions-lesson.yaml`.
-- Vendor-neutral `StudentBrain`, deterministic `ScriptedStudentBrain`, and opt-in structured Gemini adapter: `src/student-brain.ts`; `src/gemini-student-brain.ts`. The operator key remains process-only and untracked; real-key doctor/Live Brain acceptance is pending.
+- Vendor-neutral `StudentBrain`, deterministic `ScriptedStudentBrain`, and opt-in structured Real Gemini adapter: `src/student-brain.ts`; `src/gemini-student-brain.ts`. Scripted mode is the regression fixture; Gemini mode is a real provider path, not another scripted persona. The operator key remains process-only and untracked; Real Brain staging acceptance requires a successful `qa:live:brain` artifact and is currently pending.
 - Browser-only structured action allowlist; no shell, source, Git, cloud, arbitrary navigation, voice, or provider action.
 - Bounded context retains only 3–5 recent turns plus understanding, misconception, used behaviors, and remaining goals.
 - Runner lifecycle and truthful limits: `src/student-qa.ts`; missing prerequisites/reset yield `BLOCKED`, never synthetic PASS.
@@ -35,16 +35,16 @@
 - Fixture mode is explicit and permits only exact-port loopback HTTP.
 - Real run remains `BLOCKED` without staging URL/account/reset; no production target is accessed.
 - UX scores are deterministic state-based estimates and are labeled estimated with limitations; turns, duration, and DOM whiteboard states are observed.
-- No physical microphone claim, accepted provider Brain/evaluator, dashboard, deployment, or whole-product acceptance exists. Realtime tutor connectivity evidence is bounded and failed full Live acceptance; Education Eval, replay/regression, Model Arena, and cohorts remain deterministic fixture foundations only.
+- No physical microphone claim, accepted Real StudentBrain/evaluator, dashboard, deployment, or whole-product acceptance exists. Realtime Tutor is accepted only for the bounded synthetic/scripted-student Live flow described above; Education Eval, replay/regression, Model Arena, and cohorts remain deterministic fixture foundations only.
 
 ## Phase 5 recording evidence
 
 - Vendor-neutral Recorder lifecycle is implemented in src/recorder.ts.
-- QA_ENABLE_RECORDING defaults off; FFmpeg is optional and doctor warns when absent.
+- `QA_ENABLE_RECORDING` defaults off; FFmpeg is optional and may be supplied only by `QA_FFMPEG_PATH`. Doctor truthfully warns when that explicit path/PATH is absent.
 - Checkpoints JSONL and screenshot fallback remain available; session.mp4 is only claimed when produced.
 - PASS video early deletion defaults on; FAIL/release retention and idempotent partial cleanup are supported.
-- Browser visuals only: no audio, microphone, TTS, voice, replay, or raw child data by default.
-- Current machine evidence: doctor reports FFmpeg `warn/not found`; `qa:recording:fixture` writes explicit `BLOCKED` evidence and exits non-zero rather than fabricating video success.
+- Default recording remains visual-only. The explicit Live demo path captures only in-tab Web Audio, mixes all AudioContexts and never stores microphone input, raw provider PCM, raw transcript or child data.
+- Current machine evidence: private FFmpeg exists under `.qa-private`; with `QA_FFMPEG_PATH` the recording fixture passed 1920×1080 H264/AAC generation and complete audio/video decode. Without that environment setting, doctor still reports a truthful warning instead of guessing a binary.
 
 ## Phase 6 voice evidence
 
@@ -53,7 +53,7 @@
 - Linux PulseAudio/PipeWire probe is read-only. Idempotent setup creates only missing null sinks and refuses unsafe echo state; it is never auto-run.
 - `QA_ENABLE_VOICE` defaults off. Permission/media flags are applied only when enabled; failures preserve text mode and make no audio claim.
 - Deterministic WAV validity/duration, routing, permissions, one/multi-turn, fallback, redaction and metadata tests pass.
-- Windows host evidence: native Linux audio route is **BLOCKED** (`platform=win32`); deterministic fixture passes and explicitly claims no physical microphone. FFmpeg remains unavailable.
+- Windows host evidence: native Linux audio route is **BLOCKED** (`platform=win32`); deterministic fixture passes and explicitly claims no physical microphone. Microsoft did not make a usable `vi-VN` system voice installable on this host, so browser `en-US` remains fallback-only. Edge TTS now supplies Vietnamese QA speech through the external/provider boundary; private FFmpeg + in-tab Web Audio recording is fixture-validated. Long-form staging acceptance remains pending.
 ## Phase 7 Education Eval evidence
 
 - Strict versioned `EvaluationInput` / `EvaluationResult` and rubric loader; invalid versions and weights fail closed.
@@ -97,4 +97,4 @@
 - Cost formula v1 explicitly records currency, session duration, assumptions, provenance, and `(inputUnits * inputRate) + (outputUnits * outputRate) + (audioMinutes * audioMinuteRate)`.
 - Routing outputs for simple turn, repeated confusion, vision board, final verifier, and degraded text are proposals with evidence/limitations only. Provider config mutation and deployment are always false.
 - `qa:phase10:fixture` writes redacted Safety and optimizer JSON/Markdown plus fixture summary under ignored `runs/phase10-safety-optimizer-fixture-evidence/`.
-- The Phase 0–10 framework is implemented and locally deterministic-fixture validated. Separately, bounded Gia Su AI staging acceptance exists for public/auth/catalog/reset and two guided-self-study packages. Native Linux voice, FFmpeg real recording, physical microphone, and real provider/evaluator measurements remain unaccepted. Production, real child data without completed policy gates, auto-fix, and QA-Lab deployment capability are forbidden.
+- The Phase 0–10 framework is implemented and locally deterministic-fixture validated. Separately, bounded Gia Su AI staging acceptance exists for public/auth/catalog/reset, two guided-self-study packages and one scripted-student Live flow. Real Gemini StudentBrain + Edge TTS long-form staging evidence, native Linux audio, physical microphone and real evaluator measurements remain unaccepted; the local Full-HD recorder itself is fixture-validated. Production, real child data without completed policy gates, auto-fix, and QA-Lab deployment capability are forbidden.

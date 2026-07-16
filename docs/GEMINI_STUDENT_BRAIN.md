@@ -2,6 +2,15 @@
 
 Gemini StudentBrain is an optional, provider-backed student decision adapter. It receives only a bounded synthetic persona state and the latest 3–5 lesson turns. It returns a strict decision that is validated again by QA Lab before any browser or voice action.
 
+## Current acceptance status
+
+- `ScriptedStudentBrain` is the deterministic regression adapter. Real Gemini StudentBrain is a separate provider-backed adapter and must never be described as another fixed script.
+- The adapter, doctor and visible `qa:live:brain` runner are implemented and locally contract-tested.
+- Full-flow provider acceptance requires a successful real-key run that writes `runs/<run-id>/live-brain-summary.json` with at least four completed turns, board output and a clean stop. The current run store contains no such artifact, so Real Brain staging acceptance remains pending.
+- The accepted Live runs `20260715T123218Z-725f8720` and `20260715T123733Z-b998f2bb` used synthetic/scripted student input. They validate the Tutor/whiteboard/verifier/session flow and audio interruption regression, not the Real StudentBrain provider.
+- This Windows host cannot install a usable `vi-VN` system TTS voice. Browser `en-US` speech is fallback-only; Vietnamese QA voice acceptance must use the external/provider-backed voice boundary and remains separate from Brain decision acceptance.
+- Commit `a6b94b4` adds `qa:live:demos`: three distinct Grade 12 profiles, 5 minutes each, 1920×1080, Real Brain decisions, audible Edge TTS, exact terminal playback checks and privacy-safe latency summaries. Code/fixture acceptance is complete; staging artifacts are still pending.
+
 ## Authority boundary
 
 - The brain may speak Vietnamese, wait, or finish a bounded scenario.
