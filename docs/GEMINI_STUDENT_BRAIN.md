@@ -48,11 +48,11 @@ Remove-Item Env:QA_ENABLE_REAL_BRAIN
 
 ## Model and API contract
 
-The default is stable `gemini-2.5-flash-lite`, selected for low-latency structured decisions. The adapter uses the official HTTPS Gemini endpoint, sends the key only in `x-goog-api-key`, refuses redirects, limits response size and timeout, and validates the final JSON with Zod. Model output never executes directly.
+The default is stable `gemini-3.1-flash-lite`, selected for low-latency structured decisions. The adapter uses the official HTTPS Gemini endpoint, sends the key only in `x-goog-api-key`, refuses redirects, limits response size and timeout, and validates the final JSON with Zod. Model output never executes directly.
 
 Official references:
 
-- [Gemini 2.5 Flash-Lite model contract](https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-lite)
+- [Gemini 3.1 Flash-Lite model contract](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite)
 - [Generate Content structured outputs](https://ai.google.dev/gemini-api/docs/generate-content/structured-output)
 - [Gemini API key handling](https://ai.google.dev/gemini-api/docs/api-key)
 

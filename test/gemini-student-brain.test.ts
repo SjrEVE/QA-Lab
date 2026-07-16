@@ -79,7 +79,7 @@ test('Gemini fetch transport keeps the key in the header and validates structure
   assert.equal((JSON.parse(raw) as { intent: string }).intent, 'confused');
   assert.equal(observedHeader, key);
   assert.equal(observedUrl.includes(key), false);
-  assert.match(observedUrl, /^https:\/\/generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.5-flash-lite:generateContent$/);
+  assert.match(observedUrl, /^https:\/\/generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-3\.1-flash-lite:generateContent$/);
   assert.deepEqual((observedBody as { generationConfig: unknown }).generationConfig, {
     temperature: 0.3,
     maxOutputTokens: 512,

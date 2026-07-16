@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { assertBoundedBrainContext, assertStudentBrainDecision, type StudentBrain, type StudentBrainContext, type StudentBrainDecision } from './student-brain.js';
 import { STUDENT_BEHAVIORS, STUDENT_SCENARIO_GOALS } from './student-contracts.js';
 
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_MODEL = 'gemini-3.1-flash-lite';
 const GEMINI_HOST = 'generativelanguage.googleapis.com';
 const MAX_PROVIDER_RESPONSE_BYTES = 64 * 1024;
 const DEFAULT_TIMEOUT_MS = 30_000;
