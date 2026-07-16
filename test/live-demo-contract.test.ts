@@ -78,6 +78,29 @@ test('response playback parser accepts only the product JSON event shape', () =>
   assert.doesNotThrow(() => assertCompleteResponsePlayback(completePlayback, 'turn 1'));
 });
 
+test('stopped playback with a null completion reason reaches the strict audio gate', () => {
+  const stoppedProductEvent = {
+    ...completePlayback,
+    outcome: 'stopped',
+    completionReason: null,
+    explicitlyStopped: true,
+  };
+  const parsed = parseResponsePlaybackResult(`[realtime-demo] response_playback_result ${JSON.stringify(stoppedProductEvent)}`);
+  assert.ok(parsed);
+  assert.equal(parsed.completionReason, 'unavailable');
+  assert.throws(
+    () => assertCompleteResponsePlayback(parsed, 'stopped tutor turn'),
+    /outcome=stopped.*explicitly-stopped/,
+  );
+  assert.throws(
+    () => parseResponsePlaybackResult(`[realtime-demo] response_playback_result ${JSON.stringify({
+      ...completePlayback,
+      completionReason: null,
+    })}`),
+    /invalid completionReason/,
+  );
+});
+
 test('audio acceptance rejects missing endings, stop, interruption, decode failure and suspicious coverage', () => {
   const failures: Array<[Partial<ResponsePlaybackResult>, RegExp]> = [
     [{ outcome: 'incomplete' }, /outcome=incomplete/],

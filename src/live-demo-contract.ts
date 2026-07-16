@@ -146,10 +146,13 @@ export function parseResponsePlaybackResult(line: string): ResponsePlaybackResul
   const source = parseJsonTail(line, PLAYBACK_MARKER);
   if (!source) throw new Error('Playback result console event did not contain valid JSON.');
   if (typeof source.outcome !== 'string' || !source.outcome) throw new Error('Playback result has invalid outcome.');
-  if (typeof source.completionReason !== 'string' || !source.completionReason) throw new Error('Playback result has invalid completionReason.');
+  const completionReason = source.outcome === 'stopped' && source.completionReason === null
+    ? 'unavailable'
+    : source.completionReason;
+  if (typeof completionReason !== 'string' || !completionReason) throw new Error('Playback result has invalid completionReason.');
   return {
     outcome: source.outcome,
-    completionReason: source.completionReason,
+    completionReason,
     epoch: requiredNumber(source, 'epoch'),
     expectedAudio: requiredBoolean(source, 'expectedAudio'),
     outputTextCharacters: requiredNumber(source, 'outputTextCharacters'),
