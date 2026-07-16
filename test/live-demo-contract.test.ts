@@ -147,4 +147,7 @@ test('runner locks real Brain, audible identical text, two-click stop and media 
   assert.match(source, /rawTranscriptPersisted: false/);
   assert.match(source, /providerOutputPersisted: false/);
   assert.doesNotMatch(source, /QA_BRAIN_GEMINI_API_KEY\s*=/);
+  const finalTutorNavigation = source.indexOf('await controller.navigate(new URL(`/app/tutor?');
+  const recorderStart = source.indexOf('await recorder.start(page);');
+  assert.ok(finalTutorNavigation >= 0 && recorderStart > finalTutorNavigation, 'Tab audio must start after the final tutor navigation.');
 });

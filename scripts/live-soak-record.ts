@@ -300,9 +300,6 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
       })();
     ` });
     await page.setViewportSize(FULL_HD);
-    await recorder.start(page);
-    recordingStartedAt = Date.now();
-    await stage('recording_started', { targetDurationMs: LIVE_DEMO_TARGET_DURATION_MS, viewport: FULL_HD });
     const baseUrl = shared.config.staging.baseUrl;
     if (!baseUrl) throw new Error('Staging URL is missing.');
     await controller.navigate(new URL('/app', baseUrl).href);
@@ -318,6 +315,11 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
     }, profile.lessonId);
     await controller.navigate(new URL(`/app/tutor?mode=foundation_recovery&lessonId=${encodeURIComponent(profile.lessonId)}`, baseUrl).href);
     await page.locator(`[data-qa="lesson-ready"][data-lesson-id="${profile.lessonId}"]:visible`).waitFor({ state: 'visible' });
+    // Context init scripts are installed on navigation. Arm tab audio only on
+    // the final tutor document so a later navigation cannot replace the capture.
+    await recorder.start(page);
+    recordingStartedAt = Date.now();
+    await stage('recording_started', { targetDurationMs: LIVE_DEMO_TARGET_DURATION_MS, viewport: FULL_HD });
 
     await recorder.checkpoint('entry-before-opening-intent');
     const openingIntent = page.locator(`${profile.openingIntentSelector}:visible`).first();
