@@ -4,6 +4,7 @@ import { chromium, type BrowserContext, type ConsoleMessage, type Page, type Req
 import { decideBrowserRequest, type BrowserPolicyDecision, type BrowserTargetPolicy } from './browser-policy.js';
 import { redactSecrets } from './redaction.js';
 import { TargetDeniedError } from './security.js';
+import { TAB_AUDIO_CAPTURE_INIT_SCRIPT } from './tab-audio-capture.js';
 
 export interface LoginAdapter {
   readonly name: string;
@@ -29,6 +30,8 @@ export interface BrowserControllerOptions {
   readonly headless?: boolean;
   readonly preserveProfile?: boolean;
   readonly recordVideoDirectory?: string;
+  readonly recordVideoSize?: { readonly width: number; readonly height: number };
+  readonly captureTabAudio?: boolean;
   readonly appCheckDebugToken?: string;
   readonly voice?: {
     readonly enabled: boolean;
@@ -81,9 +84,10 @@ export class GuardedBrowserController implements BrowserController {
       acceptDownloads: false,
       serviceWorkers: 'block',
       ...(this.#options.voice?.audible ? { ignoreDefaultArgs: ['--mute-audio'] } : {}),
-      ...(this.#options.recordVideoDirectory ? { recordVideo: { dir: this.#options.recordVideoDirectory } } : {}),
+      ...(this.#options.recordVideoDirectory ? { recordVideo: { dir: this.#options.recordVideoDirectory, ...(this.#options.recordVideoSize ? { size: this.#options.recordVideoSize } : {}) } } : {}),
       ...(this.#options.voice?.enabled && this.#options.voice.args ? { args: [...this.#options.voice.args] } : {}),
     });
+    if (this.#options.captureTabAudio) await this.#context.addInitScript({ content: TAB_AUDIO_CAPTURE_INIT_SCRIPT });
     if (this.#options.voice?.enabled && this.#options.voice.permissions) {
       await this.#context.grantPermissions([...this.#options.voice.permissions]);
     }

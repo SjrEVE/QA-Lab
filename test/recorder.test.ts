@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import type { Page } from 'playwright';
-import { PlaywrightFfmpegRecorder, recordingEnabled, type Recorder, type RecorderCheckpoint, type RecorderPrepareOptions, type RecordingOutcome, type RecordingSummary } from '../src/recorder.js';
+import { assertVideoArtifact, buildTabAudioMixFilter, PlaywrightFfmpegRecorder, recordingEnabled, type Recorder, type RecorderCheckpoint, type RecorderPrepareOptions, type RecordingOutcome, type RecordingSummary } from '../src/recorder.js';
 
 function fakePage(content = 'png'): Page { return { screenshot: async ({ path: target }: { path: string }) => { await writeFile(target, content); } } as unknown as Page; }
 
@@ -53,6 +53,33 @@ test('lifecycle rejects checkpoint before start and repeated prepare', async () 
   await assert.rejects(recorder.checkpoint('too-early'), /started/);
   await assert.rejects(recorder.prepare({ artifactDirectory: root, enabled: true }), /already/);
   await recorder.cleanup();
+});
+
+test('tab audio mix filter keeps every AudioContext and its capture offset', () => {
+  const filter = buildTabAudioMixFilter([0, 125, 450]);
+  assert.match(filter, /\[0:a\].*adelay=0:all=1\[a0\]/);
+  assert.match(filter, /\[1:a\].*adelay=125:all=1\[a1\]/);
+  assert.match(filter, /\[2:a\].*adelay=450:all=1\[a2\]/);
+  assert.match(filter, /amix=inputs=3:duration=longest/);
+});
+
+test('video artifact validation rejects contradictory duration bounds before probing media', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'qa-recorder-'));
+  await writeFile(path.join(root, 'session.mp4'), 'not media');
+  const summary: RecordingSummary = {
+    schemaVersion: 1,
+    enabled: true,
+    state: 'available',
+    adapter: 'fixture',
+    video: 'session.mp4',
+    checkpoints: 'recording-checkpoints.jsonl',
+    limitations: [],
+    retained: true,
+  };
+  await assert.rejects(
+    assertVideoArtifact(root, summary, { minimumDurationMs: 2_000, maximumDurationMs: 1_000 }),
+    /Invalid video artifact geometry or duration validation bounds/,
+  );
 });
 
 export class SuccessfulMockRecorder implements Recorder {

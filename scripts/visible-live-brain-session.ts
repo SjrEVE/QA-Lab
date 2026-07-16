@@ -5,12 +5,14 @@ import { loadAuthVerification, hashAccountIdentity, normalizeAccountEmail } from
 import { speakVietnameseAudibly } from '../src/browser-speech.js';
 import { GuardedBrowserController } from '../src/browser-controller.js';
 import { loadConfig } from '../src/config.js';
+import { EdgeTtsClient } from '../src/edge-tts.js';
 import { createConfiguredGeminiStudentBrain } from '../src/gemini-student-brain.js';
 import { createRunId } from '../src/run-store.js';
 import type { BrainTurn, StudentBrainDecision } from '../src/student-brain.js';
 import { findStudentPersona, findStudentScenario } from '../src/student-contracts.js';
 import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile } from '../src/staging-profile.js';
 import { loadStagingResetConfig, StrictStagingResetAdapter } from '../src/staging-reset.js';
+import { playEncodedAudioAudibly } from '../src/tab-audio-capture.js';
 
 const LESSON_ID = 'G12_MATH_KNTT_CH01_L01';
 const RESET_SCOPE = 'g12-session-start-smoke';
@@ -72,6 +74,7 @@ async function main(): Promise<void> {
   const reset = await new StrictStagingResetAdapter({ config, resetConfig, env }).reset({ accountIdentityHash: verification.identityHash, scope: RESET_SCOPE });
   if (reset.status !== 'READY') throw new Error(`Strict reset blocked: ${reset.reason}`);
   const brain = createConfiguredGeminiStudentBrain(env, undefined, 'voice');
+  const edgeTts = new EdgeTtsClient();
 
   const runId = createRunId();
   const runDirectory = path.resolve(config.artifacts.root, runId);
@@ -89,6 +92,7 @@ async function main(): Promise<void> {
     headless: false,
     timeoutMs: 30_000,
     ...(appCheckDebugToken ? { appCheckDebugToken } : {}),
+    captureTabAudio: true,
     voice: { enabled: true, audible: true, permissions: ['microphone'] },
   });
 
@@ -180,8 +184,16 @@ async function main(): Promise<void> {
       }
       const speech = decision.actions.find((action) => action.action === 'speak');
       if (!speech || speech.action !== 'speak') throw new Error('QA Brain did not produce a bounded Vietnamese speaking turn.');
-      const audible = await speakVietnameseAudibly(page, speech.text);
-      if (!audible.locale.toLowerCase().startsWith('vi')) emit('voice_fallback', { turn, locale: audible.locale, reason: 'vi-VN system voice unavailable' });
+      let audible: { durationMs: number; locale: string };
+      try {
+        const synthesized = await edgeTts.synthesize(speech.text);
+        const played = await playEncodedAudioAudibly(page, synthesized.bytes, synthesized.mediaType);
+        audible = { durationMs: played.durationMs, locale: synthesized.voice.slice(0, 5) };
+        emit('qa_tts_complete', { turn, provider: 'edge-tts-qa-only', synthLatencyMs: synthesized.latencyMs, attempts: synthesized.attempts, playbackMs: played.durationMs });
+      } catch (ttsError) {
+        audible = await speakVietnameseAudibly(page, speech.text);
+        emit('voice_fallback', { turn, locale: audible.locale, reason: ttsError instanceof Error ? ttsError.message : 'Edge TTS unavailable' });
+      }
       history.push({ role: 'student', turn, text: speech.text });
       const previousTutor = tutorText;
       await textInput.fill(speech.text);
@@ -224,7 +236,7 @@ async function main(): Promise<void> {
     lessonId: LESSON_ID,
     scenarioId: scenario.id,
     brain: { name: brain.name, version: brain.version },
-    studentInputMode: 'audible-browser-tts-plus-text-submit',
+    studentInputMode: 'audible-edge-tts-with-browser-fallback-plus-text-submit',
     microphoneRecognitionTested: false,
     recordingEnabled: false,
     transcriptPersisted: false,

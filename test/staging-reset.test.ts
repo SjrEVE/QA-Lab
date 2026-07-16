@@ -88,6 +88,26 @@ test('HTTP reset uses a stable idempotency key and accepts only an exact strict 
   assert.equal(calls[0]?.url, 'https://stage.example.test/api/qa/reset');
 });
 
+test('matrix reset binds the exact lesson id into request and idempotency', async () => {
+  const calls: Array<{ init: RequestInit }> = [];
+  const matrixScope = 'live-lesson-matrix';
+  const lessonId = 'G12_MATH_KNTT_CD01_L01';
+  const resetConfig = stagingResetConfigSchema.parse({
+    version: 1, mode: 'http', expectedAccountIdentityHash: identityHash,
+    allowedScopes: [matrixScope], url: 'https://stage.example.test/api/qa/reset',
+  });
+  const adapter = new StrictStagingResetAdapter({
+    config, resetConfig, env: { QA_RESET_TOKEN: 'unit-test-placeholder-not-secret' },
+    httpClient: (_url, init) => { calls.push({ init }); return Promise.resolve(jsonResponse(validResponse({ scope: matrixScope }))); },
+  });
+  assert.equal((await adapter.reset({ accountIdentityHash: identityHash, scope: matrixScope, lessonId })).status, 'READY');
+  const rawBody = calls[0]?.init.body;
+  assert.equal(typeof rawBody, 'string');
+  const body = JSON.parse(rawBody as string) as Record<string, unknown>;
+  assert.equal(body.lessonId, lessonId);
+  assert.equal(body.idempotencyKey, new Headers(calls[0]?.init.headers).get('idempotency-key'));
+});
+
 test('2xx HTML, malformed JSON, extra fields, wrong account, and wrong scope are BLOCKED', async () => {
   const resetConfig = stagingResetConfigSchema.parse({
     version: 1,

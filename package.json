@@ -15,8 +15,8 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "lint": "eslint .",
     "test": "npm run test:unit && npm run test:browser",
-    "test:unit": "node --import tsx --test --test-concurrency=1 test/audio-routing.test.ts test/auth-bootstrap.test.ts test/authenticated-catalog-scenario.test.ts test/authenticated-session-scenario.test.ts test/browser-policy.test.ts test/config.test.ts test/control-center.test.ts test/education-eval.test.ts test/full-web-qa.test.ts test/gemini-student-brain.test.ts test/guided-self-study-scenario.test.ts test/model-arena-cohorts.test.ts test/phase10.test.ts test/recorder.test.ts test/redaction-logger.test.ts test/replay-regression.test.ts test/run-store.test.ts test/security.test.ts test/secret-scan.test.ts test/staging-profile.test.ts test/staging-reset.test.ts test/student-brain.test.ts test/student-contracts.test.ts test/voice-provider.test.ts test/web-scenario.test.ts",
-    "test:browser": "node --import tsx --test --test-concurrency=1 test/auth-bootstrap.integration.test.ts test/authenticated-catalog-qa.integration.test.ts test/authenticated-session-qa.integration.test.ts test/browser-controller.integration.test.ts test/guided-self-study-qa.integration.test.ts test/student-qa.test.ts test/web-qa-failures.test.ts test/web-qa.test.ts",
+    "test:unit": "node --import tsx --test --test-concurrency=1 test/audio-routing.test.ts test/auth-bootstrap.test.ts test/authenticated-catalog-scenario.test.ts test/authenticated-session-scenario.test.ts test/browser-policy.test.ts test/config.test.ts test/control-center.test.ts test/edge-tts.test.ts test/education-eval.test.ts test/full-web-qa.test.ts test/gemini-student-brain.test.ts test/guided-self-study-scenario.test.ts test/live-demo-contract.test.ts test/model-arena-cohorts.test.ts test/phase10.test.ts test/recorder.test.ts test/redaction-logger.test.ts test/replay-regression.test.ts test/run-store.test.ts test/security.test.ts test/secret-scan.test.ts test/staging-profile.test.ts test/staging-reset.test.ts test/student-brain.test.ts test/student-contracts.test.ts test/voice-provider.test.ts test/web-scenario.test.ts",
+    "test:browser": "node --import tsx --test --test-concurrency=1 test/auth-bootstrap.integration.test.ts test/authenticated-catalog-qa.integration.test.ts test/authenticated-session-qa.integration.test.ts test/browser-controller.integration.test.ts test/guided-self-study-qa.integration.test.ts test/student-qa.test.ts test/tab-audio-capture.integration.test.ts test/web-qa-failures.test.ts test/web-qa.test.ts",
     "test:coverage": "node --import tsx --test --test-concurrency=1 --experimental-test-coverage test/**/*.test.ts",
     "qa:browser:fixture": "tsx scripts/browser-fixture-smoke.ts --fixture-mode",
     "qa:web:fixture": "tsx scripts/web-fixture-e2e.ts --fixture-mode",
@@ -49,6 +49,9 @@
     "qa:self-study": "tsx src/cli.ts self-study",
     "qa:live:visible": "tsx scripts/visible-live-session.ts",
     "qa:live:brain": "tsx scripts/visible-live-brain-session.ts",
+    "qa:live:matrix": "tsx scripts/live-lesson-matrix.ts",
+    "qa:live:soak": "tsx scripts/live-soak-record.ts",
+    "qa:live:demos": "tsx scripts/live-soak-record.ts",
     "security:secrets": "tsx scripts/secret-scan.ts",
     "validate": "npm run lint && npm test && npm run build && npm run qa:doctor"
   },
@@ -58,6 +61,7 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
+    "@google/genai": "2.11.0",
     "dotenv": "^17.2.3",
     "playwright": "^1.61.1",
     "yaml": "^2.8.1",

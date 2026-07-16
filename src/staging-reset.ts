@@ -10,6 +10,7 @@ import { assertPrivatePath, loadStagingProfile, type StagingProfile } from './st
 
 const identityHashSchema = z.string().regex(/^sha256:[a-f0-9]{64}$/);
 const scopeSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{1,127}$/);
+const lessonIdSchema = z.string().regex(/^G\d+_[A-Z]+_[A-Z0-9_]+_L\d+$/);
 const envNameSchema = z.string().regex(/^[A-Z][A-Z0-9_]{2,127}$/);
 const commonResetConfig = {
   version: z.literal(1),
@@ -45,6 +46,7 @@ const resetResponseSchema = z.object({
 export interface StagingResetRequest {
   readonly accountIdentityHash: string;
   readonly scope: string;
+  readonly lessonId?: string;
 }
 
 export interface StagingResetResult {
@@ -77,8 +79,9 @@ function blocked(reason: string): StagingResetResult {
 }
 
 function idempotencyKey(request: StagingResetRequest): string {
+  const version = request.lessonId ? 'tutorproof-reset-v2' : 'tutorproof-reset-v1';
   return createHash('sha256')
-    .update(`tutorproof-reset-v1\0${request.accountIdentityHash}\0${request.scope}`)
+    .update(`${version}\0${request.accountIdentityHash}\0${request.scope}${request.lessonId ? `\0${request.lessonId}` : ''}`)
     .digest('hex');
 }
 
@@ -115,7 +118,8 @@ export class StrictStagingResetAdapter {
   public async reset(requestInput: StagingResetRequest): Promise<StagingResetResult> {
     let request: StagingResetRequest;
     try {
-      request = z.object({ accountIdentityHash: identityHashSchema, scope: scopeSchema }).strict().parse(requestInput);
+      const parsed = z.object({ accountIdentityHash: identityHashSchema, scope: scopeSchema, lessonId: lessonIdSchema.optional() }).strict().parse(requestInput);
+      request = { accountIdentityHash: parsed.accountIdentityHash, scope: parsed.scope, ...(parsed.lessonId ? { lessonId: parsed.lessonId } : {}) };
     } catch {
       return blocked('Reset request identity or scope is invalid.');
     }
@@ -159,6 +163,7 @@ export class StrictStagingResetAdapter {
           schemaVersion: 1,
           accountIdentityHash: request.accountIdentityHash,
           scope: request.scope,
+          ...(request.lessonId ? { lessonId: request.lessonId } : {}),
           idempotencyKey: key,
         }),
         redirect: 'error',
