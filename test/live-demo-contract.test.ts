@@ -34,6 +34,12 @@ const completePlayback: ResponsePlaybackResult = {
   pendingChunks: 0,
   scheduledAudioMs: 4_250,
   naturallyEndedAudioMs: 4_250,
+  pcmSampleCount: 102_000,
+  pcmPeakAmplitude: 0.71,
+  pcmRmsAmplitude: 0.12,
+  pcmNonSilentSampleRatio: 0.58,
+  maxInternalSilenceMs: 180,
+  pcmQualitySuspicious: false,
   playbackGapMs: 42,
   largestPlaybackGapMs: 24,
   playbackGapSuspicious: false,
@@ -81,11 +87,18 @@ test('audio acceptance rejects missing endings, stop, interruption, decode failu
     [{ explicitlyStopped: true }, /explicitly-stopped/],
     [{ decodeFailedChunks: 1 }, /decode-failures=1/],
     [{ pendingChunks: 1 }, /pending-chunks=1/],
+    [{ pcmSampleCount: 0 }, /missing-pcm-samples/],
+    [{ pcmPeakAmplitude: 0 }, /pcm-peak=0/],
+    [{ pcmRmsAmplitude: 0 }, /pcm-rms=0/],
+    [{ pcmNonSilentSampleRatio: 0 }, /pcm-non-silent-ratio=0/],
+    [{ maxInternalSilenceMs: 1_501 }, /internal-silence=1501ms/],
+    [{ pcmQualitySuspicious: true }, /suspicious-pcm-quality/],
     [{ playbackGapSuspicious: true }, /suspicious-playback-gap/],
     [{ largestPlaybackGapMs: 121 }, /largest-playback-gap=121ms/],
     [{ playbackGapMs: 251 }, /total-playback-gap=251ms/],
     [{ audioCoverageSuspicious: true }, /suspicious-audio-coverage/],
     [{ naturallyEndedAudioMs: 2_000 }, /audio-coverage=/],
+    [{ outputWordCount: 20, scheduledAudioMs: 3_000, naturallyEndedAudioMs: 3_000 }, /implausible-speech-rate=20\/3000ms/],
   ];
   for (const [change, expected] of failures) {
     assert.throws(() => assertCompleteResponsePlayback({ ...completePlayback, ...change }, 'tutor turn'), expected);
@@ -121,7 +134,9 @@ test('board is requested only on the profile turn that asks for a visual', () =>
 test('runner locks real Brain, audible identical text, two-click stop and media acceptance', async () => {
   const source = await readFile('scripts/live-soak-record.ts', 'utf8');
   assert.match(source, /createConfiguredGeminiStudentBrain\(env, undefined, 'voice'\)/);
-  assert.match(source, /scheduleEncodedAudioAudibly/);
+  assert.match(source, /playEncodedAudioAudibly/);
+  assert.doesNotMatch(source, /scheduleEncodedAudioAudibly/);
+  assert.match(source, /ended before its decoded audio duration/);
   assert.match(source, /inputValue\(\) !== studentText/);
   assert.match(source, /endButton\.click\(\)[\s\S]+endButton\.click\(\)/);
   assert.match(source, /\/api\/endLessonSession/);

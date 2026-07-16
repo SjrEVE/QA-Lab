@@ -72,6 +72,12 @@ export interface ResponsePlaybackResult {
   readonly pendingChunks: number;
   readonly scheduledAudioMs: number;
   readonly naturallyEndedAudioMs: number;
+  readonly pcmSampleCount: number;
+  readonly pcmPeakAmplitude: number;
+  readonly pcmRmsAmplitude: number;
+  readonly pcmNonSilentSampleRatio: number;
+  readonly maxInternalSilenceMs: number;
+  readonly pcmQualitySuspicious: boolean;
   readonly playbackGapMs: number;
   readonly largestPlaybackGapMs: number;
   readonly playbackGapSuspicious: boolean;
@@ -157,6 +163,12 @@ export function parseResponsePlaybackResult(line: string): ResponsePlaybackResul
     pendingChunks: requiredNumber(source, 'pendingChunks'),
     scheduledAudioMs: requiredNumber(source, 'scheduledAudioMs'),
     naturallyEndedAudioMs: requiredNumber(source, 'naturallyEndedAudioMs'),
+    pcmSampleCount: requiredNumber(source, 'pcmSampleCount'),
+    pcmPeakAmplitude: requiredNumber(source, 'pcmPeakAmplitude'),
+    pcmRmsAmplitude: requiredNumber(source, 'pcmRmsAmplitude'),
+    pcmNonSilentSampleRatio: requiredNumber(source, 'pcmNonSilentSampleRatio'),
+    maxInternalSilenceMs: requiredNumber(source, 'maxInternalSilenceMs'),
+    pcmQualitySuspicious: requiredBoolean(source, 'pcmQualitySuspicious'),
     playbackGapMs: requiredNumber(source, 'playbackGapMs'),
     largestPlaybackGapMs: requiredNumber(source, 'largestPlaybackGapMs'),
     playbackGapSuspicious: requiredBoolean(source, 'playbackGapSuspicious'),
@@ -182,6 +194,12 @@ export function assertCompleteResponsePlayback(result: ResponsePlaybackResult, l
   if (result.stoppedChunks > 0) failures.push(`stopped-chunks=${result.stoppedChunks}`);
   if (result.decodeFailedChunks > 0) failures.push(`decode-failures=${result.decodeFailedChunks}`);
   if (result.pendingChunks > 0) failures.push(`pending-chunks=${result.pendingChunks}`);
+  if (result.pcmSampleCount < 1) failures.push('missing-pcm-samples');
+  if (result.pcmPeakAmplitude < 0.001) failures.push(`pcm-peak=${result.pcmPeakAmplitude}`);
+  if (result.pcmRmsAmplitude < 0.0001) failures.push(`pcm-rms=${result.pcmRmsAmplitude}`);
+  if (result.pcmNonSilentSampleRatio < 0.005) failures.push(`pcm-non-silent-ratio=${result.pcmNonSilentSampleRatio}`);
+  if (result.maxInternalSilenceMs > 1_500) failures.push(`internal-silence=${result.maxInternalSilenceMs}ms`);
+  if (result.pcmQualitySuspicious) failures.push('suspicious-pcm-quality');
   if (result.playbackGapSuspicious) failures.push('suspicious-playback-gap');
   if (result.largestPlaybackGapMs > 120) failures.push(`largest-playback-gap=${result.largestPlaybackGapMs}ms`);
   if (result.playbackGapMs > 250) failures.push(`total-playback-gap=${result.playbackGapMs}ms`);
@@ -191,6 +209,8 @@ export function assertCompleteResponsePlayback(result: ResponsePlaybackResult, l
   if (result.explicitlyStopped) failures.push('explicitly-stopped');
   if (result.transcriptionTimedOut) failures.push('transcription-timeout');
   if (result.audioCoverageSuspicious) failures.push('suspicious-audio-coverage');
+  const minimumPlausibleAudioMs = result.outputWordCount > 0 ? (result.outputWordCount / 5) * 1_000 : 0;
+  if (result.naturallyEndedAudioMs < minimumPlausibleAudioMs) failures.push(`implausible-speech-rate=${result.outputWordCount}/${result.naturallyEndedAudioMs}ms`);
   const coverage = result.scheduledAudioMs > 0 ? result.naturallyEndedAudioMs / result.scheduledAudioMs : 0;
   if (coverage < 0.97 || coverage > 1.03) failures.push(`audio-coverage=${coverage.toFixed(3)}`);
   if (failures.length > 0) throw new Error(`${label} audio playback is incomplete: ${failures.join(', ')}.`);

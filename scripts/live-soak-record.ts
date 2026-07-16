@@ -30,7 +30,7 @@ import type { BrainTurn, StudentBrainDecision } from '../src/student-brain.js';
 import { findStudentPersona, findStudentScenario, type StudentPersona, type StudentScenario } from '../src/student-contracts.js';
 import { assertPrivatePath, loadStagingAppCheckDebugToken, loadStagingProfile, type StagingProfile } from '../src/staging-profile.js';
 import { loadStagingResetConfig, StrictStagingResetAdapter, type StagingResetConfig } from '../src/staging-reset.js';
-import { scheduleEncodedAudioAudibly } from '../src/tab-audio-capture.js';
+import { playEncodedAudioAudibly } from '../src/tab-audio-capture.js';
 
 const SCENARIO_ID = 'gia-su-ai-live-grade-12';
 const RESET_SCOPE = 'live-lesson-matrix';
@@ -379,8 +379,8 @@ async function runProfile(shared: SharedRunContext, profile: LiveDemoProfile): P
       const synthesisStartedAt = Date.now();
       const synthesized = await withTimeout(edgeTts.synthesize(studentText), 210_000, `turn ${turn} Edge TTS`);
       const ttsSynthesisMs = Date.now() - synthesisStartedAt;
-      const playback = await withTimeout(scheduleEncodedAudioAudibly(page, synthesized.bytes, synthesized.mediaType), 10_000, `turn ${turn} Edge TTS scheduling`);
-      await sleep(playback.decodedDurationMs + 150);
+      const playback = await withTimeout(playEncodedAudioAudibly(page, synthesized.bytes, synthesized.mediaType), 210_000, `turn ${turn} Edge TTS playback`);
+      if (playback.durationMs + 200 < playback.decodedDurationMs) throw new Error(`Turn ${turn} Edge TTS ended before its decoded audio duration.`);
       if (await textInput.inputValue() !== studentText) throw new Error(`Turn ${turn} text changed while the identical Edge TTS audio was playing.`);
 
       const previousTutorText = await currentTutorText(page);
