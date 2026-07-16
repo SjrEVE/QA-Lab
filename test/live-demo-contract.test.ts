@@ -59,7 +59,7 @@ test('three five-minute profiles use distinct approved Grade 12 lessons and exac
   const profiles = parseRequestedProfiles('all');
   assert.deepEqual(profiles.map((profile) => profile.key), ['talk', 'stuck', 'unsure']);
   assert.equal(new Set(profiles.map((profile) => profile.lessonId)).size, 3);
-  assert.ok(profiles.every((profile) => profile.minimumStudentTurns === 5));
+  assert.ok(profiles.every((profile) => profile.minimumStudentTurns === 8));
   assert.ok(profiles.every((profile) => profile.lessonId.startsWith('G12_MATH_KNTT_')));
   assert.deepEqual(profiles.map((profile) => profile.openingIntentSelector), [
     '[data-qa="opening-intent-talk"]',
@@ -139,11 +139,13 @@ test('latency telemetry separates startup scalars and per-turn provider breakdow
     '[realtime-demo] realtime_token_request_ms 420',
     '[realtime-demo] start_to_connected_ms {"durationMs":980}',
     '[realtime-demo] speech_end_to_first_ai_audio_ms 1350',
+    '[realtime-demo] first_audio_receipt_to_speaker_schedule_ms 18',
     '[realtime-demo] voice_latency_breakdown {"speechToToolMs":120,"toolToResponseMs":340,"responseToAudioMs":890,"ignored":"text"}',
   ]);
   assert.deepEqual(telemetry.scalarMs.realtime_token_request_ms, [420]);
   assert.deepEqual(telemetry.scalarMs.start_to_connected_ms, [980]);
   assert.deepEqual(telemetry.scalarMs.speech_end_to_first_ai_audio_ms, [1_350]);
+  assert.deepEqual(telemetry.scalarMs.first_audio_receipt_to_speaker_schedule_ms, [18]);
   assert.deepEqual(telemetry.voiceBreakdowns, [{ speechToToolMs: 120, toolToResponseMs: 340, responseToAudioMs: 890 }]);
 });
 
@@ -158,30 +160,33 @@ test('board is requested only on the profile turn that asks for a visual', () =>
   assert.equal(applyProfileVisualRequest(LIVE_DEMO_PROFILES.stuck, 3, 'Gia sư vẽ trên bảng giúp con nhé.'), 'Gia sư vẽ trên bảng giúp con nhé.');
 });
 
-test('runner locks real Brain, voice-aware identical input, two-click stop and media acceptance', async () => {
+test('runner locks real Brain to visible text, preserves tutor audio gates and stops in two clicks', async () => {
   const source = await readFile('scripts/live-soak-record.ts', 'utf8');
-  assert.match(source, /createConfiguredGeminiStudentBrain\(env, undefined, 'voice'\)/);
-  assert.match(source, /playEncodedAudioAudibly/);
-  assert.doesNotMatch(source, /scheduleEncodedAudioAudibly/);
-  assert.match(source, /ended before its decoded audio duration/);
+  assert.match(source, /createConfiguredGeminiStudentBrain\(env, undefined, 'text'\)/);
+  assert.doesNotMatch(source, /EdgeTtsClient|playEncodedAudioAudibly|scheduleEncodedAudioAudibly/);
   assert.match(source, /deliverTextFallback\(page, studentText\)/);
   assert.match(source, /document\.querySelectorAll<HTMLElement>/);
   assert.match(source, /document\.querySelector<HTMLElement>\('\.lesson-board-scene'\)/);
-  assert.match(source, /inputTranscriptionStarted\(controller\.runtime\(\)\.events, voiceEventIndex\)/);
   assert.match(source, /deliveryMode: TurnMetric\['deliveryMode'\]/);
-  assert.match(source, /without microphone transcription evidence/);
+  assert.match(source, /studentInputMode: 'visible-text'/);
+  assert.match(source, /qaStudentVoiceTested: false/);
+  assert.match(source, /tutorAudioAcceptanceTested: true/);
+  assert.match(source, /QA Student used visible text; student voice and microphone recognition were not tested\./);
   assert.match(source, /endButton\.click\(\)[\s\S]+endButton\.click\(\)/);
   assert.match(source, /\/api\/endLessonSession/);
   assert.match(source, /response\.status\(\) !== 200/);
   assert.match(source, /assertVideoArtifact\(runDirectory, recording/);
+  assert.match(source, /captureTabAudio: true/);
+  assert.match(source, /requireAudio: true/);
   assert.match(source, /minimumAudioCoverageRatio: LIVE_DEMO_MINIMUM_AUDIO_COVERAGE_RATIO/);
   assert.match(source, /assertNoAudioPlaybackWatchdog\(completeSessionConsole/);
   assert.match(source, /selectCatalogLesson\(page, profile\.lessonId\)/);
   assert.match(source, /\[data-qa="lesson-select"\]/);
   assert.match(source, /rawTranscriptPersisted: false/);
   assert.match(source, /providerOutputPersisted: false/);
+  assert.doesNotMatch(source, /const visibleText\s*=/);
   assert.doesNotMatch(source, /QA_BRAIN_GEMINI_API_KEY\s*=/);
   const finalTutorNavigation = source.indexOf('await controller.navigate(new URL(`/app/tutor?');
   const recorderStart = source.indexOf('await recorder.start(page);');
-  assert.ok(finalTutorNavigation >= 0 && recorderStart > finalTutorNavigation, 'Tab audio must start after the final tutor navigation.');
+  assert.ok(finalTutorNavigation >= 0 && recorderStart > finalTutorNavigation, 'Full-HD recording must start after the final tutor navigation.');
 });

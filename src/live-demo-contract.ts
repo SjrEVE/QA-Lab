@@ -13,7 +13,7 @@ export interface LiveDemoProfile {
   readonly lessonLabel: string;
   readonly openingIntentLabel: string;
   readonly openingIntentSelector: `[data-qa="opening-intent-${LiveDemoProfileKey}"]`;
-  readonly minimumStudentTurns: 5;
+  readonly minimumStudentTurns: 8;
   readonly visualRequestTurn: number | null;
   readonly visualRequestSuffix: string | null;
 }
@@ -26,7 +26,7 @@ export const LIVE_DEMO_PROFILES: Readonly<Record<LiveDemoProfileKey, LiveDemoPro
     lessonLabel: 'Bài 12. Tích phân',
     openingIntentLabel: 'Cứ nói chuyện trước',
     openingIntentSelector: '[data-qa="opening-intent-talk"]',
-    minimumStudentTurns: 5,
+    minimumStudentTurns: 8,
     visualRequestTurn: null,
     visualRequestSuffix: null,
   },
@@ -37,7 +37,7 @@ export const LIVE_DEMO_PROFILES: Readonly<Record<LiveDemoProfileKey, LiveDemoPro
     lessonLabel: 'Bài 1. Tính đơn điệu và cực trị của hàm số',
     openingIntentLabel: 'Con có bài đang bí',
     openingIntentSelector: '[data-qa="opening-intent-stuck"]',
-    minimumStudentTurns: 5,
+    minimumStudentTurns: 8,
     visualRequestTurn: 3,
     visualRequestSuffix: 'Gia sư minh họa bước này trên bảng giúp con nhé.',
   },
@@ -48,7 +48,7 @@ export const LIVE_DEMO_PROFILES: Readonly<Record<LiveDemoProfileKey, LiveDemoPro
     lessonLabel: 'Bài 4. Khảo sát sự biến thiên và vẽ đồ thị hàm số',
     openingIntentLabel: 'Con chưa biết bắt đầu',
     openingIntentSelector: '[data-qa="opening-intent-unsure"]',
-    minimumStudentTurns: 5,
+    minimumStudentTurns: 8,
     visualRequestTurn: 2,
     visualRequestSuffix: 'Gia sư vẽ hoặc minh họa ý này trên bảng giúp con nhé.',
   },
@@ -104,6 +104,7 @@ const LATENCY_MARKERS = Object.freeze([
   'start_to_connected_ms',
   'opening_authorization_ms',
   'speech_end_to_first_ai_audio_ms',
+  'first_audio_receipt_to_speaker_schedule_ms',
 ] as const);
 
 export type ProductLatencyMarker = typeof LATENCY_MARKERS[number];
@@ -218,6 +219,7 @@ export function assertCompleteResponsePlayback(result: ResponsePlaybackResult, l
   if (coverage < 0.97 || coverage > 1.03) failures.push(`audio-coverage=${coverage.toFixed(3)}`);
   if (failures.length > 0) throw new Error(`${label} audio playback is incomplete: ${failures.join(', ')}.`);
 }
+
 
 export function assertNoAudioPlaybackWatchdog(lines: readonly string[], label: string): void {
   if (lines.some((line) => line.includes('audio_playback_watchdog'))) {
